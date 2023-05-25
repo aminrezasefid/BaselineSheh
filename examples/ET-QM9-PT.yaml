@@ -59,7 +59,7 @@ trainable_rbf: false
 val_size: 10000
 weight_decay: 0.0
 output_model_noise: VectorOutput
-position_noise_scale: 0.04
+position_noise_scale: 0.8
 denoising_weight: 1.0
 layernorm_on_vec: null
 wandb_notes: ""
