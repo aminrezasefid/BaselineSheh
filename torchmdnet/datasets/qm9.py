@@ -183,7 +183,7 @@ class QM9(QM9_geometric): # dataset downloding and others processing
 
             data1 = Data(x=x, z=z, pos=pos, edge_index=edge_index,
                         edge_attr=edge_attr, y=y, name=name, idx=i)
-            pos2=torch.randn_like(data.pos) * 0.04 + pos
+            pos2=torch.randn_like(data1.pos) * 0.04 + pos
             
             data2 = Data(x=x, z=z, pos=pos2, edge_index=edge_index,
                         edge_attr=edge_attr, y=y, name=name+"_fake", idx=i)
