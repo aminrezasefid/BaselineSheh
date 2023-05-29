@@ -182,11 +182,11 @@ class QM9(QM9_geometric): # dataset downloding and others processing
             name = mol.GetProp('_Name')
 
             data1 = Data(x=x, z=z, pos=pos, edge_index=edge_index,
-                        edge_attr=edge_attr, y=y, name=name, idx=i)
+                        edge_attr=edge_attr, name=name, idx=i)
             pos2=torch.randn_like(data1.pos) * 0.04 + pos
             
             data2 = Data(x=x, z=z, pos=pos2, edge_index=edge_index,
-                        edge_attr=edge_attr, y=y, name=name+"_fake", idx=i)
+                        edge_attr=edge_attr, name=name+"_fake", idx=i)
 
             if self.pre_filter is not None and not self.pre_filter(data1) and not self.pre_filter(data2):
                 continue
