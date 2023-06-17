@@ -81,7 +81,7 @@ class LNNP(LightningModule):
             pred, noise_pred,eta, deriv = self(batch.z, batch.pos, batch.batch)
 
         denoising_is_on = ("pos_target" in batch) and (self.hparams.denoising_weight > 0) and (noise_pred is not None)
-
+        denoising_is_on =True
         loss_y, loss_dy, loss_pos = 0, 0, 0
         if self.hparams.derivative:
             if "y" not in batch:
