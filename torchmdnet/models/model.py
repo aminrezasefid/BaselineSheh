@@ -26,8 +26,6 @@ class MyDDPM(nn.Module):
         a_bar=a_bar.to(eta.device)
         if eta is None:
             eta = torch.randn(n, p)
-        print(eta.device)
-        print(pos.device)
         noisy = a_bar.sqrt().reshape(n, 1) * pos + (1 - a_bar).sqrt().reshape(n,1) * eta
         return noisy
  
