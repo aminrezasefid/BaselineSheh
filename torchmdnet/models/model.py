@@ -23,6 +23,7 @@ class MyDDPM(nn.Module):
         # Make input image more noisy (we can directly skip to the desired step)
         n, p = pos.shape
         a_bar = self.alpha_bars[t.long()]
+        a_bar=a_bar.to(eta.device)
         if eta is None:
             eta = torch.randn(n, p)
         print(eta.device)
