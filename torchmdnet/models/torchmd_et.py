@@ -172,8 +172,8 @@ class TorchMD_ET(nn.Module):
 
     def forward(self, z, pos, batch):
         n=pos.shape[0]
-        eta = torch.randn_like(pos)
-        t = torch.randint(0, self.n_steps, (n,1))
+        eta = torch.randn_like(pos,device=pos.device)
+        t = torch.randint(0, self.n_steps, (n,),device=pos.device)
         pos=self.ddp(pos,t,eta)
         time_embedding=self.time_embed(t)
         x = self.embedding(z)
