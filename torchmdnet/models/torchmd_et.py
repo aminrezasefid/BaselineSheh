@@ -106,6 +106,7 @@ class TorchMD_ET(nn.Module):
         act_class = act_class_mapping[activation]
 
         self.ddp=MyDDPM()
+        self.ddp.to(self.device)
         self.time_embed = nn.Embedding(n_steps, hidden_channels)
         self.time_embed.weight.data = sinusoidal_embedding(n_steps, hidden_channels)
         self.time_embed.requires_grad_(False)
