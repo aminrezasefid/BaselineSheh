@@ -11,6 +11,34 @@ from torchmdnet import priors
 import warnings
 
 
+class MyDDPM(nn.Module):
+    def __init__(self, n_steps=2, min_beta=0.04, max_beta=0.08):
+        super(MyDDPM, self).__init__()
+        self.n_steps = n_steps
+        self.betas = torch.linspace(min_beta, max_beta, n_steps)  # Number of steps is typically in the order of thousands
+        self.alphas = 1 - self.betas
+        self.alpha_bars = torch.tensor([torch.prod(self.alphas[:i + 1]) for i in range(len(self.alphas))])
+
+    def forward(self, pos, t, eta=None):
+        # Make input image more noisy (we can directly skip to the desired step)
+        n, p = pos.shape
+        a_bar = self.alpha_bars[t.long()]
+        if eta is None:
+            eta = torch.randn(n, p)
+        noisy = a_bar.sqrt().reshape(n, 1) * pos + (1 - a_bar).sqrt().reshape(n,1) * eta
+        return noisy
+ 
+def sinusoidal_embedding(n, d):
+    # Returns the standard positional embedding
+    embedding = torch.zeros(n, d)
+    wk = torch.tensor([1 / 10_000 ** (2 * j / d) for j in range(d)])
+    wk = wk.reshape((1, d))
+    t = torch.arange(n).reshape((n, 1))
+    embedding[:,::2] = torch.sin(t * wk[:,::2])
+    embedding[:,1::2] = torch.cos(t * wk[:,::2])
+
+    return embedding
+
 def create_model(args, prior_model=None, mean=None, std=None):
     shared_args = dict(
         hidden_channels=args["embedding_dimension"],
@@ -189,7 +217,7 @@ class TorchMD_Net(nn.Module):
             pos.requires_grad_(True)
 
         # run the potentially wrapped representation model
-        x, v, z, pos, batch = self.representation_model(z, pos, batch=batch)
+        x, v, z, pos, batch,eta = self.representation_model(z, pos, batch=batch)
 
         # predict noise
         noise_pred = None
@@ -229,9 +257,9 @@ class TorchMD_Net(nn.Module):
             )[0]
             if dy is None:
                 raise RuntimeError("Autograd returned None for the force prediction.")
-            return out, noise_pred, -dy
+            return out, noise_pred, -dy,eta
         # TODO: return only `out` once Union typing works with TorchScript (https://github.com/pytorch/pytorch/pull/53180)
-        return out, noise_pred, None
+        return out, noise_pred, eta,None
 
 
 class AccumulatedNormalization(nn.Module):

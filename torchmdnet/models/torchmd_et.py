@@ -10,6 +10,7 @@ from torchmdnet.models.utils import (
     rbf_class_mapping,
     act_class_mapping,
 )
+from torchmdnet.models.model import (MyDDPM, sinusoidal_embedding)
 from torch.nn.parameter import Parameter
 
 
@@ -69,6 +70,7 @@ class TorchMD_ET(nn.Module):
         max_z=100,
         max_num_neighbors=32,
         layernorm_on_vec=None,
+        n_steps=2,
     ):
         super(TorchMD_ET, self).__init__()
 
@@ -100,8 +102,19 @@ class TorchMD_ET(nn.Module):
         self.cutoff_upper = cutoff_upper
         self.max_z = max_z
         self.layernorm_on_vec = layernorm_on_vec
-
+        self.n_steps=n_steps
         act_class = act_class_mapping[activation]
+
+        self.ddp=MyDDPM()
+        self.time_embed = nn.Embedding(n_steps, hidden_channels)
+        self.time_embed.weight.data = sinusoidal_embedding(n_steps, hidden_channels)
+        self.time_embed.requires_grad_(False)
+        self.time_proj=nn.Sequential(
+                 nn.Linear(hidden_channels, hidden_channels),
+                 nn.SiLU(),
+                 nn.Linear(hidden_channels, hidden_channels)
+                 )
+        self.combine_time=nn.Linear(2*hidden_channels, hidden_channels)
 
         self.embedding = nn.Embedding(self.max_z, hidden_channels)
 
@@ -158,8 +171,14 @@ class TorchMD_ET(nn.Module):
             self.out_norm_vec.reset_parameters()
 
     def forward(self, z, pos, batch):
+        n=pos.shape[0]
+        eta = torch.randn_like(pos)
+        t = torch.randint(0, self.n_steps, (n,))
+        pos=self.ddp(pos,t,eta)
+        time_embedding=self.time_embed(t)
         x = self.embedding(z)
-
+        
+        
         edge_index, edge_weight, edge_vec = self.distance(pos, batch)
         assert (
             edge_vec is not None
@@ -171,7 +190,7 @@ class TorchMD_ET(nn.Module):
 
         if self.neighbor_embedding is not None:
             x = self.neighbor_embedding(z, x, edge_index, edge_weight, edge_attr)
-
+        x = self.combine_time(torch.cat([x, time_embedding], dim=1))
         vec = torch.zeros(x.size(0), 3, x.size(1), device=x.device)
 
         for attn in self.attention_layers:
@@ -182,7 +201,7 @@ class TorchMD_ET(nn.Module):
         if self.layernorm_on_vec:
             vec = self.out_norm_vec(vec)
 
-        return x, vec, z, pos, batch
+        return x, vec, z, pos, batch,eta
 
     def __repr__(self):
         return (

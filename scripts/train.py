@@ -179,7 +179,7 @@ def main():
 
     ddp_plugin = None
     if "ddp" in args.distributed_backend:
-        ddp_plugin = DDPPlugin(find_unused_parameters=False, num_nodes=args.num_nodes)
+        ddp_plugin = DDPPlugin(find_unused_parameters=True, num_nodes=args.num_nodes)
 
     trainer = pl.Trainer(
         max_epochs=args.num_epochs,
@@ -191,7 +191,9 @@ def main():
         auto_lr_find=False,
         resume_from_checkpoint=args.load_model,
         callbacks=[early_stopping, checkpoint_callback],
-        logger=[tb_logger, csv_logger, wandb_logger],
+        logger=[tb_logger, csv_logger,
+         wandb_logger
+        ],
         reload_dataloaders_every_epoch=False,
         precision=args.precision,
         plugins=[ddp_plugin],

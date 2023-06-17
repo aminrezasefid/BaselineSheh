@@ -78,7 +78,7 @@ class LNNP(LightningModule):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
             # TODO: the model doesn't necessarily need to return a derivative once
             # Union typing works under TorchScript (https://github.com/pytorch/pytorch/pull/53180)
-            pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch)
+            pred, noise_pred,eta, deriv = self(batch.z, batch.pos, batch.batch)
 
         denoising_is_on = ("pos_target" in batch) and (self.hparams.denoising_weight > 0) and (noise_pred is not None)
 
@@ -137,7 +137,7 @@ class LNNP(LightningModule):
                 noise_pred = noise_pred + pred.sum() * 0
                 
             #normalized_pos_target = self.model.pos_normalizer(batch.pos_target)
-            loss_pos = loss_fn(noise_pred, batch.pos_target)
+            loss_pos = loss_fn(noise_pred, eta)
             self.losses[stage + "_pos"].append(loss_pos.detach())
 
         # total loss
