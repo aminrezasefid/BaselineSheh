@@ -162,7 +162,6 @@ class TorchMD_ET(nn.Module):
     def reset_parameters(self):
         self.embedding.reset_parameters()
         self.distance_expansion.reset_parameters()
-        self.ddp.reset_parameters()
         if self.neighbor_embedding is not None:
             self.neighbor_embedding.reset_parameters()
         for attn in self.attention_layers:
@@ -173,8 +172,8 @@ class TorchMD_ET(nn.Module):
 
     def forward(self, z, pos, batch):
         n=pos.shape[0]
-        eta = torch.randn_like(pos,device=pos.device)
-        t = torch.randint(0, self.n_steps, (n,))
+        eta = torch.randn_like(pos)
+        t = torch.randint(0, self.n_steps, (n,1))
         pos=self.ddp(pos,t,eta)
         time_embedding=self.time_embed(t)
         x = self.embedding(z)
