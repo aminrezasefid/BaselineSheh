@@ -12,7 +12,7 @@ import warnings
 
 
 class MyDDPM(nn.Module):
-    def __init__(self, n_steps=2, min_beta=0.04, max_beta=0.08):
+    def __init__(self, n_steps=1, min_beta=0.04, max_beta=0.08):
         super(MyDDPM, self).__init__()
         self.n_steps = n_steps
         self.betas = torch.linspace(min_beta, max_beta, n_steps)  # Number of steps is typically in the order of thousands
