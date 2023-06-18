@@ -70,7 +70,7 @@ class TorchMD_ET(nn.Module):
         max_z=100,
         max_num_neighbors=32,
         layernorm_on_vec=None,
-        n_steps=2,
+        n_steps=1,
     ):
         super(TorchMD_ET, self).__init__()
 
