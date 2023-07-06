@@ -2,7 +2,7 @@ import torch
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
 from torch.nn.functional import mse_loss, l1_loss
-
+from torch_scatter import scatter
 from pytorch_lightning import LightningModule
 from torchmdnet.models.model import create_model, load_model
 
@@ -11,7 +11,7 @@ class LNNP(LightningModule):
     def __init__(self, hparams, prior_model=None, mean=None, std=None):
         super(LNNP, self).__init__()
         self.save_hyperparameters(hparams)
-
+        self.result={"name":[],"weight":[],"label":[],"pred":[],"mae":[]}
         if self.hparams.load_model:
             self.model = load_model(self.hparams.load_model, args=self.hparams)
         elif self.hparams.pretrained_model:
@@ -72,14 +72,27 @@ class LNNP(LightningModule):
         return self.step(batch, l1_loss, "test")
 
     def test_step(self, batch, batch_idx):
-        return self.step(batch, l1_loss, "test")
-
+        self.result["name"].extend(batch.name)
+        weights=scatter(batch.z, batch.batch,dim=0,reduce="sum")
+        self.result["weight"].extend(weights.tolist())
+        self.result["label"].extend(batch.y.squeeze(dim=1).tolist())
+        preds=self.step(batch, l1_loss, "test")
+        self.result["pred"].extend(preds.squeeze(dim=1).tolist())
+        mae = torch.abs(preds- batch.y).squeeze(dim=1)
+        self.result["mae"].extend(mae.tolist())
+        return self.result
+    def test_epoch_end(self, validation_step_output_result):
+        import pandas as pd
+        df=pd.DataFrame.from_dict(self.result)
+        name=self.hparams.dataset_arg
+        df.to_csv(name+".csv")
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
             # TODO: the model doesn't necessarily need to return a derivative once
             # Union typing works under TorchScript (https://github.com/pytorch/pytorch/pull/53180)
             pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch)
-
+        if stage == "test":
+            return pred
         denoising_is_on = ("pos_target" in batch) and (self.hparams.denoising_weight > 0) and (noise_pred is not None)
 
         loss_y, loss_dy, loss_pos = 0, 0, 0
