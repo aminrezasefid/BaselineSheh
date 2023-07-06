@@ -173,6 +173,7 @@ def main():
     )
     import torch_geometric.loader as loader
     test_loader=loader.dataloader.DataLoader(data.test_dataset,batch_size=args.batch_size)
+    model.eval()
     trainer.test(model,test_loader)
     # run test set after completing the fit
 
