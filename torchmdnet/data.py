@@ -33,6 +33,7 @@ class DataModule(LightningDataModule):
                         noise = torch.randn_like(data.pos) * self.hparams['position_noise_scale']
                         data.pos_target = noise
                         data.pos = data.pos + noise
+                        data.wl=data.z.sum()/74
                         return data
                 else:
                     transform = None

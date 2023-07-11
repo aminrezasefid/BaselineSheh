@@ -5,7 +5,13 @@ from torch.nn.functional import mse_loss, l1_loss
 
 from pytorch_lightning import LightningModule
 from torchmdnet.models.model import create_model, load_model
-
+def weighted_mse_loss(input, target, weight=None):
+    loss=None
+    if weight==None:
+        loss= mse_loss(input, target)
+    else:
+        loss= torch.mean(weight * (input - target) ** 2)
+    return loss
 
 class LNNP(LightningModule):
     def __init__(self, hparams, prior_model=None, mean=None, std=None):
@@ -62,7 +68,7 @@ class LNNP(LightningModule):
         return self.model(z, pos, batch=batch)
 
     def training_step(self, batch, batch_idx):
-        return self.step(batch, mse_loss, "train")
+        return self.step(batch, weighted_mse_loss, "train")
 
     def validation_step(self, batch, batch_idx, *args):
         if len(args) == 0 or (len(args) > 0 and args[0] == 0):
@@ -116,8 +122,10 @@ class LNNP(LightningModule):
                 batch.y = batch.y.unsqueeze(1)
 
             # energy/prediction loss
-            loss_y = loss_fn(pred, batch.y)
-
+            if stage=="train":
+                loss_y = loss_fn(pred, batch.y,batch.wl)
+            else:
+                loss_y = loss_fn(pred, batch.y)
             if stage in ["train", "val"] and self.hparams.ema_alpha_y < 1:
                 if self.ema[stage + "_y"] is None:
                     self.ema[stage + "_y"] = loss_y.detach()
