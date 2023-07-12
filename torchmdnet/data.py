@@ -17,7 +17,14 @@ class DataModule(LightningDataModule):
         self._mean, self._std = None, None
         self._saved_dataloaders = dict()
         self.dataset = dataset
-
+        self.weights_dic=self.GetWeightsDic()
+    def GetWeightsDic(self):
+        import pandas as pd
+        df=pd.read_csv("wc.csv",index_col=0)
+        max_=df["count"].max()
+        df["rel_weight"]=max_/df["weight"]
+        weight_dic=df.drop("count",axis=1).set_index("weight").to_dict()
+        return weight_dic
     def setup(self, stage):
         if self.dataset is None:
             if self.hparams["dataset"] == "Custom":
@@ -33,7 +40,7 @@ class DataModule(LightningDataModule):
                         noise = torch.randn_like(data.pos) * self.hparams['position_noise_scale']
                         data.pos_target = noise
                         data.pos = data.pos + noise
-                        data.wl=data.z.sum()/74
+                        data.wl=self.weights_dic["rel_weight"][int(data.z.sum())]
                         return data
                 else:
                     transform = None
