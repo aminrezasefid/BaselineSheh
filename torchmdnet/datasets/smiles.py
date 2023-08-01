@@ -46,11 +46,11 @@ class SMILES(InMemoryDataset):
     @property
     def raw_file_names(self) -> List[str]:
         return ['smiles.csv']
-    def get_MMFF_mol(self,mol):
+    def get_MMFF_mol(self,mol,numConfs=1):
         try:
             new_mol = Chem.AddHs(mol)
-            res = AllChem.EmbedMolecule(new_mol)
-            res = AllChem.UFFOptimizeMolecule(new_mol)
+            res = AllChem.EmbedMultipleConfs(new_mol, numConfs=numConfs)
+            res = AllChem.MMFFOptimizeMoleculeConfs(new_mol)
         except:
             return None
         return new_mol
@@ -80,16 +80,16 @@ class SMILES(InMemoryDataset):
         data_list = []
         broken_smiles=[]
         non_conf_count=0
+        idx=0
         for i, smile in enumerate(tqdm(self.smiles_list)):
             mol = AllChem.MolFromSmiles(smile)
-            mol = self.get_MMFF_mol(mol)
+            mol = self.get_MMFF_mol(mol,10)
             if mol is None:
                 non_conf_count+=1
                 broken_smiles.append(smile)
                 continue
             N = mol.GetNumAtoms()
-            pos=mol.GetConformer().GetPositions()
-            pos = torch.tensor(pos, dtype=torch.float)
+            
             type_idx = []
             atomic_number = []
             aromatic = []
@@ -137,14 +137,19 @@ class SMILES(InMemoryDataset):
             name=smile
             #data = Data(x=x, z=z, pos=pos, edge_index=edge_index,
             #            edge_attr=edge_attr, y=y, name=name, idx=i)
-            data = Data(x=x, z=z, pos=pos, edge_index=edge_index,
-                        edge_attr=edge_attr, name=name, idx=i)
-            if self.pre_filter is not None and not self.pre_filter(data):
-                continue
-            if self.pre_transform is not None:
-                data = self.pre_transform(data)
+            confNums=mol.GetNumConformers()
+            for confId in range(confNums):
+                pos=mol.GetConformer().GetPositions()
+                pos = torch.tensor(pos, dtype=torch.float)
+                data = Data(x=x, z=z, pos=pos, edge_index=edge_index,
+                            edge_attr=edge_attr, name=f"{confId}-{name}", idx=idx)
+                idx+=1
+                if self.pre_filter is not None and not self.pre_filter(data):
+                    continue
+                if self.pre_transform is not None:
+                    data = self.pre_transform(data)
 
-            data_list.append(data)
+                data_list.append(data)
         print(f"{str(non_conf_count)} smiles couldn't generate conformer.")
 
         torch.save(self.collate(data_list), self.processed_paths[0])
