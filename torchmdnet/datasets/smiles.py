@@ -20,10 +20,12 @@ from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 class SMILES(InMemoryDataset):
     def __init__(self, root: str, transform: Optional[Callable] = None,types=None,bonds=None,
-                 pre_transform: Optional[Callable] = None,
+                 pre_transform: Optional[Callable] = None,num_confs=1,
                  pre_filter: Optional[Callable] = None, dataset_arg: Optional[str] = None):
         self.types=types
         self.bonds=bonds
+        self.num_confs=num_confs
+        print(self.num_confs)
         super().__init__(root, transform, pre_transform, pre_filter)
         self.data, self.slices = torch.load(self.processed_paths[0])
     # def __init__(self,root, transform=None, dataset_arg=None):
@@ -83,7 +85,7 @@ class SMILES(InMemoryDataset):
         idx=0
         for i, smile in enumerate(tqdm(self.smiles_list)):
             mol = AllChem.MolFromSmiles(smile)
-            mol = self.get_MMFF_mol(mol,10)
+            mol = self.get_MMFF_mol(mol,self.num_confs)
             if mol is None:
                 non_conf_count+=1
                 broken_smiles.append(smile)

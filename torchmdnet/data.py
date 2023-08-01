@@ -37,7 +37,7 @@ class DataModule(LightningDataModule):
                 else:
                     transform = None
 
-                dataset_factory = lambda t: getattr(datasets, self.hparams["dataset"])(self.hparams["dataset_root"], dataset_arg=self.hparams["dataset_arg"], transform=t)
+                dataset_factory = lambda t: getattr(datasets, self.hparams["dataset"])(self.hparams["dataset_root"], dataset_arg=self.hparams["dataset_arg"], transform=t,num_confs=self.hparams["conf_num"])
 
                 # Noisy version of dataset
                 self.dataset_maybe_noisy = dataset_factory(transform)
