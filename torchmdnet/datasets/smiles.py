@@ -74,7 +74,7 @@ class SMILES(InMemoryDataset):
             torch.save(self.collate(data_list), self.processed_paths[0])
             return
         if self.types is None:
-            types = {'H': 0, 'C': 1, 'N': 2, 'O': 3, 'F': 4,'Cl':5,'S':6,'Br':7,'I':8,'P':9}
+            types = {'H': 0, 'C': 1, 'N': 2, 'O': 3, 'F': 4,'Cl':5,'S':6,'Br':7,'I':8,'P':9,'Si':10}
         if self.bonds is None:
             bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
         data_list = []
