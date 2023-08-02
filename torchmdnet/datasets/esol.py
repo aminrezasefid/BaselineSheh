@@ -10,7 +10,7 @@ import torch.nn.functional as F
 from torch_scatter import scatter
 from torch_geometric.data import (InMemoryDataset, download_url, extract_zip,
                                   Data)
-
+import pandas as pd
 import rdkit
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -18,7 +18,7 @@ from rdkit.Chem.rdchem import HybridizationType
 from rdkit.Chem.rdchem import BondType as BT
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
-class SMILES(InMemoryDataset):
+class ESOL(InMemoryDataset):
     def __init__(self, root: str, transform: Optional[Callable] = None,types=None,bonds=None,
                  pre_transform: Optional[Callable] = None,num_confs=1,
                  pre_filter: Optional[Callable] = None, dataset_arg: Optional[str] = None):
@@ -27,26 +27,12 @@ class SMILES(InMemoryDataset):
         self.num_confs=num_confs
         super().__init__(root, transform, pre_transform, pre_filter)
         self.data, self.slices = torch.load(self.processed_paths[0])
-    # def __init__(self,root, transform=None, dataset_arg=None):
-    #     self.root=root
-    #     self.label = dataset_arg
-    #     self.smiles_list=self.load_smiles()
-    #     super().__init__(root=root, transform=transform)
-        #self.data, self.slices = torch.load(self.processed_paths[0])
-    def load_smiles(self):
-        files = sorted(glob('%s/*.smiles' % (self.root+'/raw')))
-        data_list = []
-        for file in files:
-            with open(file, 'r') as f:
-                tmp_data_list = [line.strip() for line in f.readlines()]
-            data_list.extend(tmp_data_list)
-        return data_list
     @property
     def processed_file_names(self) -> str:
         return ['data_v3.pt','broken_smiles.pt']
     @property
     def raw_file_names(self) -> List[str]:
-        return ['smiles.csv']
+        return ['delaney-processed.csv']
     def get_MMFF_mol(self,mol,numConfs=1):
         try:
             new_mol = Chem.AddHs(mol)
@@ -56,8 +42,10 @@ class SMILES(InMemoryDataset):
             return None
         return new_mol
     def process(self):
-        self.smiles_list=self.load_smiles()
-
+        df=pd.read_csv(self.raw_paths[0])
+        self.smiles_list=list(df["smiles"])
+        target = df["measured log solubility in mols per litre"]
+        target = torch.tensor(target,dtype=torch.float)
         if rdkit is None:
             print(("Using a pre-processed version of the dataset. Please "
                    "install 'rdkit' to alternatively process the raw data."),
@@ -142,7 +130,7 @@ class SMILES(InMemoryDataset):
             for confId in range(confNums):
                 pos=mol.GetConformer().GetPositions()
                 pos = torch.tensor(pos, dtype=torch.float)
-                data = Data(x=x, z=z, pos=pos, edge_index=edge_index,
+                data = Data(x=x, z=z, pos=pos, edge_index=edge_index,y=target[i],
                             edge_attr=edge_attr, name=f"{confId}-{name}", idx=idx)
                 idx+=1
                 if self.pre_filter is not None and not self.pre_filter(data):
