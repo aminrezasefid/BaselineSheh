@@ -54,7 +54,7 @@ save_interval: 10
 splits: null
 standardize: true
 test_interval: 10
-test_size: null
+test_size: 100
 train_size: null
 trainable_rbf: false
 val_size: 10000
