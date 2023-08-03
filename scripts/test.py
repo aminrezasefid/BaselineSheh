@@ -69,6 +69,7 @@ def get_args():
     parser.add_argument('--position-noise-scale', default=0., type=float, help='Scale of Gaussian noise added to positions.')
     parser.add_argument('--denoising-weight', default=0., type=float, help='Weighting factor for denoising in the loss function.')
     parser.add_argument('--denoising-only', type=bool, default=False, help='If the task is denoising only (then val/test datasets also contain noise).')
+    parser.add_argument('--conf-num', type=int, default=1, help='Number of conformer per smiles')
 
     # model architecture
     parser.add_argument('--model', type=str, default='graph-network', choices=models.__all__, help='Which model to train')
