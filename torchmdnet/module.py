@@ -11,7 +11,7 @@ class LNNP(LightningModule):
     def __init__(self, hparams, prior_model=None, mean=None, std=None):
         super(LNNP, self).__init__()
         self.save_hyperparameters(hparams)
-
+        self.result={"name":[],"weight":[],"label":[],"pred":[],"mae":[]}
         if self.hparams.load_model:
             self.model = load_model(self.hparams.load_model, args=self.hparams)
         elif self.hparams.pretrained_model:
@@ -72,8 +72,18 @@ class LNNP(LightningModule):
         return self.step(batch, l1_loss, "test")
 
     def test_step(self, batch, batch_idx):
-        return self.step(batch, l1_loss, "test")
-
+        self.result["name"].extend(batch.name)
+        self.result["label"].extend(batch.y.squeeze(dim=1).tolist())
+        preds=self.step(batch, l1_loss, "test")
+        self.result["pred"].extend(preds.squeeze(dim=1).tolist())
+        mae = torch.abs(preds- batch.y).squeeze(dim=1)
+        self.result["mae"].extend(mae.tolist())
+        return self.result
+    def test_epoch_end(self, validation_step_output_result):
+        import pandas as pd
+        df=pd.DataFrame.from_dict(self.result)
+        name=self.hparams.dataset_arg
+        df.to_csv(name+self.hparams.job_id+".csv")
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
             # TODO: the model doesn't necessarily need to return a derivative once
