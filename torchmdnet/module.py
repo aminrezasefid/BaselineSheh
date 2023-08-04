@@ -180,6 +180,9 @@ class LNNP(LightningModule):
 
     # TODO(shehzaidi): clean up this function, redundant logging if dy loss exists.
     def validation_epoch_end(self, validation_step_outputs):
+        test_loss=torch.stack(self.losses["test"]).mean()
+        print(test_loss)
+    def validation_epoch_end(self, validation_step_outputs):
         if not self.trainer.running_sanity_check:
             # construct dict of logged metrics
             result_dict = {
