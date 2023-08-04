@@ -65,11 +65,8 @@ class LNNP(LightningModule):
         return self.step(batch, mse_loss, "train")
 
     def validation_step(self, batch, batch_idx, *args):
-        if len(args) == 0 or (len(args) > 0 and args[0] == 0):
-            # validation step
-            return self.step(batch, mse_loss, "val")
-        # test step
-        return self.step(batch, l1_loss, "test")
+        return self.step(batch, mse_loss, "val")
+      
 
     def test_step(self, batch, batch_idx):
         return self.step(batch, l1_loss, "test")
