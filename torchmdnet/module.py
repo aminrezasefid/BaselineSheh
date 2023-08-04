@@ -69,7 +69,7 @@ class LNNP(LightningModule):
       
 
     def test_step(self, batch, batch_idx):
-        return self.step(batch, l1_loss, "test")
+        return self.step(batch, mse_loss, "test")
 
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
