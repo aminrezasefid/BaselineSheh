@@ -4,8 +4,84 @@ import numpy as np
 import torch
 from os.path import dirname, join, exists
 from pytorch_lightning.utilities import rank_zero_warn
+from rdkit.Chem.Scaffolds import MurckoScaffold
+def generate_scaffold(smiles, include_chirality=False):
+    """
+    Obtain Bemis-Murcko scaffold from smiles
 
+    Args:
+        smiles: smiles sequence
+        include_chirality: Default=False
+    
+    Return: 
+        the scaffold of the given smiles.
+    """
+    scaffold = MurckoScaffold.MurckoScaffoldSmiles(
+        smiles=smiles, includeChirality=include_chirality)
+    return scaffold
+def scaffold_split( dataset, 
+            frac_train=None, 
+            frac_valid=None, 
+            frac_test=None):
+    N = len(dataset)
 
+    # create dict of the form {scaffold_i: [idx1, idx....]}
+    all_scaffolds = {}
+    for i in range(N):
+        datapoint=dataset[i]
+        smi=datapoint['name']
+        smi=smi[2:]
+        scaffold = generate_scaffold(smi, include_chirality=True)
+        if scaffold not in all_scaffolds:
+            all_scaffolds[scaffold] = [i]
+        else:
+            all_scaffolds[scaffold].append(i)
+
+    # sort from largest to smallest sets
+    all_scaffolds = {key: sorted(value) for key, value in all_scaffolds.items()}
+    all_scaffold_sets = [
+        scaffold_set for (scaffold, scaffold_set) in sorted(
+            all_scaffolds.items(), key=lambda x: (len(x[1]), x[1][0]), reverse=True)
+    ]
+
+    # get train, valid test indices
+    train_cutoff = frac_train * N
+    valid_cutoff = (frac_train + frac_valid) * N
+    train_idx, valid_idx, test_idx = [], [], []
+    for scaffold_set in all_scaffold_sets:
+        if len(train_idx) + len(scaffold_set) > train_cutoff:
+            if len(train_idx) + len(valid_idx) + len(scaffold_set) > valid_cutoff:
+                test_idx.extend(scaffold_set)
+            else:
+                valid_idx.extend(scaffold_set)
+        else:
+            train_idx.extend(scaffold_set)
+
+    assert len(set(train_idx).intersection(set(valid_idx))) == 0
+    assert len(set(test_idx).intersection(set(valid_idx))) == 0
+
+    # get train, valid test indices
+    train_cutoff = frac_train * N
+    valid_cutoff = (frac_train + frac_valid) * N
+    train_idx, valid_idx, test_idx = [], [], []
+    for scaffold_set in all_scaffold_sets:
+        if len(train_idx) + len(scaffold_set) > train_cutoff:
+            if len(train_idx) + len(valid_idx) + len(scaffold_set) > valid_cutoff:
+                test_idx.extend(scaffold_set)
+            else:
+                valid_idx.extend(scaffold_set)
+        else:
+            train_idx.extend(scaffold_set)
+
+    assert len(set(train_idx).intersection(set(valid_idx))) == 0
+    assert len(set(test_idx).intersection(set(valid_idx))) == 0
+
+    return (
+        torch.tensor(train_idx, dtype=torch.long),
+        torch.tensor(valid_idx, dtype=torch.long),
+        torch.tensor(test_idx, dtype=torch.long),
+    )
+    
 def train_val_test_split(dset_len, train_size, val_size, test_size, seed, order=None):
     assert (train_size is None) + (val_size is None) + (
         test_size is None
@@ -65,7 +141,7 @@ def train_val_test_split(dset_len, train_size, val_size, test_size, seed, order=
 
 
 def make_splits(
-    dataset_len,
+    dataset,
     train_size,
     val_size,
     test_size,
@@ -80,17 +156,17 @@ def make_splits(
         idx_val = splits["idx_val"]
         idx_test = splits["idx_test"]
     else:
-        idx_train, idx_val, idx_test = train_val_test_split(
-            dataset_len, train_size, val_size, test_size, seed, order
+        idx_train, idx_val, idx_test = scaffold_split(
+            dataset, train_size, val_size, test_size
         )
 
     if filename is not None:
         np.savez(filename, idx_train=idx_train, idx_val=idx_val, idx_test=idx_test)
 
     return (
-        torch.from_numpy(idx_train),
-        torch.from_numpy(idx_val),
-        torch.from_numpy(idx_test),
+        idx_train,
+        idx_val,
+        idx_test,
     )
 
 

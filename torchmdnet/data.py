@@ -45,7 +45,7 @@ class DataModule(LightningDataModule):
                 self.dataset = dataset_factory(None)
 
         self.idx_train, self.idx_val, self.idx_test = make_splits(
-            len(self.dataset),
+            self.dataset,
             self.hparams["train_size"],
             self.hparams["val_size"],
             self.hparams["test_size"],
