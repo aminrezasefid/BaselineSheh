@@ -50,7 +50,7 @@ prior_model: null
 rbf_type: expnorm
 redirect: false
 reduce_op: add
-save_interval: 10
+save_interval: 1
 splits: null
 standardize: true
 test_interval: 10

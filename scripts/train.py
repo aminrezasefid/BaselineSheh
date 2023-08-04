@@ -158,7 +158,7 @@ def main():
     checkpoint_callback = ModelCheckpoint(
         dirpath=args.log_dir,
         monitor="val_loss",
-        #save_top_k=10,  # -1 to save all
+        save_top_k=10,  # -1 to save all
         period=args.save_interval,
         filename="{step}-{epoch}-{val_loss:.4f}-{test_loss:.4f}-{train_per_step:.4f}",
         save_last=True,
