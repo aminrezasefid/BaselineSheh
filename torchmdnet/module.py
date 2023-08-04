@@ -179,7 +179,7 @@ class LNNP(LightningModule):
                 self.trainer.reset_val_dataloader(self)
 
     # TODO(shehzaidi): clean up this function, redundant logging if dy loss exists.
-    def validation_epoch_end(self, validation_step_outputs):
+    def test_epoch_end(self, validation_step_outputs):
         test_loss=torch.stack(self.losses["test"]).mean()
         print(test_loss)
     def validation_epoch_end(self, validation_step_outputs):
