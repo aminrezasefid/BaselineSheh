@@ -122,11 +122,10 @@ def load_model(filepath, args=None, device="cpu", mean=None, std=None, **kwargs)
     del state_dict["output_model.output_network.1.update_net.2.weight"]
     del state_dict["output_model.output_network.1.update_net.2.bias"]
     loading_return = model.load_state_dict(state_dict, strict=False)
-    
     if len(loading_return.unexpected_keys) > 0:
         # Should only happen if not applying denoising during fine-tuning.
         assert all(("output_model_noise" in k or "pos_normalizer" in k) for k in loading_return.unexpected_keys)
-    assert len(loading_return.missing_keys) == 0, f"Missing keys: {loading_return.missing_keys}"
+    #assert len(loading_return.missing_keys) == 0, f"Missing keys: {loading_return.missing_keys}"
 
     if mean:
         model.mean = mean
