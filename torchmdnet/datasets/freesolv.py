@@ -18,7 +18,7 @@ from rdkit.Chem.rdchem import HybridizationType
 from rdkit.Chem.rdchem import BondType as BT
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
-class ESOL(InMemoryDataset):
+class FREESOLV(InMemoryDataset):
     def __init__(self, root: str, transform: Optional[Callable] = None,types=None,bonds=None,
                  pre_transform: Optional[Callable] = None,num_confs=1,
                  pre_filter: Optional[Callable] = None, dataset_arg: Optional[str] = None):
@@ -32,11 +32,10 @@ class ESOL(InMemoryDataset):
         return ['data_v3.pt','broken_smiles.pt']
     @property
     def raw_file_names(self) -> List[str]:
-        return ['delaney-processed.csv']
-        
+        return ['SAMPL.csv']
     @property
     def target_column(self) -> str:
-        return "measured log solubility in mols per litre"
+        return "expt"
     def get_MMFF_mol(self,mol,numConfs=1):
         try:
             new_mol = Chem.AddHs(mol)
@@ -48,7 +47,7 @@ class ESOL(InMemoryDataset):
     def process(self):
         df=pd.read_csv(self.raw_paths[0])
         self.smiles_list=list(df["smiles"])
-        target = df[target_column]
+        target = df[self.target_column]
         target = torch.tensor(target,dtype=torch.float)
         if rdkit is None:
             print(("Using a pre-processed version of the dataset. Please "
