@@ -22,9 +22,9 @@ def calc_rocauc_score(labels, preds, valid):
         if len(torch.unique(c_label)) == 2:
             rocauc_list.append(roc_auc_score(c_label, c_pred))
     if len(rocauc_list) == 0:
-        return -1
+        return -1,0
 
-    return sum(rocauc_list)/len(rocauc_list)
+    return sum(rocauc_list)/len(rocauc_list),len(rocauc_list)
 def auc_metric(preds,labels):
     labels = ((labels + 1.0) / 2)
     valids = (labels != 0.5)

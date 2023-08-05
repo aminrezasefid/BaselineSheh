@@ -118,6 +118,9 @@ def load_model(filepath, args=None, device="cpu", mean=None, std=None, **kwargs)
     model = create_model(args)
 
     state_dict = {re.sub(r"^model\.", "", k): v for k, v in ckpt["state_dict"].items()}
+    del state_dict["output_model.output_network.1.vec2_proj.weight"]
+    del state_dict["output_model.output_network.1.update_net.2.weight"]
+    del state_dict["output_model.output_network.1.update_net.2.bias"]
     loading_return = model.load_state_dict(state_dict, strict=False)
     
     if len(loading_return.unexpected_keys) > 0:
