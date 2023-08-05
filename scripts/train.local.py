@@ -86,6 +86,10 @@ def get_args():
     parser.add_argument('--trainable-rbf', type=bool, default=False, help='If distance expansion functions should be trainable')
     parser.add_argument('--neighbor-embedding', type=bool, default=False, help='If a neighbor embedding should be applied before interactions')
     parser.add_argument('--aggr', type=str, default='add', help='Aggregation operation for CFConv filter output. Must be one of \'add\', \'mean\', or \'max\'')
+    parser.add_argument('--task-type',type=str,default="regr",choices=["regr","class"],help="model used for classification or regression")
+    parser.add_argument('--out-channels',type=int,default=1,help="number of output neurons")
+    parser.add_argument('--train-loss',type=str,choices=["mse_loss", "l1_loss","bce"],default="mse_loss",help="loss for training")
+    parser.add_argument('--val-loss',type=str,choices=["mse_loss", "l1_loss","bce"],default="mse_loss",help="loss for validation")
 
     # Transformer specific
     parser.add_argument('--distance-influence', type=str, default='both', choices=['keys', 'values', 'both', 'none'], help='Where distance information is included inside the attention')
@@ -102,6 +106,8 @@ def get_args():
     parser.add_argument('--max-num-neighbors', type=int, default=32, help='Maximum number of neighbors to consider in the network')
     parser.add_argument('--standardize', type=bool, default=False, help='If true, multiply prediction by dataset std and add mean')
     parser.add_argument('--reduce-op', type=str, default='add', choices=['add', 'mean'], help='Reduce operation to apply to atomic predictions')
+    parser.add_argument('--metric-name', type=str, default='val_loss', help='parameter name to be followed by call backs')
+    parser.add_argument('--callback-mode', type=str, default='min', help='callback mode')
     # fmt: on
 
     args = parser.parse_args()
@@ -154,17 +160,18 @@ def main():
 
     # initialize lightning module
     model = LNNP(args, prior_model=prior, mean=data.mean, std=data.std)
-
+    metric_name=args.metric_name
     checkpoint_callback = ModelCheckpoint(
         dirpath=args.log_dir,
-        monitor="val_loss",
-        #save_top_k=10,  # -1 to save all
+        monitor=metric_name,
+        save_top_k=10,  # -1 to save all
         period=args.save_interval,
-        filename="{step}-{epoch}-{val_loss:.4f}-{test_loss:.4f}-{train_per_step:.4f}",
+        filename="{step}-{epoch}-{"+metric_name+":.4f}-{test_loss:.4f}-{train_per_step:.4f}",
         save_last=True,
+        mode=args.callback_mode
         #save_best_only=True,
     )
-    early_stopping = EarlyStopping("val_loss", patience=args.early_stopping_patience)
+    early_stopping = EarlyStopping(metric_name, patience=args.early_stopping_patience,mode=args.callback_mode)
 
     tb_logger = pl.loggers.TensorBoardLogger(
         args.log_dir, name="tensorbord", version="", default_hp_metric=False

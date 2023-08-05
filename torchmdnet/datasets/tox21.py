@@ -10,7 +10,7 @@ import torch.nn.functional as F
 from torch_scatter import scatter
 from torch_geometric.data import (InMemoryDataset, download_url, extract_zip,
                                   Data)
-
+import pandas as pd
 import rdkit
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -18,7 +18,7 @@ from rdkit.Chem.rdchem import HybridizationType
 from rdkit.Chem.rdchem import BondType as BT
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
-class SMILES(InMemoryDataset):
+class TOX21(InMemoryDataset):
     def __init__(self, root: str, transform: Optional[Callable] = None,types=None,bonds=None,
                  pre_transform: Optional[Callable] = None,num_confs=1,
                  pre_filter: Optional[Callable] = None, dataset_arg: Optional[str] = None):
@@ -27,26 +27,16 @@ class SMILES(InMemoryDataset):
         self.num_confs=num_confs
         super().__init__(root, transform, pre_transform, pre_filter)
         self.data, self.slices = torch.load(self.processed_paths[0])
-    # def __init__(self,root, transform=None, dataset_arg=None):
-    #     self.root=root
-    #     self.label = dataset_arg
-    #     self.smiles_list=self.load_smiles()
-    #     super().__init__(root=root, transform=transform)
-        #self.data, self.slices = torch.load(self.processed_paths[0])
-    def load_smiles(self):
-        files = sorted(glob('%s/*.smiles' % (self.root+'/raw')))
-        data_list = []
-        for file in files:
-            with open(file, 'r') as f:
-                tmp_data_list = [line.strip() for line in f.readlines()]
-            data_list.extend(tmp_data_list)
-        return data_list
     @property
     def processed_file_names(self) -> str:
         return ['data_v3.pt','broken_smiles.pt']
     @property
     def raw_file_names(self) -> List[str]:
-        return ['smiles.csv']
+        return ['tox21.csv']
+    @property
+    def target_column(self) -> str:
+        return ['NR-AR', 'NR-AR-LBD', 'NR-AhR', 'NR-Aromatase', 'NR-ER', 'NR-ER-LBD',
+           'NR-PPAR-gamma', 'SR-ARE', 'SR-ATAD5', 'SR-HSE', 'SR-MMP', 'SR-p53']
     def get_MMFF_mol(self,mol,numConfs=1):
         try:
             new_mol = Chem.AddHs(mol)
@@ -56,8 +46,14 @@ class SMILES(InMemoryDataset):
             return None
         return new_mol
     def process(self):
-        self.smiles_list=self.load_smiles()
+        df=pd.read_csv(self.raw_paths[0])
+        self.smiles_list=list(df["smiles"])
+        target = df[self.target_column]
 
+        target = target.replace(0, -1)  # convert 0 to -1
+        target = target.fillna(0)  
+
+        target = torch.tensor(target.values,dtype=torch.float)
         if rdkit is None:
             print(("Using a pre-processed version of the dataset. Please "
                    "install 'rdkit' to alternatively process the raw data."),
@@ -75,7 +71,13 @@ class SMILES(InMemoryDataset):
             torch.save(self.collate(data_list), self.processed_paths[0])
             return
         if self.types is None:
-            types = {'H': 0, 'C': 1, 'N': 2, 'O': 3, 'F': 4,'Cl':5,'S':6,'Br':7,'I':8,'P':9,'Si':10}
+            types = {'C':0,'O':1,'N':2,'S':3,'P':4,'Cl':5,'I':6,
+            'Zn':7,'F':8,'Ca':9,'As':10,'Br':11,'B':12,'H':13,'K':14,
+            'Si':15,'Cu':16,'Mg':17,'Hg':18,'Cr':19,'Zr':20,
+            'Sn':21,'Na':22,'Ba':23,'Au':24,'Pd':25,'Tl':26,'Fe':27,
+            'Al':28,'Gd':29,'Ag':30,'Mo':31,'V':32,'Nd':33,'Co':34,'Yb':35,
+            'Pb':36,'Sb':37,'In':38,'Li':39,'Ni':40,'Bi':41,'Cd':42,'Ti':43,
+            'Se':44,'Dy':45,'Mn':46,'Sr':47,'Be':48,'Pt':49,'Ge':50,}
         if self.bonds is None:
             bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
         data_list = []
@@ -142,7 +144,7 @@ class SMILES(InMemoryDataset):
             for confId in range(confNums):
                 pos=mol.GetConformer(confId).GetPositions()
                 pos = torch.tensor(pos, dtype=torch.float)
-                data = Data(x=x, z=z, pos=pos, edge_index=edge_index,
+                data = Data(x=x, z=z, pos=pos, edge_index=edge_index,y=target[i].unsqueeze(0),
                             edge_attr=edge_attr, name=f"{confId}-{name}", idx=idx)
                 idx+=1
                 if self.pre_filter is not None and not self.pre_filter(data):

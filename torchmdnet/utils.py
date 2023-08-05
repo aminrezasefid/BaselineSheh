@@ -5,6 +5,37 @@ import torch
 from os.path import dirname, join, exists
 from pytorch_lightning.utilities import rank_zero_warn
 from rdkit.Chem.Scaffolds import MurckoScaffold
+from torch.nn.functional import mse_loss, l1_loss
+from sklearn.metrics import roc_auc_score
+from torch.nn.functional import binary_cross_entropy
+def calc_rocauc_score(labels, preds, valid):
+    """compute ROC-AUC and averaged across tasks"""
+    if labels.ndim == 1:
+        labels = labels.reshape(-1, 1)
+        preds = preds.reshape(-1, 1)
+
+    rocauc_list = []
+    for i in range(labels.shape[1]):
+        c_valid = valid[:, i].type(torch.BoolTensor)
+        c_label, c_pred = labels[c_valid, i], preds[c_valid, i]
+        #AUC is only defined when there is at least one positive data.
+        if len(torch.unique(c_label)) == 2:
+            rocauc_list.append(roc_auc_score(c_label, c_pred))
+    if len(rocauc_list) == 0:
+        return -1
+
+    return sum(rocauc_list)/len(rocauc_list)
+def auc_metric(preds,labels):
+    labels = ((labels + 1.0) / 2)
+    valids = (labels != 0.5)
+    return calc_rocauc_score(labels, preds, valids)
+def bce(preds,labels):
+    labels = ((labels + 1.0) / 2)
+    valids = (labels != 0.5)
+    loss=binary_cross_entropy(preds, labels,reduction='none')
+    loss = torch.sum(loss * valids) / torch.sum(valids)
+    return loss
+
 def generate_scaffold(smiles, include_chirality=False):
     """
     Obtain Bemis-Murcko scaffold from smiles

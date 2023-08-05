@@ -1,17 +1,20 @@
 import torch
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
-from torch.nn.functional import mse_loss, l1_loss
-
+import torchmdnet
 from pytorch_lightning import LightningModule
 from torchmdnet.models.model import create_model, load_model
-
+from torch.nn.functional import mse_loss, l1_loss
+from torchmdnet.utils import bce,auc_metric
 
 class LNNP(LightningModule):
     def __init__(self, hparams, prior_model=None, mean=None, std=None):
         super(LNNP, self).__init__()
         self.save_hyperparameters(hparams)
-
+        self.train_loss=self.hparams.train_loss
+        self.val_loss=self.hparams.val_loss
+        self.val_labels=[]
+        self.val_preds=[]
         if self.hparams.load_model:
             self.model = load_model(self.hparams.load_model, args=self.hparams)
         elif self.hparams.pretrained_model:
@@ -62,23 +65,32 @@ class LNNP(LightningModule):
         return self.model(z, pos, batch=batch)
 
     def training_step(self, batch, batch_idx):
-        return self.step(batch, mse_loss, "train")
+        return self.step(batch,getattr(torchmdnet.utils,self.train_loss), "train")
 
     def validation_step(self, batch, batch_idx, *args):
-        return self.step(batch, mse_loss, "val")
+        preds,labels= self.step(batch, getattr(torchmdnet.utils,self.val_loss), "test")
+        self.val_labels.extend(labels)
+        self.val_preds.extend(preds)
+        #return self.step(batch, getattr(torchmdnet.utils,self.val_loss), "val")
       
 
     def test_step(self, batch, batch_idx):
-        los= self.step(batch, mse_loss, "test")
-        self.log('test_loss', los)
-        return los
-
+        preds,labels= self.step(batch, getattr(torchmdnet.utils,self.val_loss), "test")
+        self.val_labels.extend(labels)
+        self.val_preds.extend(preds)
+    def test_epoch_end(self, validation_step_outputs):
+        val_preds=torch.stack(self.val_preds)
+        val_labels=torch.stack(self.val_labels)
+        testauc=bce(val_preds,val_labels)
+        self.log("test_roc",testauc)
+        print(testauc)
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
             # TODO: the model doesn't necessarily need to return a derivative once
             # Union typing works under TorchScript (https://github.com/pytorch/pytorch/pull/53180)
             pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch)
-
+            if stage=="val" or stage=="test":
+                return pred,batch.y
         denoising_is_on = ("pos_target" in batch) and (self.hparams.denoising_weight > 0) and (noise_pred is not None)
 
         loss_y, loss_dy, loss_pos = 0, 0, 0
@@ -91,7 +103,7 @@ class LNNP(LightningModule):
                 deriv = deriv + pred.sum() * 0
 
             # force/derivative loss
-            loss_dy = loss_fn(deriv, batch.dy)
+            loss_dy = mse_loss(deriv, batch.dy)
 
             if stage in ["train", "val"] and self.hparams.ema_alpha_dy < 1:
                 if self.ema[stage + "_dy"] is None:
@@ -136,7 +148,7 @@ class LNNP(LightningModule):
                 noise_pred = noise_pred + pred.sum() * 0
                 
             normalized_pos_target = self.model.pos_normalizer(batch.pos_target)
-            loss_pos = loss_fn(noise_pred, normalized_pos_target)
+            loss_pos = mse_loss(noise_pred, normalized_pos_target)
             self.losses[stage + "_pos"].append(loss_pos.detach())
 
         # total loss
@@ -181,65 +193,21 @@ class LNNP(LightningModule):
                 self.trainer.reset_val_dataloader(self)
 
     # TODO(shehzaidi): clean up this function, redundant logging if dy loss exists.
-    def test_epoch_end(self, validation_step_outputs):
-        test_loss=torch.stack(self.losses["test"]).mean()
-        print(test_loss)
+
     def validation_epoch_end(self, validation_step_outputs):
         if not self.trainer.running_sanity_check:
+            val_preds=torch.stack(self.val_preds)
+            val_labels=torch.stack(self.val_labels)
             # construct dict of logged metrics
             result_dict = {
                 "epoch": self.current_epoch,
                 "lr": self.trainer.optimizers[0].param_groups[0]["lr"],
                 "train_loss": torch.stack(self.losses["train"]).mean(),
-                "val_loss": torch.stack(self.losses["val"]).mean(),
+                "val_roc": auc_metric(val_preds,val_labels),
             }
-
-            # add test loss if available
-            if len(self.losses["test"]) > 0:
-                result_dict["test_loss"] = torch.stack(self.losses["test"]).mean()
-
-            # if prediction and derivative are present, also log them separately
-            if len(self.losses["train_y"]) > 0 and len(self.losses["train_dy"]) > 0:
-                result_dict["train_loss_y"] = torch.stack(self.losses["train_y"]).mean()
-                result_dict["train_loss_dy"] = torch.stack(
-                    self.losses["train_dy"]
-                ).mean()
-                result_dict["val_loss_y"] = torch.stack(self.losses["val_y"]).mean()
-                result_dict["val_loss_dy"] = torch.stack(self.losses["val_dy"]).mean()
-
-                if len(self.losses["test"]) > 0:
-                    result_dict["test_loss_y"] = torch.stack(
-                        self.losses["test_y"]
-                    ).mean()
-                    result_dict["test_loss_dy"] = torch.stack(
-                        self.losses["test_dy"]
-                    ).mean()
-
+            
             if len(self.losses["train_y"]) > 0:
                 result_dict["train_loss_y"] = torch.stack(self.losses["train_y"]).mean()
-            if len(self.losses['val_y']) > 0:
-              result_dict["val_loss_y"] = torch.stack(self.losses["val_y"]).mean()
-            if len(self.losses["test_y"]) > 0:
-                result_dict["test_loss_y"] = torch.stack(
-                    self.losses["test_y"]
-                ).mean()
-
-            # if denoising is present, also log it
-            if len(self.losses["train_pos"]) > 0:
-                result_dict["train_loss_pos"] = torch.stack(
-                    self.losses["train_pos"]
-                ).mean()
-
-            if len(self.losses["val_pos"]) > 0:
-                result_dict["val_loss_pos"] = torch.stack(
-                    self.losses["val_pos"]
-                ).mean()
-
-            if len(self.losses["test_pos"]) > 0:
-                result_dict["test_loss_pos"] = torch.stack(
-                    self.losses["test_pos"]
-                ).mean()
-
             self.log_dict(result_dict, sync_dist=True)
         self._reset_losses_dict()
 
@@ -258,6 +226,8 @@ class LNNP(LightningModule):
             "val_pos": [],
             "test_pos": [],
         }
+        self.val_labels=[]
+        self.val_preds=[]
 
     def _reset_ema_dict(self):
         self.ema = {"train_y": None, "val_y": None, "train_dy": None, "val_dy": None}

@@ -49,8 +49,11 @@ class Scalar(OutputModel):
 
 
 class EquivariantScalar(OutputModel):
-    def __init__(self, hidden_channels, activation="silu", allow_prior_model=True):
+    def __init__(self, hidden_channels, activation="silu", allow_prior_model=True,task_type="regr",out_channels=1):
         super(EquivariantScalar, self).__init__(allow_prior_model=allow_prior_model)
+        if task_type=="class":
+            self.final_act=nn.Sigmoid()
+        self.task=task_type
         self.output_network = nn.ModuleList(
             [
                 GatedEquivariantBlock(
@@ -59,7 +62,7 @@ class EquivariantScalar(OutputModel):
                     activation=activation,
                     scalar_activation=True,
                 ),
-                GatedEquivariantBlock(hidden_channels // 2, 1, activation=activation),
+                GatedEquivariantBlock(hidden_channels // 2, out_channels, activation=activation),
             ]
         )
 
@@ -73,7 +76,13 @@ class EquivariantScalar(OutputModel):
         for layer in self.output_network:
             x, v = layer(x, v)
         # include v in output to make sure all parameters have a gradient
+
         return x + v.sum() * 0
+    
+    def post_reduce(self, x):
+        if self.task=="class":
+            x=self.final_act(x)
+        return x
 
 
 class DipoleMoment(Scalar):
