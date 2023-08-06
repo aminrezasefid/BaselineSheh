@@ -81,7 +81,7 @@ class LNNP(LightningModule):
     def test_epoch_end(self, validation_step_outputs):
         val_preds=torch.stack(self.val_preds)
         val_labels=torch.stack(self.val_labels)
-        testauc=auc_metric(val_preds,val_labels)
+        testauc=auc_metric(val_preds.cpu(),val_labels.cpu())
         self.log("test_roc",testauc[0])
         self.log("task_evaluated",testauc[1])
     def step(self, batch, loss_fn, stage):
@@ -203,7 +203,7 @@ class LNNP(LightningModule):
                 "epoch": self.current_epoch,
                 "lr": self.trainer.optimizers[0].param_groups[0]["lr"],
                 "train_loss": torch.stack(self.losses["train"]).mean(),
-                "val_roc": auc_metric(val_preds,val_labels)[0],
+                "val_roc": auc_metric(val_preds.cpu(),val_labels.cpu())[0],
             }
             
             if len(self.losses["train_y"]) > 0:
