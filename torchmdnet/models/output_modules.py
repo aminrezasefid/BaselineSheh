@@ -52,7 +52,7 @@ class EquivariantScalar(OutputModel):
     def __init__(self, hidden_channels, activation="silu", allow_prior_model=True,task_type="regr",out_channels=1):
         super(EquivariantScalar, self).__init__(allow_prior_model=allow_prior_model)
         if task_type=="class":
-            self.final_act=nn.Sigmoid()
+            self.final_act=torch.sigmoid
         self.task=task_type
         self.output_network = nn.ModuleList(
             [

@@ -69,8 +69,6 @@ class LNNP(LightningModule):
 
     def validation_step(self, batch, batch_idx, *args):
         preds,labels= self.step(batch, getattr(torchmdnet.utils,self.val_loss), "test")
-        print("step")
-        print(preds)
         self.val_labels.extend(labels)
         self.val_preds.extend(preds)
         #return self.step(batch, getattr(torchmdnet.utils,self.val_loss), "val")
@@ -201,8 +199,6 @@ class LNNP(LightningModule):
             val_preds=torch.stack(self.val_preds)
             val_labels=torch.stack(self.val_labels)
             # construct dict of logged metrics
-            print("end")
-            print(val_preds)
             result_dict = {
                 "epoch": self.current_epoch,
                 "lr": self.trainer.optimizers[0].param_groups[0]["lr"],
