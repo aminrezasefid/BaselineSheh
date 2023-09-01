@@ -18,7 +18,7 @@ from rdkit.Chem.rdchem import HybridizationType
 from rdkit.Chem.rdchem import BondType as BT
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
-class TOXCAST(InMemoryDataset):
+class BBBP(InMemoryDataset):
     def __init__(self, root: str, transform: Optional[Callable] = None,types=None,bonds=None,
                  pre_transform: Optional[Callable] = None,num_confs=1,
                  pre_filter: Optional[Callable] = None, dataset_arg: Optional[str] = None):
