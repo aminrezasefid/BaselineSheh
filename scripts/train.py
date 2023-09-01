@@ -207,9 +207,8 @@ def main():
     )
 
     trainer.fit(model, data)
-    print(checkpoint_callback.best_model_path)
     # run test set after completing the fit
-    trainer.test(ckpt_path=checkpoint_callback.best_model_path)
+    trainer.test()
 
 
 if __name__ == "__main__":
