@@ -8,7 +8,7 @@ train_loss: "bce"
 val_loss: "auc_metric"
 metric_name: "val_roc"
 callback_mode: "max"
-batch_size: 128
+batch_size: 64
 coord_files: null
 cutoff_lower: 0.0
 cutoff_upper: 5.0
