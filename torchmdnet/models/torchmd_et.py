@@ -179,9 +179,10 @@ class TorchMD_ET(nn.Module):
             x = x + dx
             vec = vec + dvec
         x = self.out_norm(x)
+        print(vec)
         if self.layernorm_on_vec:
             vec = self.out_norm_vec(vec)
-
+        print(vec)
         return x, vec, z, pos, batch
 
     def __repr__(self):
