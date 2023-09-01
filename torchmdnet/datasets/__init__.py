@@ -9,4 +9,5 @@ from .esol import ESOL
 from .freesolv import FREESOLV
 from .tox21 import TOX21
 from .toxcast import TOXCAST
-__all__ = ["QM9", "MD17", "ANI1", "Custom", "HDF5", "PCQM4MV2","SMILES","ESOL","FREESOLV","TOX21","TOXCAST"]
+from .bbbp import BBBP
+__all__ = ["QM9", "MD17", "ANI1", "Custom", "HDF5", "PCQM4MV2","SMILES","ESOL","FREESOLV","TOX21","TOXCAST","BBBP"]
