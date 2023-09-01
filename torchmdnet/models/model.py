@@ -192,9 +192,6 @@ class TorchMD_Net(nn.Module):
 
         # run the potentially wrapped representation model
         x, v, z, pos, batch = self.representation_model(z, pos, batch=batch)
-        print("presn")
-        print(x)
-        print(x.shape)
         # predict noise
         noise_pred = None
         if self.output_model_noise is not None:
@@ -202,9 +199,7 @@ class TorchMD_Net(nn.Module):
 
         # apply the output network
         x = self.output_model.pre_reduce(x, v, z, pos, batch)
-        print("prereduce")
-        print(x)
-        print(x.shape)
+        
         # scale by data standard deviation
         if self.std is not None:
             x = x * self.std

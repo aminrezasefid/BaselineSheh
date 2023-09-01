@@ -73,10 +73,15 @@ class EquivariantScalar(OutputModel):
             layer.reset_parameters()
 
     def pre_reduce(self, x, v, z, pos, batch):
+        print("preprereduce")
+        print(x)
+        print(x.shape)
         for layer in self.output_network:
             x, v = layer(x, v)
         # include v in output to make sure all parameters have a gradient
-
+        print("preprereduce")
+        print(x)
+        print(x.shape)
         return x + v.sum() * 0
     
     def post_reduce(self, x):
