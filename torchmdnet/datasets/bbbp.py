@@ -70,13 +70,7 @@ class BBBP(InMemoryDataset):
             torch.save(self.collate(data_list), self.processed_paths[0])
             return
         if self.types is None:
-            types = {'O':0,'N':1,'C':2,'Cl':3,'Si':4,'Br':5,'Ba':6,'Nd':7,
-            'Dy':8,'In':9,'P':10,'Sb':11,'Co':12,'S':13,'K':14,'Na':15,
-            'B':16,'Ca':17,'Hg':18,'Ni':19,'Se':20,'Tl':21,'Cd':22,'F':23,
-            'Fe':24,'Li':25,'Yb':26,'I':27,'Cr':28,'Sn':29,'Zn':30,'Cu':31,
-            'Pb':32,'As':33,'Bi':34,'H':35,'Gd':36,'V':37,'Mn':38,'Au':39,'Ti':40,
-            'Zr':41,'Mo':42,'Mg':43,'Eu':44,'Al':45,'Pt':46,'Sr':47,'Sc':48,
-            'Ag':49,'Pd':50,'Be':51,'Ge':52,}
+            types = {'Cl':0,'C':1,'N':2,'O':3,'F':4,'S':5,'Br':6,'I':7,'H':8,'Na':9,'P':10,'Ca':11,'B':12,}
         if self.bonds is None:
             bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
         data_list = []
