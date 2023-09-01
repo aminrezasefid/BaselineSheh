@@ -79,7 +79,11 @@ class EquivariantScalar(OutputModel):
         for layer in self.output_network:
             x, v = layer(x, v)
         # include v in output to make sure all parameters have a gradient
-        print("preprereduce")
+        print("postprereduce")
+        print(x)
+        print(x.shape)
+        x=x + v.sum() * 0
+        print("postpostprereduce")
         print(x)
         print(x.shape)
         return x + v.sum() * 0
