@@ -21,6 +21,7 @@ def calc_rocauc_score(labels, preds, valid):
         c_label, c_pred = labels[c_valid, i], preds[c_valid, i]
         #AUC is only defined when there is at least one positive data.
         if len(torch.unique(c_label)) == 2:
+            print(c_label, c_pred)
             rocauc_list.append(roc_auc_score(c_label, c_pred))
     if len(rocauc_list) == 0:
         return -1,0
