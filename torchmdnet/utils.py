@@ -10,8 +10,8 @@ from sklearn.metrics import roc_auc_score
 from torch.nn.functional import binary_cross_entropy
 def calc_rocauc_score(labels, preds, valid):
     """compute ROC-AUC and averaged across tasks"""
-    labels=labels.cpu().numpy()
-    preds=preds.cpu().numpy()
+    labels=labels.cpu()
+    preds=preds.cpu()
     if labels.ndim == 1:
         labels = labels.reshape(-1, 1)
         preds = preds.reshape(-1, 1)
