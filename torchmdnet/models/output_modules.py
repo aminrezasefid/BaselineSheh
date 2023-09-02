@@ -78,7 +78,8 @@ class EquivariantScalar(OutputModel):
         # include v in output to make sure all parameters have a gradient
         print("post pre reduce")
         print(x)
-        print(v)
+        print(v.shape)
+        print(v.max())
         print("v sum")
         v=v.sum()
         print(v)
