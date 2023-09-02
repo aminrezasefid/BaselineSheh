@@ -88,9 +88,11 @@ class LNNP(LightningModule):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
             # TODO: the model doesn't necessarily need to return a derivative once
             # Union typing works under TorchScript (https://github.com/pytorch/pytorch/pull/53180)
+            if stage=="test":
+                print(batch.name)
             pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch)
             if stage=="val" or stage=="test":
-                print(batch.name)
+                
                 return pred,batch.y
         denoising_is_on = ("pos_target" in batch) and (self.hparams.denoising_weight > 0) and (noise_pred is not None)
 

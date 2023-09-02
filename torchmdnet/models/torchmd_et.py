@@ -173,12 +173,13 @@ class TorchMD_ET(nn.Module):
             x = self.neighbor_embedding(z, x, edge_index, edge_weight, edge_attr)
 
         vec = torch.zeros(x.size(0), 3, x.size(1), device=x.device)
-
+        
         for attn in self.attention_layers:
             dx, dvec = attn(x, vec, edge_index, edge_weight, edge_attr, edge_vec)
             x = x + dx
             vec = vec + dvec
         x = self.out_norm(x)
+        print(dvec.max())
         if self.layernorm_on_vec:
             vec = self.out_norm_vec(vec)
         return x, vec, z, pos, batch
@@ -287,7 +288,6 @@ class EquivariantMultiHeadAttention(MessagePassing):
         )
 
         # propagate_type: (q: Tensor, k: Tensor, v: Tensor, vec: Tensor, dk: Tensor, dv: Tensor, r_ij: Tensor, d_ij: Tensor)
-        print(vec.max())
         x, vec = self.propagate(
             edge_index,
             q=q,
@@ -300,7 +300,6 @@ class EquivariantMultiHeadAttention(MessagePassing):
             d_ij=d_ij,
             size=None,
         )
-        print(vec.max())
         x = x.reshape(-1, self.hidden_channels)
         vec = vec.reshape(-1, 3, self.hidden_channels)
 
