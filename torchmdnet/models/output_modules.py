@@ -74,6 +74,7 @@ class EquivariantScalar(OutputModel):
 
     def pre_reduce(self, x, v, z, pos, batch):
         for layer in self.output_network:
+            print(v.max())
             x, v = layer(x, v)
         # include v in output to make sure all parameters have a gradient
         print("post pre reduce")
