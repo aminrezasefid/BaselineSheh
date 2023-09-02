@@ -58,7 +58,7 @@ redirect: false
 reduce_op: add
 save_interval: 1
 splits: null
-standardize: false
+standardize: true
 test_interval: 10
 test_size: 0.1
 train_size: 0.8
