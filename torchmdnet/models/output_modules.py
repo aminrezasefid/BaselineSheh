@@ -74,24 +74,8 @@ class EquivariantScalar(OutputModel):
 
     def pre_reduce(self, x, v, z, pos, batch):
         for layer in self.output_network:
-            print(v.max())
-            x, v = layer(x, v)
-        # include v in output to make sure all parameters have a gradient
-        print("post pre reduce")
-        print(x)
-        print(v.shape)
-        print(v.max())
-        print("v sum")
-        v=v.sum()
-        print(v)
-        print("v multpl")
-        v=v*0
-        print(v)
-        x=x + v
-        print("post post pre reduce")
-        print(x)
-        print(v)
-        return x 
+            x, v = layer(x, v)   
+        return x + v.sum() * 0
     
     def post_reduce(self, x):
         if self.task=="class":
