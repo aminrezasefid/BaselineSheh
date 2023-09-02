@@ -81,8 +81,10 @@ class EquivariantScalar(OutputModel):
         print(v)
         print("v sum")
         v=v.sum()
+        print(v)
         print("v multpl")
         v=v*0
+        print(v)
         x=x + v
         print("post post pre reduce")
         print(x)
