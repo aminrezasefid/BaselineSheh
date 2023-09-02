@@ -192,7 +192,7 @@ class TorchMD_Net(nn.Module):
 
         # run the potentially wrapped representation model
         x, v, z, pos, batch = self.representation_model(z, pos, batch=batch)
-        print(v.max())
+        
         # predict noise
         noise_pred = None
         if self.output_model_noise is not None:
