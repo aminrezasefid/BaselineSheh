@@ -179,7 +179,6 @@ class TorchMD_ET(nn.Module):
             x = x + dx
             vec = vec + dvec
         x = self.out_norm(x)
-        print(dvec.max())
         if self.layernorm_on_vec:
             vec = self.out_norm_vec(vec)
         return x, vec, z, pos, batch

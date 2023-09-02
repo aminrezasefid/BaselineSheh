@@ -5,6 +5,7 @@ import os
 import os.path as osp
 from tqdm import tqdm
 from glob import glob
+import numpy as np
 import torch
 import torch.nn.functional as F
 from torch_scatter import scatter
@@ -89,6 +90,12 @@ class BBBP(InMemoryDataset):
             for confId in range(confNums):
                 pos=mol.GetConformer(confId).GetPositions()
                 pos = torch.tensor(pos, dtype=torch.float)
+                upos_num=np.unique(pos,axis=0).shape[0]
+                pos_num=pos.shape[0]
+                if upos_num!=pos_num:
+                    non_conf_count+=1
+                    broken_smiles.append(smile)
+                    continue
                 data = Data(z=z, pos=pos,y=target[i].unsqueeze(0), name=f"{confId}-{name}", idx=i)
                 if self.pre_filter is not None and not self.pre_filter(data):
                     continue
