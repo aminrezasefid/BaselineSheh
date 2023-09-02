@@ -89,7 +89,7 @@ class LNNP(LightningModule):
             # TODO: the model doesn't necessarily need to return a derivative once
             # Union typing works under TorchScript (https://github.com/pytorch/pytorch/pull/53180)
             if stage=="test":
-                print(batch.name)
+                print(batch.idx,batch.name)
             pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch)
             if stage=="val" or stage=="test":
                 
