@@ -179,10 +179,8 @@ class TorchMD_ET(nn.Module):
             x = x + dx
             vec = vec + dvec
         x = self.out_norm(x)
-        print(vec.max())
         if self.layernorm_on_vec:
             vec = self.out_norm_vec(vec)
-        print(vec.max())
         return x, vec, z, pos, batch
 
     def __repr__(self):
@@ -272,7 +270,7 @@ class EquivariantMultiHeadAttention(MessagePassing):
         q = self.q_proj(x).reshape(-1, self.num_heads, self.head_dim)
         k = self.k_proj(x).reshape(-1, self.num_heads, self.head_dim)
         v = self.v_proj(x).reshape(-1, self.num_heads, self.head_dim * 3)
-
+        
         vec1, vec2, vec3 = torch.split(self.vec_proj(vec), self.hidden_channels, dim=-1)
         vec = vec.reshape(-1, 3, self.num_heads, self.head_dim)
         vec_dot = (vec1 * vec2).sum(dim=1)
@@ -289,6 +287,7 @@ class EquivariantMultiHeadAttention(MessagePassing):
         )
 
         # propagate_type: (q: Tensor, k: Tensor, v: Tensor, vec: Tensor, dk: Tensor, dv: Tensor, r_ij: Tensor, d_ij: Tensor)
+        print(vec.max())
         x, vec = self.propagate(
             edge_index,
             q=q,
@@ -301,12 +300,15 @@ class EquivariantMultiHeadAttention(MessagePassing):
             d_ij=d_ij,
             size=None,
         )
+        print(vec.max())
         x = x.reshape(-1, self.hidden_channels)
         vec = vec.reshape(-1, 3, self.hidden_channels)
 
         o1, o2, o3 = torch.split(self.o_proj(x), self.hidden_channels, dim=1)
         dx = vec_dot * o2 + o3
+        
         dvec = vec3 * o1.unsqueeze(1) + vec
+        
         return dx, dvec
 
     def message(self, q_i, k_j, v_j, vec_j, dk, dv, r_ij, d_ij):
