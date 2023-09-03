@@ -12,6 +12,7 @@ from .toxcast import TOXCAST
 from .bbbp import BBBP
 from .bace import BACE
 from .clintox import CLINTOX
+from .hiv import HIV
 __all__ = ["QM9", "MD17", "ANI1", "Custom", "HDF5",
      "PCQM4MV2","SMILES","ESOL","FREESOLV","TOX21",
-     "TOXCAST","BBBP","BACE","CLINTOX"]
+     "TOXCAST","BBBP","BACE","CLINTOX","HIV"]
