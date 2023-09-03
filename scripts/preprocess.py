@@ -145,9 +145,9 @@ def main():
     print(args)
 
     # initialize data module
-    #data = DataModule(args)
-    #data.prepare_data()
-    #data.setup("fit")
+    data = DataModule(args)
+    data.prepare_data()
+    data.setup("fit")
     return None
     prior = None
     if args.prior_model:
