@@ -55,6 +55,7 @@ def get_args():
     parser.add_argument('--wandb-notes', default="", type=str, help='Notes passed to wandb experiment.')
     parser.add_argument('--job-id', default="auto", type=str, help='Job ID. If auto, pick the next available numeric job id.')
     parser.add_argument('--pretrained-model', default=None, type=str, help='Pre-trained weights checkpoint.')
+    parser.add_argument('--strict-load', type=bool, default=False, help='load weights strictly.')
 
     # dataset specific
     parser.add_argument('--dataset', default=None, type=str, choices=datasets.__all__, help='Name of the torch_geometric dataset')
@@ -211,7 +212,7 @@ def main():
     #trainer.fit(model, data)
 
     # run test set after completing the fit
-    dataloader=data.test_dataloader()
+    dataloader=data.test_dataloader(test=True)
     trainer.test(model,dataloader)
 
 

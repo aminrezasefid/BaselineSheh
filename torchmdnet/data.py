@@ -82,8 +82,21 @@ class DataModule(LightningDataModule):
             loaders.append(self._get_dataloader(self.test_dataset, "test"))
         return loaders
 
-    def test_dataloader(self):
-        return self._get_dataloader(self.test_dataset, "test")
+    def test_dataloader(self,test=None):
+        if test is None:
+            return self._get_dataloader(self.test_dataset, "test")
+        else:
+            batch_size = self.hparams["inference_batch_size"]
+            shuffle = False
+            dl = DataLoader(
+            dataset=self.test_dataset,
+            batch_size=batch_size,
+            shuffle=shuffle,
+            num_workers=self.hparams["num_workers"],
+            pin_memory=True,
+            )
+            return dl
+
 
     @property
     def atomref(self):
