@@ -15,6 +15,7 @@ from .clintox import CLINTOX
 from .hiv import HIV
 from .sider import SIDER
 from .muv import MUV
+from .pcba import PCBA
 __all__ = ["QM9", "MD17", "ANI1", "Custom", "HDF5",
      "PCQM4MV2","SMILES","ESOL","FREESOLV","TOX21",
-     "TOXCAST","BBBP","BACE","CLINTOX","HIV","SIDER","MUV"]
+     "TOXCAST","BBBP","BACE","CLINTOX","HIV","SIDER","MUV","PCBA"]
