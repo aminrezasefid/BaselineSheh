@@ -5,6 +5,7 @@ import os
 import os.path as osp
 from tqdm import tqdm
 from glob import glob
+import multiprocessing as mp
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -19,6 +20,51 @@ from rdkit.Chem.rdchem import HybridizationType
 from rdkit.Chem.rdchem import BondType as BT
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
+def get_MMFF_mol(mol,numConfs=1):
+        try:
+            new_mol = Chem.AddHs(mol)
+            res = AllChem.EmbedMultipleConfs(new_mol, numConfs=numConfs)
+            res = AllChem.MMFFOptimizeMoleculeConfs(new_mol)
+        except:
+            return None
+        return new_mol
+def worker(smiles_list,target,num_confs,procnum, return_dict,pre_filter,pre_transform):
+        data_list=[]
+        broken_smiles=[]
+        for i, smile in enumerate(tqdm(smiles_list,position=procnum)):
+            mol = AllChem.MolFromSmiles(smile)
+            mol = get_MMFF_mol(mol,num_confs)
+            if mol is None:
+                broken_smiles.append(smile)
+                continue
+            N = mol.GetNumAtoms()
+            atomic_number = []
+            for atom in mol.GetAtoms():
+                atomic_number.append(atom.GetAtomicNum())
+            z = torch.tensor(atomic_number, dtype=torch.long)
+            name=smile
+            confNums=mol.GetNumConformers()
+            for confId in range(confNums):
+                pos=mol.GetConformer(confId).GetPositions()
+                pos = torch.tensor(pos, dtype=torch.float)
+                upos_num=np.unique(pos,axis=0).shape[0]
+                pos_num=pos.shape[0]
+                if upos_num!=pos_num:
+                    broken_smiles.append(smile)
+                    continue
+                data = Data(z=z, pos=pos,y=target[i].unsqueeze(0), name=f"{confId}-{name}", idx=i)
+
+                if pre_filter is not None and not pre_filter(data):
+                    continue
+                if pre_transform is not None:
+                    data = pre_transform(data)
+
+                data_list.append(data)
+        #print(f"{str(non_conf_count)} smiles couldn't generate conformer.")
+        return_dict[str(procnum)+"data"]=data_list
+        return_dict[str(procnum)+"broken"]=broken_smiles
+        # torch.save(self.collate(data_list), self.processed_paths[0])
+        # torch.save(broken_smiles,self.processed_paths[1])
 class PCBA(InMemoryDataset):
     def __init__(self, root: str, transform: Optional[Callable] = None,types=None,bonds=None,
                  pre_transform: Optional[Callable] = None,num_confs=1,
@@ -64,14 +110,7 @@ class PCBA(InMemoryDataset):
     'PCBA-925', 'PCBA-926', 'PCBA-927', 'PCBA-938', 'PCBA-995'
     ]
 
-    def get_MMFF_mol(self,mol,numConfs=1):
-        try:
-            new_mol = Chem.AddHs(mol)
-            res = AllChem.EmbedMultipleConfs(new_mol, numConfs=numConfs)
-            res = AllChem.MMFFOptimizeMoleculeConfs(new_mol)
-        except:
-            return None
-        return new_mol
+
     def process(self):
         df=pd.read_csv(self.raw_paths[0])
         self.smiles_list=list(df["smiles"])
@@ -100,37 +139,44 @@ class PCBA(InMemoryDataset):
         data_list = []
         broken_smiles=[]
         non_conf_count=0
-        for i, smile in enumerate(tqdm(self.smiles_list)):
-            mol = AllChem.MolFromSmiles(smile)
-            mol = self.get_MMFF_mol(mol,self.num_confs)
-            if mol is None:
-                non_conf_count+=1
-                broken_smiles.append(smile)
-                continue
-            N = mol.GetNumAtoms()
-            atomic_number = []
-            for atom in mol.GetAtoms():
-                atomic_number.append(atom.GetAtomicNum())
-            z = torch.tensor(atomic_number, dtype=torch.long)
-            name=smile
-            confNums=mol.GetNumConformers()
-            for confId in range(confNums):
-                pos=mol.GetConformer(confId).GetPositions()
-                pos = torch.tensor(pos, dtype=torch.float)
-                upos_num=np.unique(pos,axis=0).shape[0]
-                pos_num=pos.shape[0]
-                if upos_num!=pos_num:
-                    non_conf_count+=1
-                    broken_smiles.append(smile)
-                    continue
-                data = Data(z=z, pos=pos,y=target[i].unsqueeze(0), name=f"{confId}-{name}", idx=i)
-                if self.pre_filter is not None and not self.pre_filter(data):
-                    continue
-                if self.pre_transform is not None:
-                    data = self.pre_transform(data)
-
-                data_list.append(data)
-        print(f"{str(non_conf_count)} smiles couldn't generate conformer.")
-
+        cpu_nums=mp.cpu_count()-6
+        each_share=len(self.smiles_list)//cpu_nums
+        last_share=each_share+len(self.smiles_list)-cpu_nums*each_share
+        procs=[]
+        from multiprocessing import Process
+        manager = mp.Manager()
+        shared_dict = manager.dict()
+        data_list=[]
+        for i in range(cpu_nums-1):
+            l_bound=i*each_share
+            u_bound=l_bound+each_share
+            proc=Process(target=worker,args=(self.smiles_list[l_bound:u_bound],
+                                            target[l_bound:u_bound],
+                                            self.num_confs,
+                                            i,
+                                            shared_dict,
+                                            self.pre_transform,
+                                            self.pre_filter,))
+            procs.append(proc)
+            proc.start()
+        l_bound=(cpu_nums-1)*each_share
+        u_bound=l_bound+last_share
+        proc=Process(target=worker,args=(self.smiles_list[l_bound:u_bound],
+                                            target[l_bound:u_bound],
+                                            self.num_confs,
+                                            cpu_nums-1,
+                                            shared_dict,
+                                            self.pre_transform,
+                                            self.pre_filter,))
+        procs.append(proc)
+        proc.start()
+        for proc in procs:
+            proc.join()
+        for i in range(cpu_nums):
+            data_list.extend(shared_dict[str(i)+"data"])
+            broken_smiles.extend(shared_dict[str(i)+"broken"])
+        print(f"{str(len(broken_smiles))} smiles couldn't generate conformer.")
         torch.save(self.collate(data_list), self.processed_paths[0])
-        torch.save(broken_smiles,self.processed_paths[1])
+        torch.save(broken_smiles,self.processed_paths[1]) 
+
+        
