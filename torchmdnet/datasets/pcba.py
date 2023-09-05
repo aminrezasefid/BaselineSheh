@@ -139,7 +139,7 @@ class PCBA(InMemoryDataset):
         data_list = []
         broken_smiles=[]
         non_conf_count=0
-        cpu_nums=mp.cpu_count()-6
+        cpu_nums=mp.cpu_count()
         each_share=len(self.smiles_list)//cpu_nums
         last_share=each_share+len(self.smiles_list)-cpu_nums*each_share
         procs=[]
