@@ -1,7 +1,8 @@
 import torch
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
-from torch.nn.functional import mse_loss, l1_loss, cross_entropy
+# from torch.nn.functional import mse_loss, l1_loss, cross_entropy
+from torch.nn import functional
 
 from pytorch_lightning import LightningModule
 from torchmdnet.models.model import create_model, load_model
@@ -62,17 +63,17 @@ class LNNP(LightningModule):
         return self.model(z, pos, batch=batch)
 
     def training_step(self, batch, batch_idx):
-        return self.step(batch, mse_loss, "train")
+        return self.step(batch, getattr(functional, self.hparams.train_loss_fn), "train")
 
     def validation_step(self, batch, batch_idx, *args):
         if len(args) == 0 or (len(args) > 0 and args[0] == 0):
             # validation step
-            return self.step(batch, mse_loss, "val")
+            return self.step(batch, getattr(functional, self.hparams.val_test_loss_fn), "val")
         # test step
-        return self.step(batch, l1_loss, "test")
+        return self.step(batch, getattr(functional, self.hparams.val_test_loss_fn), "test")
 
     def test_step(self, batch, batch_idx):
-        return self.step(batch, l1_loss, "test")
+        return self.step(batch, getattr(functional, self.hparams.val_test_loss_fn), "test")
 
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):

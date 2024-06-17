@@ -86,6 +86,9 @@ def get_args():
     parser.add_argument('--trainable-rbf', type=bool, default=False, help='If distance expansion functions should be trainable')
     parser.add_argument('--neighbor-embedding', type=bool, default=False, help='If a neighbor embedding should be applied before interactions')
     parser.add_argument('--aggr', type=str, default='add', help='Aggregation operation for CFConv filter output. Must be one of \'add\', \'mean\', or \'max\'')
+    loss_function_choices = ["mse_loss", "l1_loss", "cross_entropy"]
+    parser.add_argument('--train-loss-fn', choices= loss_function_choices, default="mse_loss", help='Loss function for training')
+    parser.add_argument('--val-test-loss-fn', choices= loss_function_choices, default="mse_loss", help='Loss function for validation and test')
 
     # Transformer specific
     parser.add_argument('--distance-influence', type=str, default='both', choices=['keys', 'values', 'both', 'none'], help='Where distance information is included inside the attention')
