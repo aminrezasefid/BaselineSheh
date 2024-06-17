@@ -60,6 +60,7 @@ def get_args():
     parser.add_argument('--dataset', default=None, type=str, choices=datasets.__all__, help='Name of the torch_geometric dataset')
     parser.add_argument('--dataset-root', default='data', type=str, help='Data storage directory (not used if dataset is "CG")')
     parser.add_argument('--dataset-arg', default=None, type=str, help='Additional dataset argument, e.g. target property for QM9 or molecule for MD17')
+    parser.add_argument('--structure', default= 0, type=int, help = 'there are four types of datasets: 0 for the original, 1 for the 3D structure generated with RDKit, 2 for the 3D structure generated and optimized with RDKit, 3 for the 2D structure generated with RDKit')
     parser.add_argument('--coord-files', default=None, type=str, help='Custom coordinate files glob')
     parser.add_argument('--embed-files', default=None, type=str, help='Custom embedding files glob')
     parser.add_argument('--energy-files', default=None, type=str, help='Custom energy files glob')
@@ -180,6 +181,7 @@ def main():
     ddp_plugin = None
     if "ddp" in args.distributed_backend:
         ddp_plugin = DDPPlugin(find_unused_parameters=False, num_nodes=args.num_nodes)
+
 
     trainer = pl.Trainer(
         max_epochs=args.num_epochs,

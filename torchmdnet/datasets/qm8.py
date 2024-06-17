@@ -1,19 +1,37 @@
 import torch
 from torch_geometric.transforms import Compose
-from torch_geometric.datasets import QM9 as QM9_geometric
-from torch_geometric.nn.models.schnet import qm9_target_dict
+from .qm8_geometric import QM8_geometric
+from typing import Dict
 
+qm8_target_dict: Dict[int, str] = {
+    0:"E1-CC2",
+    1:"E2-CC2",
+    2:"f1-CC2",
+    3:"f2-CC2",
+    4:"E1-PBE0",
+    5:"E2-PBE0",
+    6:"f1-PBE0",
+    7:"f2-PBE0",
+    8:"E1-PBE0",
+    9:"E2-PBE0",
+    10:"f1-PBE0",
+    11:"f2-PBE0",
+    12:"E1-CAM",
+    13:"E2-CAM",
+    14:"f1-CAM",
+    15:"f2-CAM"
+}
 
-class QM9(QM9_geometric):
+class QM8(QM8_geometric):
     def __init__(self, root, transform=None, dataset_arg=None, structure = 0):
         assert dataset_arg is not None, (
             "Please pass the desired property to "
             'train on via "dataset_arg". Available '
-            f'properties are {", ".join(qm9_target_dict.values())}.'
+            f'properties are {", ".join(qm8_target_dict.values())}.'
         )
 
         self.label = dataset_arg
-        label2idx = dict(zip(qm9_target_dict.values(), qm9_target_dict.keys()))
+        label2idx = dict(zip(qm8_target_dict.values(), qm8_target_dict.keys()))
         self.label_idx = label2idx[self.label]
 
         if transform is None:
@@ -21,7 +39,7 @@ class QM9(QM9_geometric):
         else:
             transform = Compose([transform, self._filter_label])
 
-        super(QM9, self).__init__(root, transform=transform)
+        super(QM8, self).__init__(root, transform=transform, structure=structure)
 
     def get_atomref(self, max_z=100):
         atomref = self.atomref(self.label_idx)
@@ -39,7 +57,7 @@ class QM9(QM9_geometric):
         return batch
 
     def download(self):
-        super(QM9, self).download()
+        super(QM8, self).download()
 
     def process(self):
-        super(QM9, self).process()
+        super(QM8, self).process()
