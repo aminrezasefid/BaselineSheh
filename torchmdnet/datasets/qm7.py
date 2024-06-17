@@ -8,14 +8,13 @@ qm7_target_dict: Dict[int, str] = {
 }
 
 class QM7(QM7_geometric):
-    def __init__(self, root, transform=None, dataset_arg=None, structure = 0):
+    def __init__(self, root, transform=None, dataset_arg=None, structure = None):
         assert dataset_arg is not None, (
             "Please pass the desired property to "
             'train on via "dataset_arg". Available '
             f'properties are {", ".join(qm7_target_dict.values())}.'
         )
 
-        print(structure)
         self.label = dataset_arg
         label2idx = dict(zip(qm7_target_dict.values(), qm7_target_dict.keys()))
         self.label_idx = label2idx[self.label]

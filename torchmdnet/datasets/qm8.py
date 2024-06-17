@@ -12,10 +12,6 @@ qm8_target_dict: Dict[int, str] = {
     5:"E2-PBE0",
     6:"f1-PBE0",
     7:"f2-PBE0",
-    8:"E1-PBE0",
-    9:"E2-PBE0",
-    10:"f1-PBE0",
-    11:"f2-PBE0",
     12:"E1-CAM",
     13:"E2-CAM",
     14:"f1-CAM",
@@ -23,7 +19,7 @@ qm8_target_dict: Dict[int, str] = {
 }
 
 class QM8(QM8_geometric):
-    def __init__(self, root, transform=None, dataset_arg=None, structure = 0):
+    def __init__(self, root, transform=None, dataset_arg=None, structure = None):
         assert dataset_arg is not None, (
             "Please pass the desired property to "
             'train on via "dataset_arg". Available '

@@ -11,39 +11,19 @@ from torch_scatter import scatter
 from torch_geometric.data import (InMemoryDataset, download_url, extract_zip,extract_tar,
                                   Data)
 
-HAR2EV = 27.211386246
-KCALMOL2EV = 0.04336414
-
-
-atomrefs = {
-    6: [0., 0., 0., 0., 0.],
-    7: [
-        -13.61312172, -1029.86312267, -1485.30251237, -2042.61123593,
-        -2713.48485589
-    ],
-    8: [
-        -13.5745904, -1029.82456413, -1485.26398105, -2042.5727046,
-        -2713.44632457
-    ],
-    9: [
-        -13.54887564, -1029.79887659, -1485.2382935, -2042.54701705,
-        -2713.42063702
-    ],
-    10: [
-        -13.90303183, -1030.25891228, -1485.71166277, -2043.01812778,
-        -2713.88796536
-    ],
-    11: [0., 0., 0., 0., 0.],
+URLS = {
+    "precise3d": "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb8.tar.gz",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=124pGEhMob8lqn_na7-hQoJc9tFQWqxgQ",
+    "optmized3d": "https://drive.google.com/uc?export=download&id=12-8rnlRVT9SC523xdAkeju6VvA9fxJt0",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=121VQXCzI8Vh-i_iQmv5NRyZamUxEX1lJ"
 }
-
-URLS = ['https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb8.tar.gz','https://drive.google.com/uc?export=download&id=124pGEhMob8lqn_na7-hQoJc9tFQWqxgQ', 'https://drive.google.com/uc?export=download&id=12-8rnlRVT9SC523xdAkeju6VvA9fxJt0', 'https://drive.google.com/uc?export=download&id=121VQXCzI8Vh-i_iQmv5NRyZamUxEX1lJ']
-
 
 class QM8_geometric(InMemoryDataset):
 
     def __init__(self, root: str, transform: Optional[Callable] = None,
                  pre_transform: Optional[Callable] = None,
                  pre_filter: Optional[Callable] = None, structure: int = 0):
+        self.structure = structure
         self.raw_url = URLS[structure]
         super().__init__(root, transform, pre_transform, pre_filter)
         self.data, self.slices = torch.load(self.processed_paths[0])
@@ -55,13 +35,6 @@ class QM8_geometric(InMemoryDataset):
     def std(self, target: int) -> float:
         y = torch.cat([self.get(i).y for i in range(len(self))], dim=0)
         return float(y[:, target].std())
-
-    def atomref(self, target) -> Optional[torch.Tensor]:
-        if target in atomrefs:
-            out = torch.zeros(100)
-            out[torch.tensor([1, 6, 7, 8, 9])] = torch.tensor(atomrefs[target])
-            return out.view(-1, 1)
-        return None
 
     @property
     def raw_file_names(self) -> List[str]:
@@ -125,11 +98,9 @@ class QM8_geometric(InMemoryDataset):
         with open(self.raw_paths[1], 'r') as f:
             target = [[float(x) for x in line.split(',')[1:]]
                 for line in f.read().split('\n')[1:-1]]
+            if self.structure == "precise3d":
+                target = [x[:8] + x[12:] for x in target]
             target = torch.tensor(target, dtype=torch.float)
-
-
-        # with open(self.raw_paths[2], 'r') as f:
-            # skip = [int(x.split()[0]) - 1 for x in f.read().split('\n')[9:-2]]
 
         suppl = Chem.SDMolSupplier(self.raw_paths[0], removeHs=False,
                                    sanitize=False)

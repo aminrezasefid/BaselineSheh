@@ -18,39 +18,23 @@ SKIP_LIST = ['1 2.753415 1.686911 2.122795',
 '1 5.189535 2.297423 -0.368037',
 '1 1.964094 4.093345 0.737567',]
 
-# TODO make sure you are using the right conversion factor
+# TODO (armin) make sure you are using the right conversion factor
 conversion = torch.tensor([
 KCALMOL2EV
 ])
 
-atomrefs = {
-    6: [0., 0., 0., 0., 0.],
-    7: [
-        -13.61312172, -1029.86312267, -1485.30251237, -2042.61123593,
-        -2713.48485589
-    ],
-    8: [
-        -13.5745904, -1029.82456413, -1485.26398105, -2042.5727046,
-        -2713.44632457
-    ],
-    9: [
-        -13.54887564, -1029.79887659, -1485.2382935, -2042.54701705,
-        -2713.42063702
-    ],
-    10: [
-        -13.90303183, -1030.25891228, -1485.71166277, -2043.01812778,
-        -2713.88796536
-    ],
-    11: [0., 0., 0., 0., 0.],
+URLS = {
+    "precise3d": "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb7.tar.gz",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=11bliFC_cd1pdzlWMj4aFjErgo8FHHJ2A",
+    "optmized3d": "https://drive.google.com/uc?export=download&id=11nBEtg_Svp0dBYqErkgcoKz-FcVlQEae",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=11qwkx_PcSPHgNopLaj5rXrsI3G9whnZt"
 }
-
-URLS = ['https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb7.tar.gz', 'https://drive.google.com/uc?export=download&id=11bliFC_cd1pdzlWMj4aFjErgo8FHHJ2A', 'https://drive.google.com/uc?export=download&id=11nBEtg_Svp0dBYqErkgcoKz-FcVlQEae', 'https://drive.google.com/uc?export=download&id=11qwkx_PcSPHgNopLaj5rXrsI3G9whnZt']
 class QM7_geometric(InMemoryDataset):
 
     def __init__(self, root: str, transform: Optional[Callable] = None,
                  pre_transform: Optional[Callable] = None,
                  pre_filter: Optional[Callable] = None,
-                 structure: int = 0):
+                 structure: str = "precise3d"):
         self.raw_url = URLS[structure]
         super().__init__(root, transform, pre_transform, pre_filter)
         self.data, self.slices = torch.load(self.processed_paths[0])
@@ -63,12 +47,6 @@ class QM7_geometric(InMemoryDataset):
         y = torch.cat([self.get(i).y for i in range(len(self))], dim=0)
         return float(y[:, target].std())
 
-    def atomref(self, target) -> Optional[torch.Tensor]:
-        if target in atomrefs:
-            out = torch.zeros(100)
-            out[torch.tensor([1, 6, 7, 8, 9])] = torch.tensor(atomrefs[target])
-            return out.view(-1, 1)
-        return None
 
 
     @property
