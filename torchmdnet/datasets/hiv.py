@@ -119,10 +119,10 @@ class HIV_geometric(InMemoryDataset):
         # print(f"File format: {file_format}")
 
         # if 'zip' in file_format.lower():
-        #     extract_zip(file_path, self.raw_dir)
-        #     print(f"Extracted files to {self.raw_dir}")
-        #     os.unlink(file_path)
-        #     print("Deleted the zip file")
+        extract_zip(file_path, self.raw_dir)
+        print(f"Extracted files to {self.raw_dir}")
+        os.unlink(file_path)
+        print("Deleted the zip file")
         # else:
         #     print("The file is not a zip file.")
 
