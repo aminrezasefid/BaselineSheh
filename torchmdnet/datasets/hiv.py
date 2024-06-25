@@ -36,7 +36,7 @@ RDLogger.DisableLog('rdApp.*')
 import sys
 import torch
 from torch import Tensor
-from torch_geometric.utils import one_hot, scatter
+#from torch_geometric.utils import one_hot, scatter
 
 atomrefs = {
     6: [0., 0., 0., 0., 0.],
