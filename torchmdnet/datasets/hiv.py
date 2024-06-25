@@ -70,10 +70,10 @@ class HIV_geometric(InMemoryDataset):
         transform: Optional[Callable] = None,
         pre_transform: Optional[Callable] = None,
         pre_filter: Optional[Callable] = None,
-        force_reload: bool = False,
+        #force_reload: bool = False,
     ) -> None:
-        super().__init__(root, transform, pre_transform, pre_filter,
-                         force_reload=force_reload)
+        super().__init__(root, transform, pre_transform=None, pre_filter=None)
+                         #force_reload=force_reload)
         self.load(self.processed_paths[0])
 
     def mean(self, target: int) -> float:
