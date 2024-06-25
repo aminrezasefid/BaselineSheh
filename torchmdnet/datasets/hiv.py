@@ -283,7 +283,7 @@ HIV_target_dict: Dict[int, str] = {
     1: 'HIV_active'}
 
 class HIV(HIV_geometric):
-    def __init__(self, root, transform=None, dataset_arg=None, num_conf=None):
+    def __init__(self, root, transform=None, dataset_arg=None, num_confs=None):
         assert dataset_arg is not None, (
             "Please pass the desired property to "
             'train on via "dataset_arg". Available '
