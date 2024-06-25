@@ -284,7 +284,7 @@ class HIV_geometric(InMemoryDataset):
                 name=name,
                 idx=i,
             )
-            if not data.x:
+            if data.x is None:
                 print("The Data object is empty.", i, mol)
 
             if self.pre_filter is not None and not self.pre_filter(data):
