@@ -313,7 +313,9 @@ class HIV(HIV_geometric):
 
         self.label = dataset_arg
         label2idx = dict(zip(HIV_target_dict.values(), HIV_target_dict.keys()))
+        print('label2idx dictionary:', label2idx)
         self.label_idx = label2idx[self.label]
+        print('self.label_idx:', self.label_idx)
 
         if transform is None:
             transform = self._filter_label
