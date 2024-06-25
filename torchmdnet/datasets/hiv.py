@@ -106,7 +106,7 @@ class HIV_geometric(InMemoryDataset):
     def download(self) -> None:
         import rdkit  # noqa
         import gdown  # you need to install this library
-        import magic
+        #import magic
         print("Starting download...")
         file_path = download_url(self.raw_url, self.raw_dir)
         # Use gdown to download the file
