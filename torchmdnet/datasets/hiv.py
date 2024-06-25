@@ -114,17 +114,17 @@ class HIV_geometric(InMemoryDataset):
 
         print(f"Downloaded file to {file_path}")
 
-        # Check the file format
-        file_format = magic.from_file(file_path)
-        print(f"File format: {file_format}")
+        # # Check the file format
+        # file_format = magic.from_file(file_path)
+        # print(f"File format: {file_format}")
 
-        if 'zip' in file_format.lower():
-            extract_zip(file_path, self.raw_dir)
-            print(f"Extracted files to {self.raw_dir}")
-            os.unlink(file_path)
-            print("Deleted the zip file")
-        else:
-            print("The file is not a zip file.")
+        # if 'zip' in file_format.lower():
+        #     extract_zip(file_path, self.raw_dir)
+        #     print(f"Extracted files to {self.raw_dir}")
+        #     os.unlink(file_path)
+        #     print("Deleted the zip file")
+        # else:
+        #     print("The file is not a zip file.")
 
         print("Download successful!")
 
