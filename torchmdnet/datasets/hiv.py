@@ -228,23 +228,45 @@ class HIV_geometric(InMemoryDataset):
 
             # The atom and bond information is used to construct the node features (x), edge indices (edge_index),
             # and edge attributes (edge_attr) for the graph representation of the molecule
+            # edge_index = torch.tensor([rows, cols], dtype=torch.long)
+            # edge_type = torch.tensor(edge_types, dtype=torch.long)
+            # edge_attr = one_hot(edge_type, num_classes=len(bonds))
+
+            # perm = (edge_index[0] * N + edge_index[1]).argsort()
+            # edge_index = edge_index[:, perm]
+            # edge_type = edge_type[perm]
+            # edge_attr = edge_attr[perm]
+
+            # row, col = edge_index
+            # hs = (z == 1).to(torch.float)
+            # num_hs = scatter(hs[row], col, dim_size=N, reduce='sum').tolist()
+
+            # x1 = one_hot(torch.tensor(type_idx), num_classes=len(types))
+            # x2 = torch.tensor([atomic_number, aromatic, sp, sp2, sp3, num_hs],
+            #                   dtype=torch.float).t().contiguous()
+            # x = torch.cat([x1, x2], dim=-1)
+            
+
+            # The atom and bond information is used to construct the node features (x), edge indices (edge_index),
+            # and edge attributes (edge_attr) for the graph representation of the molecule
             edge_index = torch.tensor([rows, cols], dtype=torch.long)
             edge_type = torch.tensor(edge_types, dtype=torch.long)
-            edge_attr = one_hot(edge_type, num_classes=len(bonds))
-
+            edge_attr = F.one_hot(edge_type, num_classes=len(bonds))
+            
             perm = (edge_index[0] * N + edge_index[1]).argsort()
             edge_index = edge_index[:, perm]
             edge_type = edge_type[perm]
             edge_attr = edge_attr[perm]
-
+            
             row, col = edge_index
             hs = (z == 1).to(torch.float)
             num_hs = scatter(hs[row], col, dim_size=N, reduce='sum').tolist()
-
-            x1 = one_hot(torch.tensor(type_idx), num_classes=len(types))
+            
+            x1 = F.one_hot(torch.tensor(type_idx), num_classes=len(types))
             x2 = torch.tensor([atomic_number, aromatic, sp, sp2, sp3, num_hs],
                               dtype=torch.float).t().contiguous()
             x = torch.cat([x1, x2], dim=-1)
+
 
             # The molecule’s name and SMILES string are also recorded
             name = mol.GetProp('_Name')
