@@ -337,7 +337,9 @@ class HIV(HIV_geometric):
 
     def _filter_label(self, batch):
         print("Shape of batch.y: ", batch.y.shape)
+        print("batch.y: ", batch.y)
         print("Value of self.label_idx: ", self.label_idx)
+        
         batch.y = batch.y[:, self.label_idx].unsqueeze(1)
         return batch
 
