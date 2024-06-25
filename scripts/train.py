@@ -1,5 +1,6 @@
 import numpy as np  # sometimes needed to avoid mkl-service error
 import sys
+sys.settrace
 import os
 import argparse
 import logging
@@ -7,8 +8,12 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import CSVLogger, WandbLogger
-from pytorch_lightning.plugins import DDPPlugin
+from pytorch_lightning.strategies import DDPStrategy
 from pytorch_lightning.utilities import rank_zero_only
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
 from torchmdnet.module import LNNP
 from torchmdnet import datasets, priors, models
 from torchmdnet.data import DataModule
@@ -50,6 +55,7 @@ def get_args():
     parser.add_argument('--save-interval', type=int, default=10, help='Save interval, one save per n epochs (default: 10)')
     parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
     parser.add_argument('--distributed-backend', default='ddp', help='Distributed backend: dp, ddp, ddp2')
+    parser.add_argument('--accelerator', default='auto', help='Accelerator types: “cpu”, “gpu”, “tpu”, “ipu”, “hpu”, “mps”, “auto”')
     parser.add_argument('--num-workers', type=int, default=4, help='Number of workers for data prefetch')
     parser.add_argument('--redirect', type=bool, default=False, help='Redirect stdout and stderr to log_dir/log')
     parser.add_argument('--wandb-notes', default="", type=str, help='Notes passed to wandb experiment.')
@@ -109,13 +115,13 @@ def get_args():
 
     args = parser.parse_args()
 
-    if args.job_id == "auto":
-        assert len(os.environ['CUDA_VISIBLE_DEVICES'].split(',')) == 1, "Might be problematic with DDP."
-        if Path(args.log_dir).exists() and len(os.listdir(args.log_dir)) > 0:        
-            next_job_id = str(max([int(x.name) for x in Path(args.log_dir).iterdir() if x.name.isnumeric()])+1)
-        else:
-            next_job_id = "1"
-        args.job_id = next_job_id
+    # if args.job_id == "auto":
+    #     assert len(os.environ['CUDA_VISIBLE_DEVICES'].split(',')) == 1, "Might be problematic with DDP."
+    #     if Path(args.log_dir).exists() and len(os.listdir(args.log_dir)) > 0:        
+    #         next_job_id = str(max([int(x.name) for x in Path(args.log_dir).iterdir() if x.name.isnumeric()])+1)
+    #     else:
+    #         next_job_id = "1"
+    #     args.job_id = next_job_id
 
     args.log_dir = str(Path(args.log_dir, args.job_id))
     Path(args.log_dir).mkdir(parents=True, exist_ok=True)
@@ -181,9 +187,9 @@ def main():
 
     log_code()
 
-    ddp_plugin = None
-    if "ddp" in args.distributed_backend:
-        ddp_plugin = DDPPlugin(find_unused_parameters=False, num_nodes=args.num_nodes)
+    # ddp_plugin = None
+    # if "ddp" in args.distributed_backend:
+    #     ddp_plugin = DDPStrategy(find_unused_parameters=False)
 
 
     trainer = pl.Trainer(
@@ -191,7 +197,7 @@ def main():
         max_steps=args.num_steps,
         gpus=args.ngpus,
         num_nodes=args.num_nodes,
-        accelerator=args.distributed_backend,
+        accelerator=args.accelerator,
         default_root_dir=args.log_dir,
         auto_lr_find=False,
         resume_from_checkpoint=args.load_model,
@@ -199,7 +205,8 @@ def main():
         logger=[tb_logger, csv_logger, wandb_logger],
         reload_dataloaders_every_epoch=False,
         precision=args.precision,
-        plugins=[ddp_plugin],
+        # TODO (armin) not sure
+        strategy= "DDPStrategy",
     )
 
     trainer.fit(model, data)

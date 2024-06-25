@@ -2,7 +2,7 @@ from os.path import join
 from tqdm import tqdm
 import torch
 from torch.utils.data import Subset
-from torch_geometric.data import DataLoader
+from torch_geometric.loader import DataLoader
 from pytorch_lightning import LightningDataModule
 from pytorch_lightning.utilities import rank_zero_warn
 from torchmdnet import datasets
@@ -13,10 +13,14 @@ from torch_scatter import scatter
 class DataModule(LightningDataModule):
     def __init__(self, hparams, dataset=None):
         super(DataModule, self).__init__()
-        self.hparams = hparams.__dict__ if hasattr(hparams, "__dict__") else hparams
+        self._hparams = hparams.__dict__ if hasattr(hparams, "__dict__") else hparams
         self._mean, self._std = None, None
         self._saved_dataloaders = dict()
         self.dataset = dataset
+
+    @property
+    def hparams(self):
+        return self._hparams
 
     def setup(self, stage):
         if self.dataset is None:
