@@ -5,7 +5,7 @@ import os
 import argparse
 import logging
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import EarlyStopping
+from pytorch_lightning.callbacks import EarlyStopping, LearningRateFinder
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import CSVLogger, WandbLogger
 from pytorch_lightning.strategies import DDPStrategy
@@ -115,13 +115,6 @@ def get_args():
 
     args = parser.parse_args()
 
-    # if args.job_id == "auto":
-    #     assert len(os.environ['CUDA_VISIBLE_DEVICES'].split(',')) == 1, "Might be problematic with DDP."
-    #     if Path(args.log_dir).exists() and len(os.listdir(args.log_dir)) > 0:        
-    #         next_job_id = str(max([int(x.name) for x in Path(args.log_dir).iterdir() if x.name.isnumeric()])+1)
-    #     else:
-    #         next_job_id = "1"
-    #     args.job_id = next_job_id
 
     args.log_dir = str(Path(args.log_dir, args.job_id))
     Path(args.log_dir).mkdir(parents=True, exist_ok=True)
@@ -140,6 +133,9 @@ def get_args():
 
     return args
 
+# def log_code(wandb_logger):
+#     wandb_logger.experiment # runs wandb.init, so then code can be logged next
+#     wandb.run.log_code(".", include_fn=lambda path: path.endswith(".py") or path.endswith(".yaml"))
 
 def main():
     args = get_args()
@@ -168,7 +164,7 @@ def main():
         dirpath=args.log_dir,
         monitor="val_loss",
         save_top_k=10,  # -1 to save all
-        period=args.save_interval,
+        every_n_epochs=args.save_interval,
         filename="{step}-{epoch}-{val_loss:.4f}-{test_loss:.4f}-{train_per_step:.4f}",
         save_last=True,
     )
@@ -178,35 +174,28 @@ def main():
         args.log_dir, name="tensorbord", version="", default_hp_metric=False
     )
     csv_logger = CSVLogger(args.log_dir, name="", version="")
-    wandb_logger = WandbLogger(name=args.job_id, project='pre-training-via-denoising', notes=args.wandb_notes, settings=wandb.Settings(start_method='fork', code_dir="."))
+    # wandb_logger = WandbLogger(name=args.job_id, project='pre-training-via-denoising', notes=args.wandb_notes)
 
-    @rank_zero_only
-    def log_code():
-        wandb_logger.experiment # runs wandb.init, so then code can be logged next
-        wandb.run.log_code(".", include_fn=lambda path: path.endswith(".py") or path.endswith(".yaml"))
-
-    log_code()
+    # log_code(wandb_logger)
 
     # ddp_plugin = None
     # if "ddp" in args.distributed_backend:
     #     ddp_plugin = DDPStrategy(find_unused_parameters=False)
 
+    lr_finder_callback = LearningRateFinder()
 
     trainer = pl.Trainer(
         max_epochs=args.num_epochs,
         max_steps=args.num_steps,
-        gpus=args.ngpus,
         num_nodes=args.num_nodes,
         accelerator=args.accelerator,
         default_root_dir=args.log_dir,
-        auto_lr_find=False,
-        resume_from_checkpoint=args.load_model,
+        # resume_from_checkpoint=args.load_model, # TODO (armin) resume_from_chechpoint is deprecated but since load_model is None at moment, we will ignore it
         callbacks=[early_stopping, checkpoint_callback],
-        logger=[tb_logger, csv_logger, wandb_logger],
-        reload_dataloaders_every_epoch=False,
+        logger=[tb_logger, csv_logger], # TODO (armin) just removed wandb_logger
+        reload_dataloaders_every_n_epochs= 0,
         precision=args.precision,
-        # TODO (armin) not sure
-        strategy= "DDPStrategy",
+        # strategy= DDPStrategy(), # not supported for mps, TODO (armin) remember!
     )
 
     trainer.fit(model, data)

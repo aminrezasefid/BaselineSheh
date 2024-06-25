@@ -22,6 +22,12 @@ class DataModule(LightningDataModule):
     def hparams(self):
         return self._hparams
 
+    def transform(self, data):
+        noise = torch.randn_like(data.pos) * self.hparams['position_noise_scale']
+        data.pos_target = noise
+        data.pos = data.pos + noise
+        return data
+
     def setup(self, stage):
         if self.dataset is None:
             if self.hparams["dataset"] == "Custom":
@@ -33,11 +39,7 @@ class DataModule(LightningDataModule):
                 )
             else:
                 if self.hparams['position_noise_scale'] > 0.:
-                    def transform(data):
-                        noise = torch.randn_like(data.pos) * self.hparams['position_noise_scale']
-                        data.pos_target = noise
-                        data.pos = data.pos + noise
-                        return data
+                    transform = self.transform
                 else:
                     transform = None
 
@@ -106,7 +108,7 @@ class DataModule(LightningDataModule):
 
     def _get_dataloader(self, dataset, stage, store_dataloader=True):
         store_dataloader = (
-            store_dataloader and not self.trainer.reload_dataloaders_every_epoch
+            store_dataloader and not self.trainer.reload_dataloaders_every_n_epochs
         )
         if stage in self._saved_dataloaders and store_dataloader:
             # storing the dataloaders like this breaks calls to trainer.reload_train_val_dataloaders
