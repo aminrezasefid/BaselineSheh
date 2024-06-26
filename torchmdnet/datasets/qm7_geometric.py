@@ -136,12 +136,12 @@ class QM7_geometric(InMemoryDataset):
         bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) for x in line.split(',')[1:20]]
+            target = [[float(x) for x in line.split(',')[-1]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
             # TODO (armin) this doesn't look right
             y = y * conversion.view(1, -1)
-            y = y.view(-1, 1)
+            # y = y.view(-1, 1)
 
 
         # with open(self.raw_paths[2], 'r') as f:
