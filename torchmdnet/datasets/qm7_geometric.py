@@ -136,12 +136,12 @@ class QM7_geometric(InMemoryDataset):
         bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) for x in line.split(',')[-1]]
+            target = [[float(x) for x in line.split(',')]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
             # TODO (armin) this doesn't look right
             y = y * conversion.view(1, -1)
-            # y = y.view(-1, 1)
+            y = y.view(-1, 1)
 
 
         # with open(self.raw_paths[2], 'r') as f:
@@ -203,8 +203,14 @@ class QM7_geometric(InMemoryDataset):
             x = torch.cat([x1, x2], dim=-1)
 
             name = mol.GetProp('_Name')
-            smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
 
+            inval_counter = 0
+            if name in SKIP_LIST:
+                inval_counter += 1
+                continue
+
+            smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
+            
             data = Data(
                 x=x,
                 z=z,
@@ -212,9 +218,9 @@ class QM7_geometric(InMemoryDataset):
                 edge_index=edge_index,
                 smiles=smiles,
                 edge_attr=edge_attr,
-                y=y[i].unsqueeze(0),
+                y=y[i - inval_counter].unsqueeze(0),
                 name=name,
-                idx=i,
+                idx=i - inval_counter,
             )
 
             if self.pre_filter is not None and not self.pre_filter(data):
