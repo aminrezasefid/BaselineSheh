@@ -151,6 +151,7 @@ class QM7_geometric(InMemoryDataset):
                                    sanitize=False)
 
         data_list = []
+        inval_counter = 0
         for i, mol in enumerate(tqdm(suppl)):
 
             N = mol.GetNumAtoms()
@@ -204,7 +205,6 @@ class QM7_geometric(InMemoryDataset):
 
             name = mol.GetProp('_Name')
 
-            inval_counter = 0
             if name in SKIP_LIST:
                 inval_counter += 1
                 continue

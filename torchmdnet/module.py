@@ -188,7 +188,7 @@ class LNNP(LightningModule):
 
 
     # TODO(shehzaidi): clean up this function, redundant logging if dy loss exists.
-    def on_validation_epoch_end(self, validation_step_outputs):
+    def on_validation_epoch_end(self):
         if not self.trainer.sanity_checking:
             # construct dict of logged metrics
             result_dict = {

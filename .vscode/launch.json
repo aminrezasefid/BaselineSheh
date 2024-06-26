@@ -21,6 +21,8 @@
         "1",
         "--pretrained-model",
         "checkpoints/denoised-pcqm4mv2.ckpt"
+        // "--accelerator",
+        // "cpu"
       ]
     }
   ]
