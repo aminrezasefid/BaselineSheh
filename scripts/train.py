@@ -77,6 +77,8 @@ def get_args():
     parser.add_argument('--denoising-weight', default=0., type=float, help='Weighting factor for denoising in the loss function.')
     parser.add_argument('--denoising-only', type=bool, default=False, help='If the task is denoising only (then val/test datasets also contain noise).')
 
+    # TODO (armin) ask what the conformer is
+
     # model architecture
     parser.add_argument('--model', type=str, default='graph-network', choices=models.__all__, help='Which model to train')
     parser.add_argument('--output-model', type=str, default='Scalar', choices=output_modules.__all__, help='The type of output model')
@@ -92,6 +94,8 @@ def get_args():
     parser.add_argument('--trainable-rbf', type=bool, default=False, help='If distance expansion functions should be trainable')
     parser.add_argument('--neighbor-embedding', type=bool, default=False, help='If a neighbor embedding should be applied before interactions')
     parser.add_argument('--aggr', type=str, default='add', help='Aggregation operation for CFConv filter output. Must be one of \'add\', \'mean\', or \'max\'')
+    parser.add_argument('--task-type',type=str,default="regr",choices=["regr","class"],help="model used for classification or regression")
+    parser.add_argument('--out-channels',type=int,default=1,help="number of output neurons")
     loss_function_choices = ["mse_loss", "l1_loss", "cross_entropy"]
     parser.add_argument('--train-loss-fn', choices= loss_function_choices, default="mse_loss", help='Loss function for training')
     parser.add_argument('--val-test-loss-fn', choices= loss_function_choices, default="mse_loss", help='Loss function for validation and test')
@@ -111,6 +115,8 @@ def get_args():
     parser.add_argument('--max-num-neighbors', type=int, default=32, help='Maximum number of neighbors to consider in the network')
     parser.add_argument('--standardize', type=bool, default=False, help='If true, multiply prediction by dataset std and add mean')
     parser.add_argument('--reduce-op', type=str, default='add', choices=['add', 'mean'], help='Reduce operation to apply to atomic predictions')
+    parser.add_argument('--metric-name', type=str, default='val_loss', help='parameter name to be followed by call backs')
+    parser.add_argument('--callback-mode', type=str, default='min', help='callback mode')
     # fmt: on
 
     args = parser.parse_args()
@@ -159,16 +165,18 @@ def main():
 
     # initialize lightning module
     model = LNNP(args, prior_model=prior, mean=data.mean, std=data.std)
+    metric_name = args.metric_name
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=args.log_dir,
-        monitor="val_loss",
+        monitor= metric_name,
         save_top_k=10,  # -1 to save all
         every_n_epochs=args.save_interval,
-        filename="{step}-{epoch}-{val_loss:.4f}-{test_loss:.4f}-{train_per_step:.4f}",
+        filename="{step}-{epoch}-{"+metric_name+":.4f}-{test_loss:.4f}-{train_per_step:.4f}",
         save_last=True,
+        mode=args.callback_mode
     )
-    early_stopping = EarlyStopping("val_loss", patience=args.early_stopping_patience)
+    early_stopping = EarlyStopping(metric_name, patience=args.early_stopping_patience, mode=args.callback_mode)
 
     tb_logger = pl.loggers.TensorBoardLogger(
         args.log_dir, name="tensorbord", version="", default_hp_metric=False

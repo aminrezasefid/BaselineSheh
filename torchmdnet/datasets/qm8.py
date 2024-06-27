@@ -48,6 +48,10 @@ class QM8(QM8_geometric):
             return tmp
         return atomref
 
+    def _fix_batch(self, batch):
+        batch.y = batch.y.unsqueeze(1)
+        return batch
+
     def _filter_label(self, batch):
         batch.y = batch.y[:, self.label_idx].unsqueeze(1)
         return batch

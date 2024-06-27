@@ -80,7 +80,7 @@ def create_model(args, prior_model=None, mean=None, std=None):
     # create output network
     output_prefix = "Equivariant" if is_equivariant else ""
     output_model = getattr(output_modules, output_prefix + args["output_model"])(
-        args["embedding_dimension"], args["activation"]
+        args["embedding_dimension"], args["activation"], task_type=args["task_type"], out_channels = args["out_channels"]
     )
 
     # create the denoising output network

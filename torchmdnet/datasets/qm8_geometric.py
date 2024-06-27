@@ -20,13 +20,17 @@ URLS = {
 
 class QM8_geometric(InMemoryDataset):
 
-    def __init__(self, root: str, transform: Optional[Callable] = None,
+    def __init__(self,
+                 root: str,
+                 transform: Optional[Callable] = None,
                  pre_transform: Optional[Callable] = None,
-                 pre_filter: Optional[Callable] = None, structure: int = 0):
+                 pre_filter: Optional[Callable] = None,
+                 force_reload: bool = False,
+                 structure: int = 0):
         self.structure = structure
         self.raw_url = URLS[structure]
-        super().__init__(root, transform, pre_transform, pre_filter)
-        self.data, self.slices = torch.load(self.processed_paths[0])
+        super().__init__(root, transform, pre_transform, pre_filter, force_reload=force_reload)
+        self.load(self.processed_paths[0])
 
     def mean(self, target: int) -> float:
         y = torch.cat([self.get(i).y for i in range(len(self))], dim=0)

@@ -12,7 +12,10 @@ class LNNP(LightningModule):
     def __init__(self, hparams, prior_model=None, mean=None, std=None):
         super(LNNP, self).__init__()
         self.save_hyperparameters(hparams)
-
+        # TODO (armin) The follwing were introduced by amin for classification tasks, since at the moment we are only working with regression
+        # we will skip them, IMPLEMENT LATER
+        # self.val_labels=[]
+        # self.val_preds=[]
         if self.hparams.load_model:
             self.model = load_model(self.hparams.load_model, args=self.hparams)
         elif self.hparams.pretrained_model:
