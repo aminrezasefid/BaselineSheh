@@ -61,11 +61,13 @@ def get_args():
     parser.add_argument('--wandb-notes', default="", type=str, help='Notes passed to wandb experiment.')
     parser.add_argument('--job-id', default="auto", type=str, help='Job ID. If auto, pick the next available numeric job id.')
     parser.add_argument('--pretrained-model', default=None, type=str, help='Pre-trained weights checkpoint.')
+    parser.add_argument('--strict-load', type=bool, default=False, help='load weights strictly.')
+
 
     # dataset specific
     parser.add_argument('--dataset', default=None, type=str, choices=datasets.__all__, help='Name of the torch_geometric dataset')
     parser.add_argument('--dataset-root', default='data', type=str, help='Data storage directory (not used if dataset is "CG")')
-    parser.add_argument('--dataset-arg', default=None, type=str, help='Additional dataset argument, e.g. target property for QM9 or molecule for MD17')
+    parser.add_argument('--dataset-args', default=None, type=str, help='Additional dataset argument, e.g. an array for target properties for QM9 or molecule for MD17. If not provided, all properties are used')
     parser.add_argument('--structure', choices=["precise3d", "rdkit3d", "optimized3d", "rdkit2d"], default="precise3d", help='Structure of the input data')
     parser.add_argument('--coord-files', default=None, type=str, help='Custom coordinate files glob')
     parser.add_argument('--embed-files', default=None, type=str, help='Custom embedding files glob')
@@ -95,7 +97,7 @@ def get_args():
     parser.add_argument('--neighbor-embedding', type=bool, default=False, help='If a neighbor embedding should be applied before interactions')
     parser.add_argument('--aggr', type=str, default='add', help='Aggregation operation for CFConv filter output. Must be one of \'add\', \'mean\', or \'max\'')
     parser.add_argument('--task-type',type=str,default="regr",choices=["regr","class"],help="model used for classification or regression")
-    parser.add_argument('--out-channels',type=int,default=1,help="number of output neurons")
+    parser.add_argument('--out-channels',type=int,default=1,help="number of output neurons, must be the same as the number of properties to predict")
     loss_function_choices = ["mse_loss", "l1_loss", "cross_entropy"]
     parser.add_argument('--train-loss-fn', choices= loss_function_choices, default="mse_loss", help='Loss function for training')
     parser.add_argument('--val-test-loss-fn', choices= loss_function_choices, default="mse_loss", help='Loss function for validation and test')

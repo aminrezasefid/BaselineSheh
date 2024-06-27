@@ -118,7 +118,7 @@ class TorchMD_ET(nn.Module):
         self.neighbor_embedding = (
             NeighborEmbedding(
                 hidden_channels, num_rbf, cutoff_lower, cutoff_upper, self.max_z
-            ).jittable()
+            )
             if neighbor_embedding
             else None
         )
@@ -134,7 +134,7 @@ class TorchMD_ET(nn.Module):
                 attn_activation,
                 cutoff_lower,
                 cutoff_upper,
-            ).jittable()
+            )
             self.attention_layers.append(layer)
 
         self.out_norm = nn.LayerNorm(hidden_channels)

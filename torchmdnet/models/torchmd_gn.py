@@ -113,7 +113,7 @@ class TorchMD_GN(nn.Module):
         self.neighbor_embedding = (
             NeighborEmbedding(
                 hidden_channels, num_rbf, cutoff_lower, cutoff_upper, self.max_z
-            ).jittable()
+            )
             if neighbor_embedding
             else None
         )
@@ -189,7 +189,7 @@ class InteractionBlock(nn.Module):
             activation(),
             nn.Linear(num_filters, num_filters),
         )
-        self.conv = CFConv(
+        self.conv = (CFConv(
             hidden_channels,
             hidden_channels,
             num_filters,
@@ -197,7 +197,7 @@ class InteractionBlock(nn.Module):
             cutoff_lower,
             cutoff_upper,
             aggr=aggr,
-        ).jittable()
+        ))
         self.act = activation()
         self.lin = nn.Linear(hidden_channels, hidden_channels)
 

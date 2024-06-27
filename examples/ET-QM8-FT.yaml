@@ -7,7 +7,6 @@ coord_files: null
 cutoff_lower: 0.0
 cutoff_upper: 5.0
 dataset: QM8
-dataset_arg: homo
 dataset_root: data/qm8
 derivative: false
 distance_influence: both
@@ -65,4 +64,6 @@ denoising_weight: 0.1
 layernorm_on_vec: null
 wandb_notes: ""
 job_id: auto
-structure: 0
+structure: "precise3d"
+out_channels: 12
+strict_load: false

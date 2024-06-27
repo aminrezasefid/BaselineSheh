@@ -7,7 +7,6 @@ coord_files: null
 cutoff_lower: 0.0
 cutoff_upper: 5.0
 dataset: QM7
-dataset_arg: u0_atom
 dataset_root: data/qm7
 derivative: false
 distance_influence: both
