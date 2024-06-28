@@ -1,11 +1,11 @@
 import numpy as np  # sometimes needed to avoid mkl-service error
 import sys
+import os
 
 sys.settrace
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-import os
 import argparse
 import logging
 import pytorch_lightning as pl
