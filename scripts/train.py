@@ -1,6 +1,10 @@
 import numpy as np  # sometimes needed to avoid mkl-service error
 import sys
-# sys.settrace
+
+sys.settrace
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
 import os
 import argparse
 import logging
@@ -11,8 +15,6 @@ from pytorch_lightning.loggers import CSVLogger, WandbLogger
 from pytorch_lightning.strategies import DDPStrategy
 from pytorch_lightning.utilities import rank_zero_only
 
-# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 from torchmdnet.module import LNNP
 from torchmdnet import datasets, priors, models
