@@ -177,7 +177,7 @@ class LNNP(LightningModule):
         optimizer.zero_grad()
 
 
-    def on_train_epoch_end(self, outputs):
+    def on_train_epoch_end(self):
         dm = self.trainer.datamodule
         if hasattr(dm, "test_dataset") and len(dm.test_dataset) > 0:
             should_reset = (
