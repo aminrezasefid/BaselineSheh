@@ -47,7 +47,6 @@ class QM8(InMemoryDataset):
                  force_reload: bool = False,
                  structure: str = "precise3d",
                  dataset_args: List[str] = None):
-        # print(self.raw_dir)
         self.structure = structure
         self.raw_url = URLS[structure]
         self.labels = dataset_args if dataset_args is not None else qm8_target_dict.values()
@@ -75,7 +74,7 @@ class QM8(InMemoryDataset):
             import rdkit  # noqa
             return ['gdb8.sdf', 'gdb8.sdf.csv'] if self.structure != "precise3d" else ['qm8.sdf', 'qm8.sdf.csv']
         except ImportError:
-            return
+            return ['data_v3.pt']
 
     @property
     def processed_file_names(self) -> str:

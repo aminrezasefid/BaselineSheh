@@ -137,7 +137,7 @@ logs/
 wandb/
 tmp/
 lightning_logs/
-# data/
+data/
 experiments/
 plots/
 
