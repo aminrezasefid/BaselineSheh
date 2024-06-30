@@ -2,9 +2,6 @@ import os
 import os.path as osp
 import sys
 
-DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(DIR))
-
 from typing import Callable, List, Optional, Dict
 
 import torch
