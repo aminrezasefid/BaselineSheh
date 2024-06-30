@@ -182,7 +182,7 @@ def main():
     )
     csv_logger = CSVLogger(args.log_dir, name="", version="")
 
-    wandb_logger = WandbLogger(name=args.job_id, project='pre-training-via-denoising', log_model = 'all')
+    wandb_logger = WandbLogger(name=args.job_id, project='pre-training-via-denoising', log_model = 'all', settings = wandb.Settings(start_method='fork'), notes = args.wandb_notes, save_dir = args.log_dir, id = args.job_id, tags = [args.dataset])
 
     # ddp_plugin = None
     # if "ddp" in args.distributed_backend:
