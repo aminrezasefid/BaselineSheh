@@ -74,7 +74,7 @@ class QM8(InMemoryDataset):
             import rdkit  # noqa
             return ['gdb8.sdf', 'gdb8.sdf.csv'] if self.structure != "precise3d" else ['qm8.sdf', 'qm8.sdf.csv']
         except ImportError:
-            return ['data_v3.pt']
+            return ImportError("Please install 'rdkit' to download the dataset.")
 
     @property
     def processed_file_names(self) -> str:
