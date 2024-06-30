@@ -187,7 +187,7 @@ class LNNP(LightningModule):
             if should_reset:
                 # reset validation dataloaders before and after testing epoch, which is faster
                 # than skipping test validation steps by returning None
-                self.trainer.fit_loop.setup_data(self)
+                self.trainer.fit_loop.setup_data()
 
 
     # TODO(shehzaidi): clean up this function, redundant logging if dy loss exists.

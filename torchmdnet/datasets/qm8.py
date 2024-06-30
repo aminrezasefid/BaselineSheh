@@ -49,8 +49,7 @@ class QM8(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else qm8_target_dict.values()
-        self.labels = [list(qm8_target_dict.keys())[list(qm8_target_dict.values()).index(label)] for label in self.labels]
+        self.labels = dataset_args if dataset_args is not None else list
 
         if transform is None:
             transform = self._filter_label
