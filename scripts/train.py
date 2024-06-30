@@ -182,14 +182,7 @@ def main():
     )
     csv_logger = CSVLogger(args.log_dir, name="", version="")
 
-    wandb_logger = WandbLogger(name=args.job_id, project='pre-training-via-denoising', notes=args.wandb_notes, settings=wandb.Settings(start_method='fork', code_dir="."))
-
-    @rank_zero_only
-    def log_code():
-        wandb_logger.experiment # runs wandb.init, so then code can be logged next
-        wandb.run.log_code(".", include_fn=lambda path: path.endswith(".py") or path.endswith(".yaml"))
-
-    log_code()
+    wandb_logger = WandbLogger(name=args.job_id, project='pre-training-via-denoising', notes=args.wandb_notes)
 
     # ddp_plugin = None
     # if "ddp" in args.distributed_backend:
@@ -205,10 +198,10 @@ def main():
         default_root_dir=args.log_dir,
         # resume_from_checkpoint=args.load_model, # TODO (armin) resume_from_chechpoint is deprecated but since load_model is None at moment, we will ignore it
         callbacks=[early_stopping, checkpoint_callback],
-        logger=[tb_logger, csv_logger, wandb_logger], # TODO (armin) just removed wandb_logger
+        logger=[tb_logger, csv_logger, wandb_logger],
         reload_dataloaders_every_n_epochs= 0,
         precision=args.precision,
-        # strategy= DDPStrategy(), # not supported for mps, TODO (armin) remember!
+        strategy= DDPStrategy(), # not supported for mps, TODO (armin) remember!
     )
 
     trainer.fit(model, data)
