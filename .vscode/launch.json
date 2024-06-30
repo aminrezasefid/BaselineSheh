@@ -8,7 +8,7 @@
       "name": "Python Debugger: Current File",
       "type": "debugpy",
       "request": "launch",
-      "program": "${file}",
+      "program": "scripts/train.py",
       "console": "integratedTerminal",
       "args": [
         "--conf",
@@ -21,10 +21,10 @@
         "1",
         "--pretrained-model",
         "checkpoints/denoised-pcqm4mv2.ckpt",
-        // "--accelerator",
-        // "cpu",
-        "--batch-size",
-        "500"
+        "--accelerator",
+        "cpu"
+        // "--batch-size",
+        // "500"
       ]
     }
   ]

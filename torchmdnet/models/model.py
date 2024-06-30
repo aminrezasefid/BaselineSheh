@@ -3,7 +3,7 @@ from typing import Optional, List, Tuple
 import torch
 from torch.autograd import grad
 from torch import nn
-from torch_scatter import scatter
+from torch_geometric.utils import scatter
 from pytorch_lightning.utilities import rank_zero_warn
 from torchmdnet.models import output_modules
 from torchmdnet.models.wrappers import AtomFilter

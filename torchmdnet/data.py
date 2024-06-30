@@ -3,11 +3,11 @@ from tqdm import tqdm
 import torch
 from torch.utils.data import Subset
 from torch_geometric.loader import DataLoader
+from torch_geometric.utils import scatter
 from pytorch_lightning import LightningDataModule
 from pytorch_lightning.utilities import rank_zero_warn
 from torchmdnet import datasets
 from torchmdnet.utils import make_splits, MissingEnergyException
-from torch_scatter import scatter
 
 
 class DataModule(LightningDataModule):
