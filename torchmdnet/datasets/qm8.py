@@ -47,6 +47,7 @@ class QM8(InMemoryDataset):
                  force_reload: bool = False,
                  structure: str = "precise3d",
                  dataset_args: List[str] = None):
+        # print(self.raw_dir)
         self.structure = structure
         self.raw_url = URLS[structure]
         self.labels = dataset_args if dataset_args is not None else qm8_target_dict.values()

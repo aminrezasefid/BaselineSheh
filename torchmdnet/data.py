@@ -1,4 +1,6 @@
 from os.path import join
+import os
+import sys
 from tqdm import tqdm
 import torch
 from torch.utils.data import Subset
@@ -9,7 +11,8 @@ from pytorch_lightning.utilities import rank_zero_warn
 from torchmdnet import datasets
 from torchmdnet.utils import make_splits, MissingEnergyException
 
-
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 
 class DataModule(LightningDataModule):
