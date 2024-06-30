@@ -79,7 +79,7 @@ class QM8(InMemoryDataset):
     @property
     def processed_file_names(self) -> str:
         return 'data_v3.pt'
-    
+        
     # @property
     # def target_column(self) -> List[str]:
     #     return [qm8_target_dict[label] for label in self.labels]
