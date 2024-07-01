@@ -130,7 +130,7 @@ class QM8(InMemoryDataset):
             if self.structure == "precise3d":
                 target = [x[:8] + x[12:] for x in target]
             y = torch.tensor(target, dtype=torch.float)
-            y = y.view(-1, 1)
+            # y = y.view(-1, 1)
 
         suppl = Chem.SDMolSupplier(self.raw_paths[0], removeHs=False,
                                    sanitize=False)
