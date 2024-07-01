@@ -90,7 +90,7 @@ class DataModule(LightningDataModule):
         ):
             loaders.append(self._get_dataloader(self.test_dataset, "test"))
         return loaders
-
+    
     def test_dataloader(self):
         return self._get_dataloader(self.test_dataset, "test")
 
