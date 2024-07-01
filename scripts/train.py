@@ -169,10 +169,10 @@ def main():
     checkpoint_callback = ModelCheckpoint(
         dirpath=args.log_dir,
         monitor= metric_name,
-        save_top_k=10,  # -1 to save all
-        every_n_epochs=args.save_interval,
+        # save_top_k=10,  # -1 to save all
+        # every_n_epochs=args.save_interval,
         filename="{step}-{epoch}-{"+metric_name+":.4f}-{test_loss:.4f}-{train_per_step:.4f}",
-        save_last=True,
+        # save_last=True,
         mode=args.callback_mode
     )
     early_stopping = EarlyStopping(metric_name, patience=args.early_stopping_patience, mode=args.callback_mode)
