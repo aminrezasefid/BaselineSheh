@@ -34,7 +34,7 @@ qm8_target_dict: Dict[int, str] = {
 URLS = {
     "precise3d": "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb8.tar.gz",
     "rdkit3d": "https://drive.google.com/uc?export=download&id=124pGEhMob8lqn_na7-hQoJc9tFQWqxgQ",
-    "optmized3d": "https://drive.google.com/uc?export=download&id=12-8rnlRVT9SC523xdAkeju6VvA9fxJt0",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=12-8rnlRVT9SC523xdAkeju6VvA9fxJt0",
     "rdkit2d": "https://drive.google.com/uc?export=download&id=121VQXCzI8Vh-i_iQmv5NRyZamUxEX1lJ"
 }
 
@@ -125,12 +125,14 @@ class QM8(InMemoryDataset):
         bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) for x in line.split(',')[1:]]
-                      for line in f.read().split('\n')[1:-1]]
             if self.structure == "precise3d":
+                target = [[float(x) for x in line.split(',')[1:]]
+                      for line in f.read().split('\n')[1:-1]]
                 target = [x[:8] + x[12:] for x in target]
+            else:
+                target = [[float(x) for x in line.split(',')]
+                      for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
-            # y = y.view(-1, 1)
 
         suppl = Chem.SDMolSupplier(self.raw_paths[0], removeHs=False,
                                    sanitize=False)

@@ -24,7 +24,7 @@
         "--accelerator",
         "cpu",
         "--structure",
-        "rdkit3d"
+        "rdkit2d"
         // "--batch-size",
         // "500"
       ]
