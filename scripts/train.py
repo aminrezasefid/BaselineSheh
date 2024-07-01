@@ -206,7 +206,7 @@ def main():
 
     trainer.fit(model, data)
 
-    trainer.test(model, data)
+    trainer.test(dataloaders= data.test_dataloader)
 
 
 if __name__ == "__main__":
