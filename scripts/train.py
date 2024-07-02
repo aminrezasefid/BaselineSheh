@@ -12,6 +12,7 @@ from pytorch_lightning.utilities import rank_zero_only
 from torchmdnet.module import LNNP
 from torchmdnet import datasets, priors, models
 from torchmdnet.data import DataModule
+from torchmdnet.datasets.embedded_molecule_net import EmbeddingType
 from torchmdnet.models import output_modules
 from torchmdnet.models.utils import rbf_class_mapping, act_class_mapping
 from torchmdnet.utils import LoadFromFile, LoadFromCheckpoint, save_argparse, number
@@ -60,6 +61,7 @@ def get_args():
     parser.add_argument('--dataset', default=None, type=str, choices=datasets.__all__, help='Name of the torch_geometric dataset')
     parser.add_argument('--dataset-root', default='data', type=str, help='Data storage directory (not used if dataset is "CG")')
     parser.add_argument('--dataset-arg', default=None, type=str, help='Additional dataset argument, e.g. target property for QM9 or molecule for MD17')
+    parser.add_argument('--structure', choices=EmbeddingType.all(), default="precise3d", help='Structure of the input data')
     parser.add_argument('--coord-files', default=None, type=str, help='Custom coordinate files glob')
     parser.add_argument('--embed-files', default=None, type=str, help='Custom embedding files glob')
     parser.add_argument('--energy-files', default=None, type=str, help='Custom energy files glob')
@@ -85,6 +87,9 @@ def get_args():
     parser.add_argument('--trainable-rbf', type=bool, default=False, help='If distance expansion functions should be trainable')
     parser.add_argument('--neighbor-embedding', type=bool, default=False, help='If a neighbor embedding should be applied before interactions')
     parser.add_argument('--aggr', type=str, default='add', help='Aggregation operation for CFConv filter output. Must be one of \'add\', \'mean\', or \'max\'')
+    loss_function_choices = ["mse_loss", "l1_loss", "cross_entropy"]
+    parser.add_argument('--train-loss-fn', choices= loss_function_choices, default="mse_loss", help='Loss function for training')
+    parser.add_argument('--val-test-loss-fn', choices= loss_function_choices, default="mse_loss", help='Loss function for validation and test')
 
     # Transformer specific
     parser.add_argument('--distance-influence', type=str, default='both', choices=['keys', 'values', 'both', 'none'], help='Where distance information is included inside the attention')
@@ -107,7 +112,7 @@ def get_args():
 
     if args.job_id == "auto":
         assert len(os.environ['CUDA_VISIBLE_DEVICES'].split(',')) == 1, "Might be problematic with DDP."
-        if Path(args.log_dir).exists() and len(os.listdir(args.log_dir)) > 0:        
+        if Path(args.log_dir).exists() and len(os.listdir(args.log_dir)) > 0:
             next_job_id = str(max([int(x.name) for x in Path(args.log_dir).iterdir() if x.name.isnumeric()])+1)
         else:
             next_job_id = "1"
@@ -134,7 +139,6 @@ def get_args():
 def main():
     args = get_args()
     pl.seed_everything(args.seed, workers=True)
-    print(args)
 
     # initialize data module
     data = DataModule(args)
@@ -180,6 +184,7 @@ def main():
     ddp_plugin = None
     if "ddp" in args.distributed_backend:
         ddp_plugin = DDPPlugin(find_unused_parameters=False, num_nodes=args.num_nodes)
+
 
     trainer = pl.Trainer(
         max_epochs=args.num_epochs,

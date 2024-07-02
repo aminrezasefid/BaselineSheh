@@ -2,10 +2,11 @@ import torch
 from torch_geometric.transforms import Compose
 from torch_geometric.datasets import QM9 as QM9_geometric
 from torch_geometric.nn.models.schnet import qm9_target_dict
+from torchmdnet.datasets.embedded_molecule_net import EmbeddingType
 
 
 class QM9(QM9_geometric):
-    def __init__(self, root, transform=None, dataset_arg=None):
+    def __init__(self, root, transform=None, dataset_arg=None, structure: EmbeddingType = EmbeddingType.PRECISE_THREE_D):
         assert dataset_arg is not None, (
             "Please pass the desired property to "
             'train on via "dataset_arg". Available '

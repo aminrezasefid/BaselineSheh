@@ -1,14 +1,15 @@
-import yaml
 import argparse
+from os.path import dirname, join, exists
+
 import numpy as np
 import torch
-from os.path import dirname, join, exists
+import yaml
 from pytorch_lightning.utilities import rank_zero_warn
 
 
 def train_val_test_split(dset_len, train_size, val_size, test_size, seed, order=None):
     assert (train_size is None) + (val_size is None) + (
-        test_size is None
+            test_size is None
     ) <= 1, "Only one of train_size, val_size, test_size is allowed to be None."
     is_float = (
         isinstance(train_size, float),
@@ -53,8 +54,8 @@ def train_val_test_split(dset_len, train_size, val_size, test_size, seed, order=
         idxs = np.random.default_rng(seed).permutation(idxs)
 
     idx_train = idxs[:train_size]
-    idx_val = idxs[train_size : train_size + val_size]
-    idx_test = idxs[train_size + val_size : total]
+    idx_val = idxs[train_size: train_size + val_size]
+    idx_test = idxs[train_size + val_size: total]
 
     if order is not None:
         idx_train = [order[i] for i in idx_train]
@@ -65,14 +66,14 @@ def train_val_test_split(dset_len, train_size, val_size, test_size, seed, order=
 
 
 def make_splits(
-    dataset_len,
-    train_size,
-    val_size,
-    test_size,
-    seed,
-    filename=None,
-    splits=None,
-    order=None,
+        dataset_len,
+        train_size,
+        val_size,
+        test_size,
+        seed,
+        filename=None,
+        splits=None,
+        order=None,
 ):
     if splits is not None:
         splits = np.load(splits)

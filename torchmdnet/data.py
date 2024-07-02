@@ -37,7 +37,12 @@ class DataModule(LightningDataModule):
                 else:
                     transform = None
 
-                dataset_factory = lambda t: getattr(datasets, self.hparams["dataset"])(self.hparams["dataset_root"], dataset_arg=self.hparams["dataset_arg"], transform=t)
+                dataset_factory = lambda t: getattr(datasets, self.hparams["dataset"])(self.hparams["dataset_root"],
+                                                                                       dataset_arg=self.hparams[
+                                                                                           "dataset_arg"],
+                                                                                       transform=t,
+                                                                                       structure=self.hparams[
+                                                                                           "structure"])
 
                 # Noisy version of dataset
                 self.dataset_maybe_noisy = dataset_factory(transform)
@@ -62,7 +67,7 @@ class DataModule(LightningDataModule):
         # If denoising is the only task, test/val datasets are also used for measuring denoising performance.
         if self.hparams['denoising_only']:
             self.val_dataset = Subset(self.dataset_maybe_noisy, self.idx_val)
-            self.test_dataset = Subset(self.dataset_maybe_noisy, self.idx_test)            
+            self.test_dataset = Subset(self.dataset_maybe_noisy, self.idx_test)
         else:
             self.val_dataset = Subset(self.dataset, self.idx_val)
             self.test_dataset = Subset(self.dataset, self.idx_test)
