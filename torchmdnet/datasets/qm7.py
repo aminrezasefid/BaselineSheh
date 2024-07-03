@@ -34,9 +34,9 @@ qm7_target_dict: Dict[int, str] = {
 
 URLS = {
     "precise3d": "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb7.tar.gz",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=11bliFC_cd1pdzlWMj4aFjErgo8FHHJ2A",
-    "optmized3d": "https://drive.google.com/uc?export=download&id=11nBEtg_Svp0dBYqErkgcoKz-FcVlQEae",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=11qwkx_PcSPHgNopLaj5rXrsI3G9whnZt"
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1ROIGtfrxVP1f9NiQDLNLCtOzWEjLyxJq",
+    "optmized3d": "https://drive.google.com/uc?export=download&id=1FdIzgupmFGZHwkoxM5IdUY82VoGd-gvf",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1cFE2X2PeGP9wVOhr4AOYvqTGTCvuFoM9"
 }
 
 class QM7(InMemoryDataset):
@@ -68,7 +68,7 @@ class QM7(InMemoryDataset):
             import rdkit  # noqa
             return ['gdb7.sdf', 'gdb7.sdf.csv']
         except ImportError:
-            return
+            return ['qm7_v3']
 
     @property
     def processed_file_names(self) -> str:
