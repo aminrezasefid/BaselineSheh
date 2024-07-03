@@ -33,9 +33,9 @@ qm8_target_dict: Dict[int, str] = {
 
 URLS = {
     "precise3d": "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb8.tar.gz",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=124pGEhMob8lqn_na7-hQoJc9tFQWqxgQ",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=12-8rnlRVT9SC523xdAkeju6VvA9fxJt0",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=121VQXCzI8Vh-i_iQmv5NRyZamUxEX1lJ"
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1hc0c--8cMbDlfplmJwRUXsfAq-Pj4daY",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=1qTxsIJ_aP7Qow6On4BfpBk9SorIzEh9a",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1MAqVW5GyHmLKLJqdDrIMIBxjDPW3ce3o"
 }
 
 class QM8(InMemoryDataset):

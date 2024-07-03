@@ -15,18 +15,12 @@ from torch_geometric.transforms import Compose
 from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
-HAR2EV = 27.211386246
-KCALMOL2EV = 0.04336414
 SKIP_LIST = [
     '1 2.753415 1.686911 2.122795',
     '1 4.940981 0.903782 0.860442',
     '1 5.189535 2.297423 -0.368037',
     '1 1.964094 4.093345 0.737567',
 ]
-
-conversion = torch.tensor([
-    KCALMOL2EV
-])
 
 qm7_target_dict: Dict[int, str] = {
     0: "u0_atom",
@@ -119,7 +113,6 @@ class QM7(InMemoryDataset):
             target = [[float(x) for x in line.split(',')[1:]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
-            y = y * conversion.view(1, -1)
 
         suppl = Chem.SDMolSupplier(self.raw_paths[0], removeHs=False,
                                    sanitize=False)

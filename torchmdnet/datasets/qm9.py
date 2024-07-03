@@ -28,7 +28,10 @@ conversion = torch.tensor([
 
 
 URLS = {
-    "precise3d": "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb9.tar.gz"
+    "precise3d": "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb9.tar.gz",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=1ys1rvwixeZBiCPg8Kj8D65iFl8zJDdTu",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1j37Fu6BMrXhXM7o4W3M9XyBsGEMSo3id",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1a43UlMYJtUA4Y1fxh6wO-a-RK23RE2P-"
 }
 
 
