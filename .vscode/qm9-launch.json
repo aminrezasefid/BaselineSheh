@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python Debugger: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "scripts/train.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--conf",
+        "examples/ET-QM9-FT.yaml",
+        "--layernorm-on-vec",
+        "whitened",
+        "--job-id",
+        "testing",
+        "--num-epochs",
+        "1",
+        "--pretrained-model",
+        "checkpoints/denoised-pcqm4mv2.ckpt",
+        "--accelerator",
+        "cpu"
+      ]
+    }
+  ]
+}
