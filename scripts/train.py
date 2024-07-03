@@ -186,14 +186,12 @@ def main():
         name=args.job_id,
         project='pre-training-via-denoising',
         log_model='all',
-        settings=wandb.Settings(start_method='thread'),  # Changed to thread to avoid forking issues
+        settings=wandb.Settings(start_method='fork'), 
         notes=args.wandb_notes,
         save_dir=args.log_dir,
         id=args.job_id + f"_{wandb.util.generate_id()}",  # Ensures unique run ID
         tags=[args.dataset]
     )
-
-    lr_finder_callback = LearningRateFinder()
 
     trainer = pl.Trainer(
         max_epochs=args.num_epochs,
