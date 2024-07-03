@@ -182,16 +182,16 @@ def main():
     )
     csv_logger = CSVLogger(args.log_dir, name="", version="")
 
-    wandb_logger = WandbLogger(
-        name=args.job_id,
-        project='pre-training-via-denoising',
-        log_model='all',
-        settings=wandb.Settings(start_method='fork'), 
-        notes=args.wandb_notes,
-        save_dir=args.log_dir,
-        id=args.job_id + f"_{wandb.util.generate_id()}",  # Ensures unique run ID
-        tags=[args.dataset]
-    )
+    # wandb_logger = WandbLogger(
+    #     name=args.job_id,
+    #     project='pre-training-via-denoising',
+    #     log_model='all',
+    #     settings=wandb.Settings(start_method='fork'), 
+    #     notes=args.wandb_notes,
+    #     save_dir=args.log_dir,
+    #     id=args.job_id + f"_{wandb.util.generate_id()}",  # Ensures unique run ID
+    #     tags=[args.dataset]
+    # )
 
     trainer = pl.Trainer(
         max_epochs=args.num_epochs,
@@ -201,7 +201,7 @@ def main():
         default_root_dir=args.log_dir,
         # resume_from_checkpoint=args.load_model, # TODO (armin) resume_from_chechpoint is deprecated but since load_model is None at moment, we will ignore it
         callbacks=[early_stopping, checkpoint_callback],
-        logger=[tb_logger, csv_logger, wandb_logger],
+        logger=[tb_logger, csv_logger],
         reload_dataloaders_every_n_epochs= 0,
         precision=args.precision,
         strategy = "ddp", # not supported for mps, REMEMBER!
@@ -210,8 +210,6 @@ def main():
     trainer.fit(model, data)
 
     trainer.test(model= model, dataloaders = data)
-
-    wandb.finish()
 
 
 if __name__ == "__main__":
