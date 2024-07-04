@@ -12,11 +12,11 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-QM7-FT.yaml",
+        "examples/ET-QM8-FT.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",
-        "qm7-test",
+        "qm8-test",
         "--num-epochs",
         "2",
         "--pretrained-model",
@@ -24,7 +24,9 @@
         "--accelerator",
         "cpu",
         "--structure",
-        "rdkit3d"
+        "rdkit3d",
+        "--inference-batch-size",
+        "1"
         // "--batch-size",
         // "500"
       ]
