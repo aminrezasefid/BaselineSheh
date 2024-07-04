@@ -43,8 +43,7 @@ class QM7(InMemoryDataset):
                  structure: str = "precise3d",
                  dataset_args: List[str] = None):
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else qm7_target_dict.values()
-        self.labels = [list(qm7_target_dict.keys())[list(qm7_target_dict.values()).index(label)] for label in self.labels]
+        self.labels = dataset_args if dataset_args is not None else list(qm7_target_dict.keys())
         super().__init__(root, transform, pre_transform, pre_filter, force_reload=force_reload)
         self.load(self.processed_paths[0])
 
@@ -110,7 +109,7 @@ class QM7(InMemoryDataset):
         bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) for x in line.split(',')[1:]]
+            target = [[float(x) for x in line.split(',')]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 
