@@ -246,10 +246,10 @@ class LNNP(LightningModule):
                     self.losses["test_pos"]
                 ).mean()
 
-            if self.hparams.task == "classification":
-                result_dict["train_auc"] = auc(
-                    torch.cat(self.val_labels), torch.cat(self.val_preds)
-                )
+            # if self.hparams.task == "classification":
+            #     result_dict["train_auc"] = auc(
+            #         torch.cat(self.val_labels), torch.cat(self.val_preds)
+            #     )
 
             self.log_dict(result_dict, sync_dist=True)
         self._reset_losses_dict()
