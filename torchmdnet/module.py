@@ -3,7 +3,7 @@ from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
 from torch.nn.functional import mse_loss, l1_loss, cross_entropy
 
-from torcheval.metrics.functional import auc
+# from torcheval.metrics.functional import auc
 from torch.nn import functional
 
 from pytorch_lightning import LightningModule
