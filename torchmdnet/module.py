@@ -1,21 +1,20 @@
 import torch
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
-# from torch.nn.functional import mse_loss, l1_loss, cross_entropy
+from torch.nn.functional import mse_loss, l1_loss, cross_entropy
+
+from torcheval.metrics.functional import auc
 from torch.nn import functional
 
 from pytorch_lightning import LightningModule
 from torchmdnet.models.model import create_model, load_model
 
-
 class LNNP(LightningModule):
     def __init__(self, hparams, prior_model=None, mean=None, std=None):
         super(LNNP, self).__init__()
         self.save_hyperparameters(hparams)
-        # TODO (armin) The follwing were introduced by amin for classification tasks, since at the moment we are only working with regression
-        # we will skip them, IMPLEMENT LATER
-        # self.val_labels=[]
-        # self.val_preds=[]
+        self.val_labels=[]
+        self.val_preds=[]
         if self.hparams.load_model:
             self.model = load_model(self.hparams.load_model, args=self.hparams)
         elif self.hparams.pretrained_model:
@@ -246,6 +245,11 @@ class LNNP(LightningModule):
                 result_dict["test_loss_pos"] = torch.stack(
                     self.losses["test_pos"]
                 ).mean()
+
+            if self.hparams.task == "classification":
+                result_dict["train_auc"] = auc(
+                    torch.cat(self.val_labels), torch.cat(self.val_preds)
+                )
 
             self.log_dict(result_dict, sync_dist=True)
         self._reset_losses_dict()

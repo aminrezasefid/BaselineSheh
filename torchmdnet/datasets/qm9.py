@@ -29,9 +29,9 @@ conversion = torch.tensor([
 
 URLS = {
     "precise3d": "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb9.tar.gz",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=1ys1rvwixeZBiCPg8Kj8D65iFl8zJDdTu",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1j37Fu6BMrXhXM7o4W3M9XyBsGEMSo3id",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1a43UlMYJtUA4Y1fxh6wO-a-RK23RE2P-"
+    "optimized3d": "https://www.dropbox.com/scl/fi/drgk2ecv9lpni3ljmiixh/gdb9-3d-opt.tar.gz?rlkey=btqxv4q7zrt20452p1lg094yu&st=9yqcri8w&dl=1",
+    "rdkit3d": "https://www.dropbox.com/scl/fi/6sh166f4u3sr26mc6ukl9/gdb9-3d.tar.gz?rlkey=hvhoe463o9doa89hsmqfhjoi7&st=rlrrx9ah&dl=1",
+    "rdkit2d": "https://www.dropbox.com/scl/fi/c5pbodfm08nc6uo71dfr7/gdb9-2d.tar.gz?rlkey=oelmidne9e0nhpqee3v2bpuc3&st=ywpp5u4a&dl=1"
 }
 
 
@@ -135,6 +135,11 @@ class QM9(InMemoryDataset):
             conf = mol.GetConformer()
             pos = conf.GetPositions()
             pos = torch.tensor(pos, dtype=torch.float)
+
+            # check if any two atoms are overlapping
+            if torch.unique(pos, dim=0).size(0) != N:
+                print(f"Skipping molecule {mol.GetProp('_Name')} as it contains overlapping atoms.")
+                continue
 
             type_idx = []
             atomic_number = []

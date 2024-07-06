@@ -12,21 +12,21 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-QM7-FT.yaml",
+        "examples/ET-QM9-FT.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",
-        "qm8-test",
+        "qm9-test",
         "--num-epochs",
         "2",
         "--pretrained-model",
         "checkpoints/denoised-pcqm4mv2.ckpt",
-        "--accelerator",
-        "cpu",
         "--train-loss",
         "l1_loss",
         "--val-test-loss",
-        "l1_loss"
+        "l1_loss",
+        "--structure",
+        "rdkit3d"
         // "--batch-size",
         // "500"
       ]
