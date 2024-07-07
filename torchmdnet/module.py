@@ -138,8 +138,7 @@ class LNNP(LightningModule):
 
             # calculate AUC if the task is classification
             if self.hparams.task == "class":
-                pred_prob = torch.sigmoid(pred)
-                auc = roc_auc(pred_prob, batch.y)
+                auc = roc_auc(pred, batch.y)
                 self.auc[stage].append(auc)
 
         if denoising_is_on:
