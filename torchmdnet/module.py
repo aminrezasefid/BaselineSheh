@@ -3,7 +3,7 @@ from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
 from torch.nn.functional import mse_loss, l1_loss, cross_entropy
 
-# from torcheval.metrics.functional import auc
+from torcheval.metrics.functional import auc as roc_auc
 from torch.nn import functional
 
 from pytorch_lightning import LightningModule
@@ -29,6 +29,8 @@ class LNNP(LightningModule):
         # initialize loss collection
         self.losses = None
         self._reset_losses_dict()
+
+        self.auc = None
 
     def configure_optimizers(self):
         optimizer = AdamW(
@@ -133,6 +135,12 @@ class LNNP(LightningModule):
 
             if self.hparams.energy_weight > 0:
                 self.losses[stage + "_y"].append(loss_y.detach())
+
+            # calculate AUC if the task is classification
+            if self.hparams.task == "class":
+                pred_prob = torch.sigmoid(pred)
+                auc = roc_auc(pred_prob, batch.y)
+                self.auc[stage].append(auc)
 
         if denoising_is_on:
             if "y" not in batch:
@@ -246,10 +254,11 @@ class LNNP(LightningModule):
                     self.losses["test_pos"]
                 ).mean()
 
-            # if self.hparams.task == "classification":
-            #     result_dict["train_auc"] = auc(
-            #         torch.cat(self.val_labels), torch.cat(self.val_preds)
-            #     )
+            if self.hparams.task == "class":
+                result_dict["val_auc"] = torch.stack(self.auc["val"]).mean()
+                if len(self.auc["test"]) > 0:
+                    result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
+
 
             self.log_dict(result_dict, sync_dist=True)
         self._reset_losses_dict()
