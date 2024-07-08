@@ -68,3 +68,4 @@ job_id: auto
 out_channels: 617
 strict_load: false
 task_type: class
+dataset_args : [1, 2, 3, 4, 5, 6, 7, 8]
