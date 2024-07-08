@@ -137,7 +137,7 @@ class LNNP(LightningModule):
                 self.losses[stage + "_y"].append(loss_y.detach())
 
             # calculate AUC if the task is classification
-            if self.hparams.task == "class":
+            if self.hparams.task_type == "class":
                 auc = roc_auc(pred, batch.y)
                 self.auc[stage].append(auc)
 
@@ -253,7 +253,7 @@ class LNNP(LightningModule):
                     self.losses["test_pos"]
                 ).mean()
 
-            if self.hparams.task == "class":
+            if self.hparams.task_type == "class":
                 result_dict["val_auc"] = torch.stack(self.auc["val"]).mean()
                 if len(self.auc["test"]) > 0:
                     result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
