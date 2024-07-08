@@ -30,7 +30,7 @@ class LNNP(LightningModule):
         self.losses = None
         self._reset_losses_dict()
 
-        self.auc = None
+        self.auc = {}
         self.b_AUROC = BinaryAUROC()
 
     def configure_optimizers(self):
