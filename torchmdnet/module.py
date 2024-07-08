@@ -1,7 +1,7 @@
 import torch
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
-from torch.nn.functional import mse_loss, l1_loss, cross_entropy
+from torch.nn.functional import mse_loss, l1_loss, cross_entropy, binary_cross_entropy
 
 from torchmetrics.classification import BinaryAUROC
 from torch.nn import functional
@@ -98,7 +98,13 @@ class LNNP(LightningModule):
                 deriv = deriv + pred.sum() * 0
 
             # force/derivative loss
-            loss_dy = loss_fn(deriv, batch.dy)
+            # TODO (armin) this is temporary
+            if self.hparams.task_type == "class":
+                target_not_nan = ~torch.isnan(batch.y)
+                loss_dy = loss_fn(deriv[target_not_nan], batch.dy[target_not_nan])
+            else:
+                loss_dy = loss_fn(deriv, batch.dy)
+
 
             if stage in ["train", "val"] and self.hparams.ema_alpha_dy < 1:
                 if self.ema[stage + "_dy"] is None:
@@ -122,7 +128,16 @@ class LNNP(LightningModule):
                 batch.y = batch.y.unsqueeze(1)
 
             # energy/prediction loss
-            loss_y = loss_fn(pred, batch.y)
+            # TODO (armin) here as well
+            if self.hparams.task_type == "class":
+                target_not_nan = ~torch.isnan(batch.y)
+                # if all of pred's values are nan, the loss will be nan
+                if torch.isnan(pred).all():
+                    loss_y = torch.nan
+                else:
+                    loss_y = loss_fn(pred[target_not_nan], batch.y[target_not_nan])
+            else:
+                loss_y = loss_fn(pred, batch.y)
 
             if stage in ["train", "val"] and self.hparams.ema_alpha_y < 1:
                 if self.ema[stage + "_y"] is None:
@@ -148,7 +163,15 @@ class LNNP(LightningModule):
                 noise_pred = noise_pred + pred.sum() * 0
                 
             normalized_pos_target = self.model.pos_normalizer(batch.pos_target)
-            loss_pos = loss_fn(noise_pred, normalized_pos_target)
+            # should I do the same for the noise_pred? TODO (Armin)
+            if self.hparams.task_type == "class":
+                target_not_nan = ~torch.isnan(normalized_pos_target)
+                if torch.isnan(pred).all():
+                    loss_y = torch.nan
+                else:
+                    loss_pos = loss_fn(noise_pred[target_not_nan], normalized_pos_target[target_not_nan])
+            else:
+                loss_pos = loss_fn(noise_pred, normalized_pos_target)
             self.losses[stage + "_pos"].append(loss_pos.detach())
 
         # total loss
