@@ -3,7 +3,7 @@ from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
 from torch.nn.functional import mse_loss, l1_loss, cross_entropy
 
-from torcheval.metrics.functional import auc as roc_auc
+from torchmetrics.classification import BinaryAUROC
 from torch.nn import functional
 
 from pytorch_lightning import LightningModule
@@ -31,6 +31,7 @@ class LNNP(LightningModule):
         self._reset_losses_dict()
 
         self.auc = None
+        self.b_AUROC = BinaryAUROC()
 
     def configure_optimizers(self):
         optimizer = AdamW(
@@ -138,7 +139,7 @@ class LNNP(LightningModule):
 
             # calculate AUC if the task is classification
             if self.hparams.task_type == "class":
-                auc = roc_auc(pred, batch.y)
+                auc = self.b_AUROC(pred, batch.y)
                 self.auc[stage].append(auc)
 
         if denoising_is_on:

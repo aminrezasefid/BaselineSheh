@@ -204,7 +204,7 @@ def main():
         logger=[tb_logger, csv_logger],
         reload_dataloaders_every_n_epochs= 0,
         precision=args.precision,
-        strategy = "ddp", # not supported for mps, REMEMBER!
+        # strategy = "ddp", # not supported for mps, REMEMBER!
     )
 
     trainer.fit(model, data)
