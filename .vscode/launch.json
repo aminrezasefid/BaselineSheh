@@ -12,23 +12,21 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-QM9-FT.yaml",
+        "examples/ET-TOX21.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",
-        "qm9-test",
+        "tox21-test",
         "--num-epochs",
         "2",
         "--pretrained-model",
         "checkpoints/denoised-pcqm4mv2.ckpt",
         "--train-loss",
-        "l1_loss",
+        "cross_entropy",
         "--val-test-loss",
-        "l1_loss",
+        "cross_entropy",
         "--structure",
         "rdkit3d"
-        // "--batch-size",
-        // "500"
       ]
     }
   ]
