@@ -26,7 +26,9 @@
         "--val-test-loss",
         "cross_entropy",
         "--structure",
-        "rdkit3d"
+        "rdkit3d",
+        "--accelerator",
+        "cpu"
       ]
     }
   ]
