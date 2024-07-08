@@ -111,8 +111,6 @@ class TOX21(InMemoryDataset):
                        for x in line.split(',')]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
-            # Replace -1 with nan
-            y[y == -1] = torch.nan
 
         suppl = Chem.SDMolSupplier(self.raw_paths[0], removeHs=False,
                                    sanitize=False)

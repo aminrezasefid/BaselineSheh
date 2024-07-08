@@ -100,8 +100,8 @@ class LNNP(LightningModule):
             # force/derivative loss
             # TODO (armin) this is temporary
             if self.hparams.task_type == "class":
-                target_not_nan = ~torch.isnan(batch.y)
-                loss_dy = loss_fn(deriv[target_not_nan], batch.dy[target_not_nan])
+                target_not_minus_one = batch.dy != -1
+                loss_dy = loss_fn(deriv[target_not_minus_one], batch.dy[target_not_minus_one])
             else:
                 loss_dy = loss_fn(deriv, batch.dy)
 
@@ -128,14 +128,10 @@ class LNNP(LightningModule):
                 batch.y = batch.y.unsqueeze(1)
 
             # energy/prediction loss
-            # TODO (armin) here as well
+            # TODO (armin) here as well, these are all generalizable and shouldn't be hardcoded based on task type
             if self.hparams.task_type == "class":
-                target_not_nan = ~torch.isnan(batch.y)
-                # if all of pred's values are nan, the loss will be nan
-                if torch.isnan(pred).all():
-                    loss_y = torch.nan
-                else:
-                    loss_y = loss_fn(pred[target_not_nan], batch.y[target_not_nan])
+                target_not_minus_one = batch.y != -1 # -1 is the default value for missing labels
+                loss_y = loss_fn(pred[target_not_minus_one], batch.y[target_not_minus_one])
             else:
                 loss_y = loss_fn(pred, batch.y)
 
@@ -165,11 +161,8 @@ class LNNP(LightningModule):
             normalized_pos_target = self.model.pos_normalizer(batch.pos_target)
             # should I do the same for the noise_pred? TODO (Armin)
             if self.hparams.task_type == "class":
-                target_not_nan = ~torch.isnan(normalized_pos_target)
-                if torch.isnan(pred).all():
-                    loss_y = torch.nan
-                else:
-                    loss_pos = loss_fn(noise_pred[target_not_nan], normalized_pos_target[target_not_nan])
+                target_not_minus_one = batch.pos_target != -1
+                loss_pos = mse_loss(noise_pred[target_not_minus_one], normalized_pos_target[target_not_minus_one])
             else:
                 loss_pos = loss_fn(noise_pred, normalized_pos_target)
             self.losses[stage + "_pos"].append(loss_pos.detach())
