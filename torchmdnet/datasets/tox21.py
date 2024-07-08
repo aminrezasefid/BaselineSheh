@@ -105,7 +105,7 @@ class TOX21(InMemoryDataset):
             self.save(data_list, self.processed_paths[0])
             return
 
-        types = {'H': 0, 'C': 1, 'N': 2, 'O': 3, 'F': 4, 'Cl': 5, 'Si': 6, 'Br': 7, 'P': 8, 'S': 9, 'I': 10, 'Nd': 11, 'In': 12}
+        types = {'O': 0, 'N': 1, 'C': 2, 'Cl': 3, 'H': 4, 'Si': 5, 'Br': 6, 'Nd': 7, 'In': 8, 'P': 9, 'Sb': 10, 'K': 11, 'S': 12, 'B': 13, 'Hg': 14, 'Na': 15, 'Tl': 16, 'F': 17, 'Cd': 18, 'Ba': 19, 'Yb': 20, 'I': 21, 'Sn': 22, 'Zn': 23, 'Pb': 24, 'As': 25, 'Bi': 26, 'Gd': 27, 'V': 28, 'Au': 29, 'Mn': 30, 'Ca': 31, 'Zr': 32, 'Mo': 33, 'Co': 34, 'Ni': 35, 'Al': 36, 'Fe': 37, 'Se': 38, 'Pt': 39, 'Sr': 40, 'Cr': 41, 'Ag': 42, 'Ti': 43, 'Li': 44, 'Cu': 45, 'Pd': 46, 'Ge': 47}
         bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
 
         with open(self.raw_paths[1], 'r') as f:
