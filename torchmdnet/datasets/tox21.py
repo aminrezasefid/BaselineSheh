@@ -105,14 +105,17 @@ class TOX21(InMemoryDataset):
             self.save(data_list, self.processed_paths[0])
             return
 
-        types = {'H': 0, 'C': 1, 'N': 2, 'O': 3, 'F': 4, 'Cl': 5}
+        types = {'H': 0, 'C': 1, 'N': 2, 'O': 3, 'F': 4, 'Cl': 5, 'Si': 6, 'Br': 7, 'P': 8, 'S': 9, 'I': 10, 'Nd': 11, 'In': 12}
         bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) if x != '' else None
+            target = [[float(x) if x != '' else -1
                        for x in line.split(',')]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
+            # Replace -1 with nan
+            y[y == -1] = torch.nan
+
         suppl = Chem.SDMolSupplier(self.raw_paths[0], removeHs=False,
                                    sanitize=False)
 
