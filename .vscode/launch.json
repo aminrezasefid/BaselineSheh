@@ -12,23 +12,17 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-TOX21.yaml",
+        "examples/ET-LIPOPHILISITY.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",
-        "tox21-test",
+        "freesolv-test",
         "--num-epochs",
         "2",
         "--pretrained-model",
         "checkpoints/denoised-pcqm4mv2.ckpt",
-        "--train-loss",
-        "binary_cross_entropy",
-        "--val-test-loss",
-        "binary_cross_entropy",
         "--structure",
-        "rdkit3d",
-        "--accelerator",
-        "cpu"
+        "rdkit2d"
       ]
     }
   ]

@@ -7,5 +7,8 @@ from .pcqm4mv2 import PCQM4MV2_XYZ as PCQM4MV2
 from .qm7 import QM7
 from .qm8 import QM8
 from .tox21 import TOX21
+from .esol import ESOL
+from .freesolv import FreeSolv
+from .lipophilicity import Lipophilicity
 
-__all__ = ["QM9", "QM8", "QM7", "MD17", "ANI1", "Custom", "HDF5", "PCQM4MV2", "TOX21"]
+__all__ = ["QM9", "QM8", "QM7", "MD17", "ANI1", "Custom", "HDF5", "PCQM4MV2", "TOX21", "ESOL", "FreeSolv", "Lipophilicity"]
