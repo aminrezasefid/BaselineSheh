@@ -111,8 +111,8 @@ class Sider(InMemoryDataset):
 
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) if x != '' else -1
-                       for x in line.split(',')]
+            target = [[float(x) if x != '-100' else -1
+                       for x in line.split(',')[1:-1]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 
