@@ -68,8 +68,10 @@ class sider(InMemoryDataset):
     def download(self):
         try:
             import rdkit  # noqa
+            #import gdown
             file_path = download_url(self.raw_url, self.raw_dir)
-            extract_tar(file_path, self.raw_dir)
+            #gdown.download(self.raw_url, output=file_path, quiet=False)
+            extract_zip(file_path, self.raw_dir)
             os.unlink(file_path)
 
         except ImportError:
