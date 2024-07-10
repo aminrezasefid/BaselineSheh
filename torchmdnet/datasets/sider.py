@@ -18,9 +18,9 @@ from tqdm import tqdm
 
 URLS = {
     "precise3d": "",
-    "optimized3d": "",
+    "optimized3d": "'https://drive.google.com/uc?export=download&id=1johyC6VB9QzdtvcDrbIH0XV_WP0ity0B'",
     "rdkit3d": "https://drive.google.com/uc?export=download&id=1587tIzho_nkA8mc5-59XbEV5AVhGYywK",
-    "rdkit2d": ""
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1fANgQQR-S3C3ZJQn_hkuFq5Q2LNmDeV8"
 }
 
 
