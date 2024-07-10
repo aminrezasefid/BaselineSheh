@@ -24,7 +24,7 @@ URLS = {
 }
 
 
-class sider(InMemoryDataset):
+class Sider(InMemoryDataset):
     def __init__(self, 
                  root: str, 
                  transform: Optional[Callable] = None,
