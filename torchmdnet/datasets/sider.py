@@ -35,7 +35,7 @@ class Sider(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else list(range(0, 26))
+        self.labels = dataset_args if dataset_args is not None else list(range(1, 27))
 
         if transform is None:
             transform = self._filter_label
