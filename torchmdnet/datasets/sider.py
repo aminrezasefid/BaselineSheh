@@ -18,7 +18,7 @@ from tqdm import tqdm
 
 URLS = {
     "precise3d": "",
-    "optimized3d": "'https://drive.google.com/uc?export=download&id=1johyC6VB9QzdtvcDrbIH0XV_WP0ity0B'",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=1johyC6VB9QzdtvcDrbIH0XV_WP0ity0B",
     "rdkit3d": "https://drive.google.com/uc?export=download&id=1587tIzho_nkA8mc5-59XbEV5AVhGYywK",
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1fANgQQR-S3C3ZJQn_hkuFq5Q2LNmDeV8"
 }
@@ -111,7 +111,7 @@ class Sider(InMemoryDataset):
 
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) if x != '-100' else -1
+            target = [float(x) if x != '-100' else -1
                        for x in line.split(',')[1:-1]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
