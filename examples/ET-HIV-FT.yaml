@@ -6,8 +6,8 @@ batch_size: 16 #128
 coord_files: null
 cutoff_lower: 0.0
 cutoff_upper: 5.0
-dataset: Sider
-dataset_root: data/sider
+dataset: HIV
+dataset_root: data/hiv
 derivative: false
 distance_influence: both
 distributed_backend: ddp
@@ -65,7 +65,7 @@ layernorm_on_vec: null
 wandb_notes: ""
 job_id: auto
 ####
-out_channels: 27
+out_channels: 1
 strict_load: false
 task_type: class
-dataset_args : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27] # CSV column 0 is smiles
+dataset_args : [2]

@@ -24,7 +24,7 @@ URLS = {
 }
 
 
-class Toxcast(InMemoryDataset):
+class TOXCAST(InMemoryDataset):
     def __init__(self, 
                  root: str, 
                  transform: Optional[Callable] = None,
