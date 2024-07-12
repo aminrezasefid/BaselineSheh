@@ -18,9 +18,9 @@ from tqdm import tqdm
 
 URLS = {
     "precise3d": "",
-    "optimized3d": "",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1oPZ6ciT3uTLzNVTyMgP3NXWFAJdo10Ma",
-    "rdkit2d": ""
+    "optimized3d": "https://drive.google.com/uc?export=download&id=179ljL62tkCAeC2jicr2xdTpg2i3Niath",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1ZaqlLBk8UepuolAnAWm49DKsUj3cb3o6", # Replaced Armin's
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=10gwCtoqL2rY27Od5JzMwzyiYvQ5wU47x"
 }
 
 
@@ -35,7 +35,7 @@ class TOX21(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else list(range(0, 617))
+        self.labels = dataset_args if dataset_args is not None else list(range(0, 12))
 
         if transform is None:
             transform = self._filter_label
@@ -57,7 +57,7 @@ class TOX21(InMemoryDataset):
     def raw_file_names(self) -> List[str]:
         try:
             import rdkit  # noqa
-            return ['toxcast.sdf', 'toxcast.sdf.csv']
+            return ['tox21.sdf', 'tox21.sdf.csv']
         except ImportError:
             return ImportError("Please install 'rdkit' to download the dataset.")
 
@@ -103,8 +103,10 @@ class TOX21(InMemoryDataset):
             self.save(data_list, self.processed_paths[0])
             return
 
-        types = {'O': 0, 'N': 1, 'C': 2, 'Cl': 3, 'H': 4, 'Si': 5, 'Br': 6, 'Nd': 7, 'In': 8, 'P': 9, 'Sb': 10, 'K': 11, 'S': 12, 'B': 13, 'Hg': 14, 'Na': 15, 'Tl': 16, 'F': 17, 'Cd': 18, 'Ba': 19, 'Yb': 20, 'I': 21, 'Sn': 22, 'Zn': 23, 'Pb': 24, 'As': 25, 'Bi': 26, 'Gd': 27, 'V': 28, 'Au': 29, 'Mn': 30, 'Ca': 31, 'Zr': 32, 'Mo': 33, 'Co': 34, 'Ni': 35, 'Al': 36, 'Fe': 37, 'Se': 38, 'Pt': 39, 'Sr': 40, 'Cr': 41, 'Ag': 42, 'Ti': 43, 'Li': 44, 'Cu': 45, 'Pd': 46, 'Ge': 47}
-        bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
+        types = {'C': 0, 'O': 1, 'N': 2, 'S': 3, 'P': 4, 'Cl': 5, 'I': 6, 'Zn': 7, 'F': 8, 'Ca': 9, 'As': 10, 'Br': 11, 'B': 12, 'H': 13, 'K': 14, 'Si': 15, 'Cu': 16, 'Mg': 17, 'Hg': 18, 'Cr': 19, 'Zr': 20, 'Sn': 21, 'Na': 22, 'Ba': 23, 'Au': 24, 'Pd': 25, 'Tl': 26, 'Fe': 27, 'Al': 28, 'Gd': 29, 'Ag': 30, 'Mo': 31, 'V': 32, 'Nd': 33, 'Co': 34, 'Yb': 35, 'Pb': 36, 'Sb': 37, 'In': 38, 'Li': 39, 'Ni': 40, 'Bi': 41, 'Cd': 42, 'Ti': 43, 'Se': 44, 'Dy': 45, 'Mn': 46, 'Sr': 47, 'Be': 48, 'Pt': 49, 'Ge': 50}
+
+        bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3, BT.DATIVE: 4}
+
 
         with open(self.raw_paths[1], 'r') as f:
             target = [[float(x) if x != '' else -1

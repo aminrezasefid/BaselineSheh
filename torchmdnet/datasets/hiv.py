@@ -18,13 +18,13 @@ from tqdm import tqdm
 
 URLS = {
     "precise3d": "",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=1johyC6VB9QzdtvcDrbIH0XV_WP0ity0B",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1587tIzho_nkA8mc5-59XbEV5AVhGYywK",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1fANgQQR-S3C3ZJQn_hkuFq5Q2LNmDeV8"
+    "optimized3d": "https://drive.google.com/uc?export=download&id=17LlB17yrLwbGjYxN3HqmKJrr0r6pSbSJ",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1JCT-kdtg1ST596O-kQrEmeLSIhK9G7ge",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1j2XmEahtYcQaS1rK9vOWH9mAKYwsh_Hi"
 }
 
 
-class Sider(InMemoryDataset):
+class HIV(InMemoryDataset):
     def __init__(self, 
                  root: str, 
                  transform: Optional[Callable] = None,
@@ -35,7 +35,7 @@ class Sider(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else list(range(1, 28))
+        self.labels = dataset_args if dataset_args is not None else [2] #list(range(1, 28))
 
         if transform is None:
             transform = self._filter_label
@@ -57,7 +57,7 @@ class Sider(InMemoryDataset):
     def raw_file_names(self) -> List[str]:
         try:
             import rdkit  # noqa
-            return ['sider.sdf', 'sider.sdf.csv']
+            return ['HIV.sdf', 'HIV.sdf.csv']
         except ImportError:
             return ImportError("Please install 'rdkit' to download the dataset.")
 
@@ -104,10 +104,9 @@ class Sider(InMemoryDataset):
 
             self.save(data_list, self.processed_paths[0])
             return
-
-      
-        types = {'C': 0, 'N': 1, 'O': 2, 'S': 3, 'Cl': 4, 'F': 5, 'Tl': 6, 'I': 7, 'Ca': 8, 'P': 9, 'H': 10, 'Gd': 11, 'Na': 12, 'K': 13, 'Mg': 14, 'Ge': 15, 'Br': 16, 'Fe': 17, 'Au': 18, 'Ba': 19, 'Sr': 20, 'As': 21, 'Se': 22, 'Pt': 23, 'Co': 24, 'Li': 25, 'B': 26, 'Ra': 27, 'In': 28, 'Mn': 29, 'La': 30, 'Ag': 31, 'Zn': 32, 'Tc': 33, 'Cf': 34, 'Ga': 35, 'Sm': 36, 'Cr': 37, 'Cu': 38, 'Y': 39}
-        bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3, BT.DATIVE: 4} # bonds dictionary maps bond types (single, double, triple, aromatic) to integers
+ 
+        types = {'C': 0, 'O': 1, 'Cu': 2, 'N': 3, 'S': 4, 'P': 5, 'Cl': 6, 'Zn': 7, 'B': 8, 'Br': 9, 'Co': 10, 'Mn': 11, 'As': 12, 'Al': 13, 'Ni': 14, 'Se': 15, 'Si': 16, 'V': 17, 'Zr': 18, 'Sn': 19, 'I': 20, 'F': 21, 'Li': 22, 'Sb': 23, 'Fe': 24, 'Pd': 25, 'Hg': 26, 'Bi': 27, 'Na': 28, 'Ca': 29, 'Ti': 30, 'H': 31, 'Ho': 32, 'Ge': 33, 'Pt': 34, 'Ru': 35, 'Rh': 36, 'Cr': 37, 'Ga': 38, 'K': 39, 'Ag': 40, 'Au': 41, 'Tb': 42, 'Ir': 43, 'Te': 44, 'Mg': 45, 'Pb': 46, 'W': 47, 'Cs': 48, 'Mo': 49, 'Re': 50, 'U': 51, 'Gd': 52, 'Tl': 53, 'Ac': 54}
+        bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3, BT.DATIVE: 4}
 
 
         with open(self.raw_paths[1], 'r') as f:
