@@ -57,7 +57,13 @@ class TOXCAST(InMemoryDataset):
     def raw_file_names(self) -> List[str]:
         try:
             import rdkit  # noqa
-            return ['toxcast.sdf', 'toxcast.sdf.csv']
+            file_names = {
+                "precise3d": ['toxcast_exp.sdf', 'toxcast_exp.sdf.csv'],
+                "optimized3d": ['toxcast_opt.sdf', 'toxcast_opt.sdf.csv'],
+                "rdkit3d": ['toxcast.sdf', 'toxcast.sdf.csv'],
+                "rdkit2d": ['toxcast_graph.sdf', 'toxcast_graph.sdf.csv']
+            }
+            return file_names[self.structure]
         except ImportError:
             return ImportError("Please install 'rdkit' to download the dataset.")
 
@@ -111,7 +117,7 @@ class TOXCAST(InMemoryDataset):
 
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) if x != '-100' else -1
+            target = [[float(x) if x != '-100' and x != '' else -1
                        for x in line.split(',')[1:-1]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)

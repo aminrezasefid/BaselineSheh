@@ -57,7 +57,13 @@ class HIV(InMemoryDataset):
     def raw_file_names(self) -> List[str]:
         try:
             import rdkit  # noqa
-            return ['HIV.sdf', 'HIV.sdf.csv']
+            file_names = {
+                "precise3d": ['HIV_exp.sdf', 'HIV_exp.sdf.csv'],
+                "optimized3d": ['HIV_opt.sdf', 'HIV_opt.sdf.csv'],
+                "rdkit3d": ['HIV.sdf', 'HIV.sdf.csv'],
+                "rdkit2d": ['HIV_graph.sdf', 'HIV_graph.sdf.csv']
+            }
+            return file_names[self.structure]
         except ImportError:
             return ImportError("Please install 'rdkit' to download the dataset.")
 
@@ -110,7 +116,7 @@ class HIV(InMemoryDataset):
 
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) if x != '-100' else -1
+            target = [[float(x) if x != '-100' and x != '' else -1
                        for x in line.split(',')[1:-1]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)

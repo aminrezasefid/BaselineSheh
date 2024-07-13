@@ -57,7 +57,13 @@ class TOX21(InMemoryDataset):
     def raw_file_names(self) -> List[str]:
         try:
             import rdkit  # noqa
-            return ['tox21.sdf', 'tox21.sdf.csv']
+            file_names = {
+                "precise3d": ['tox21_exp.sdf', 'tox21_exp.sdf.csv'],
+                "optimized3d": ['tox21_opt.sdf', 'tox21_opt.sdf.csv'],
+                "rdkit3d": ['tox21.sdf', 'tox21.sdf.csv'],
+                "rdkit2d": ['tox21_graph.sdf', 'tox21_graph.sdf.csv']
+            }
+            return file_names[self.structure]
         except ImportError:
             return ImportError("Please install 'rdkit' to download the dataset.")
 
@@ -109,8 +115,8 @@ class TOX21(InMemoryDataset):
 
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) if x != '' else -1
-                       for x in line.split(',')]
+            target = [[float(x) if x != '-100' and x != '' else -1
+                       for x in line.split(',')[1:-1]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 

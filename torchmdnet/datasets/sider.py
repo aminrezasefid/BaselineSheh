@@ -57,7 +57,13 @@ class Sider(InMemoryDataset):
     def raw_file_names(self) -> List[str]:
         try:
             import rdkit  # noqa
-            return ['sider.sdf', 'sider.sdf.csv']
+            file_names = {
+                "precise3d": ['sider_exp.sdf', 'sider_exp.sdf.csv'],
+                "optimized3d": ['sider_opt.sdf', 'sider_opt.sdf.csv'],
+                "rdkit3d": ['sider.sdf', 'sider.sdf.csv'],
+                "rdkit2d": ['sider_graph.sdf', 'sider_graph.sdf.csv']
+            }
+            return file_names[self.structure]
         except ImportError:
             return ImportError("Please install 'rdkit' to download the dataset.")
 
@@ -111,7 +117,7 @@ class Sider(InMemoryDataset):
 
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) if x != '-100' else -1
+            target = [[float(x) if x != '-100' and x != '' else -1
                        for x in line.split(',')[1:-1]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
