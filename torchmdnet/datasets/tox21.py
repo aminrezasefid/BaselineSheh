@@ -75,7 +75,7 @@ class TOX21(InMemoryDataset):
         try:
             import rdkit  # noqa
             file_path = download_url(self.raw_url, self.raw_dir)
-            extract_tar(file_path, self.raw_dir)
+            extract_zip(file_path, self.raw_dir)
             os.unlink(file_path)
 
         except ImportError:
