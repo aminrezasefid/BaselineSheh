@@ -17,10 +17,10 @@ from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
 URLS = {
-    "precise3d": "https://drive.google.com/uc?export=download&id=1zUfSVS1BoU4Mavdr5NpanXCluhJEWEDw",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=1johyC6VB9QzdtvcDrbIH0XV_WP0ity0B",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1587tIzho_nkA8mc5-59XbEV5AVhGYywK",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1fANgQQR-S3C3ZJQn_hkuFq5Q2LNmDeV8"
+    "precise3d": "https://drive.google.com/uc?export=download&id=1GxX_t5iYKsihokV4022XoFkr9io51yuM",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=11ilXVEo2oajhfI5Gd7-hNn2_XbypP3kg",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1FxzX7qHAJmrVaZGcf8VK60-RtLT_k9P0",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1FTVrvkt6R_qQwvWLAXSXDm-K5VZEwiI8"
 }
 
 
@@ -118,7 +118,7 @@ class Sider(InMemoryDataset):
 
         with open(self.raw_paths[1], 'r') as f:
             target = [[float(x) if x != '-100' and x != '' else -1
-                       for x in line.split(',')[1:-1]]
+                       for x in line.split(',')]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 
