@@ -67,17 +67,34 @@ class LNNP(LightningModule):
     def forward(self, z, pos, batch=None):
         return self.model(z, pos, batch=batch)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch):
         return self.step(batch, getattr(functional, self.hparams.train_loss_fn), "train")
 
-    def validation_step(self, batch, batch_idx, *args):
+    def validation_step(self, batch, *args):
         if len(args) == 0 or (len(args) > 0 and args[0] == 0):
             # validation step
             return self.step(batch, getattr(functional, self.hparams.val_test_loss_fn), "val")
         # test step
         return self.step(batch, getattr(functional, self.hparams.val_test_loss_fn), "test")
 
-    def test_step(self, batch, batch_idx):
+    def test_step(self, batch):
+        with torch.set_grad_enabled(self.hparams.derivative):
+            pred, _, _ = self(batch.z, batch.pos, batch.batch)
+
+        smiles = batch.name
+        header = 'smiles,'
+        for i in range(len(self.hparams.dataset_args)):
+            header += f'pred_{i},actual_{i},'
+        with open(self.hparams.log_dir + '-preds.csv', 'w') as f:
+            f.write(header + '\n')
+            for i in range(len(smiles)):
+                f.write(smiles[i] + ',')
+                for j in range(len(self.hparams.dataset_args)):
+                    f.write(f'{pred[i][j].item()},')
+                    f.write(f'{batch.y[i][j].item()},')
+                f.write('\n')
+                
+
         return self.step(batch, getattr(functional, self.hparams.val_test_loss_fn), "test")
 
     def step(self, batch, loss_fn, stage):
@@ -159,12 +176,7 @@ class LNNP(LightningModule):
                 noise_pred = noise_pred + pred.sum() * 0
                 
             normalized_pos_target = self.model.pos_normalizer(batch.pos_target)
-            # should I do the same for the noise_pred? TODO (Armin)
-            if self.hparams.task_type == "class":
-                target_not_minus_one = batch.pos_target != -1
-                loss_pos = mse_loss(noise_pred[target_not_minus_one], normalized_pos_target[target_not_minus_one])
-            else:
-                loss_pos = loss_fn(noise_pred, normalized_pos_target)
+            loss_pos = mse_loss(noise_pred, normalized_pos_target)
             self.losses[stage + "_pos"].append(loss_pos.detach())
 
         # total loss

@@ -1,6 +1,7 @@
 from os.path import join
 import os
 import sys
+from pytorch_lightning.utilities.types import EVAL_DATALOADERS
 from tqdm import tqdm
 import torch
 from torch.utils.data import Subset
@@ -92,6 +93,9 @@ class DataModule(LightningDataModule):
         return loaders
     
     def test_dataloader(self):
+        return self._get_dataloader(self.test_dataset, "test")
+    
+    def predict_dataloader(self):
         return self._get_dataloader(self.test_dataset, "test")
 
     @property

@@ -211,7 +211,23 @@ def main():
 
     trainer.fit(model, data)
 
-    trainer.test(model= model, dataloaders = data)
+    trainer.test(model= model, datamodule = data)
+
+    # predictions = trainer.predict(model= model, datamodule = data)
+
+    # smiles, actuals, preds = [], [], []
+    # for batch, pred in zip(data.test_dataloader(), predictions):
+    #     smiles.extend(batch["names"])
+    #     actuals.extend(batch["y"].numpy())
+    #     preds.extend(pred.numpy())
+
+    # with open(os.path.join(args.log_dir, "predictions.csv"), "w") as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(["smiles", "actual", "pred"])
+    #     for s, a, p in zip(smiles, actuals, preds):
+    #         writer.writerow([s, a, p])
+
+    print("Done!")
 
 if __name__ == "__main__":
     main()

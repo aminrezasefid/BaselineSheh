@@ -18,7 +18,7 @@
         "--job-id",
         "freesolv-test",
         "--num-epochs",
-        "2",
+        "1",
         "--pretrained-model",
         "checkpoints/denoised-pcqm4mv2.ckpt",
         "--accelerator",
