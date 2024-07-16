@@ -82,16 +82,16 @@ class LNNP(LightningModule):
             pred, _, _ = self(batch.z, batch.pos, batch.batch)
 
         smiles = batch.name
-        header = 'smiles,'
+        header = 'smiles'
         for i in range(len(self.hparams.dataset_args)):
-            header += f'pred_{i},actual_{i},'
+            header += f',pred_{i},actual_{i}'
         with open(self.hparams.log_dir + '-preds.csv', 'w') as f:
             f.write(header + '\n')
             for i in range(len(smiles)):
-                f.write(smiles[i] + ',')
+                f.write(smiles[i])
                 for j in range(len(self.hparams.dataset_args)):
-                    f.write(f'{pred[i][j].item()},')
-                    f.write(f'{batch.y[i][j].item()},')
+                    f.write(f',{pred[i][j].item()}')
+                    f.write(f',{batch.y[i][j].item()}')
                 f.write('\n')
                 
 
