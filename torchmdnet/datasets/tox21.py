@@ -35,7 +35,7 @@ class TOX21(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else list(range(0, 12))
+        self.labels = dataset_args if dataset_args is not None else list(range(0, 11)) # (0, 12)
 
         if transform is None:
             transform = self._filter_label
