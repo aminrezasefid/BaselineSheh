@@ -12,7 +12,7 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-LIPOPHILISITY.yaml",
+        "examples/ET-FREESOLV.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",
@@ -21,8 +21,8 @@
         "2",
         "--pretrained-model",
         "checkpoints/denoised-pcqm4mv2.ckpt",
-        "--structure",
-        "rdkit2d"
+        "--accelerator",
+        "cpu"
       ]
     }
   ]

@@ -170,8 +170,7 @@ def main():
     checkpoint_callback = ModelCheckpoint(
         dirpath=args.log_dir,
         monitor= metric_name,
-        # save_top_k=10,  # -1 to save all
-        # every_n_epochs=args.save_interval,
+        save_top_k=3,
         filename="{step}-{epoch}-{"+metric_name+":.4f}-{test_loss:.4f}-{train_per_step:.4f}",
         # save_last=True,
         mode=args.callback_mode
@@ -205,7 +204,7 @@ def main():
         logger=[tb_logger, csv_logger],
         reload_dataloaders_every_n_epochs= 0,
         precision=args.precision,
-        strategy = "ddp", # not supported for mps, REMEMBER!
+        # strategy = "ddp", # not supported for mps, REMEMBER!
     )
 
     trainer.fit(model, data)
