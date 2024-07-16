@@ -23,6 +23,7 @@ from torchmdnet.models.utils import rbf_class_mapping, act_class_mapping
 from torchmdnet.utils import LoadFromFile, LoadFromCheckpoint, save_argparse, number
 from pathlib import Path
 import wandb
+import csv
 
 def get_args():
     # fmt: off
@@ -172,6 +173,7 @@ def main():
         monitor= metric_name,
         save_top_k=3,
         filename="{step}-{epoch}-{"+metric_name+":.4f}-{test_loss:.4f}-{train_per_step:.4f}",
+        every_n_epochs=args.save_interval,
         # save_last=True,
         mode=args.callback_mode
     )
@@ -210,7 +212,6 @@ def main():
     trainer.fit(model, data)
 
     trainer.test(model= model, dataloaders = data)
-
 
 if __name__ == "__main__":
     main()
