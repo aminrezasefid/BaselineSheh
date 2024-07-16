@@ -150,7 +150,7 @@ class TOXCAST(InMemoryDataset):
               
             # check if any two atoms are overlapping
             if torch.unique(pos, dim=0).size(0) != N:
-                print(f"Skipping molecule {mol.GetProp('_Name')} as it contains overlapping atoms.")
+                # print(f"Skipping molecule {mol.GetProp('_Name')} as it contains overlapping atoms.")
                 continue
 
             type_idx = []
