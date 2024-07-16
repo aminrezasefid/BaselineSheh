@@ -35,7 +35,7 @@ class TOX21(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else list(range(0, 11)) # (0, 12)
+        self.labels = dataset_args if dataset_args is not None else list(range(0, 12))
 
         if transform is None:
             transform = self._filter_label
@@ -116,7 +116,7 @@ class TOX21(InMemoryDataset):
 
         with open(self.raw_paths[1], 'r') as f:
             target = [[float(x) if x != '-100' and x != '' else -1
-                       for x in line.split(',')[1:-1]]
+                       for x in line.split(',')[0:12]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 
