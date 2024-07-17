@@ -10,43 +10,62 @@ from torch_geometric.data import (
     Data,
     InMemoryDataset,
     download_url,
-    extract_tar,
+    extract_zip,
 )
 from torch_geometric.transforms import Compose
 from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
-from torch_geometric.nn.models.schnet import qm9_target_dict
-
-
-HAR2EV = 27.211386246
-KCALMOL2EV = 0.04336414
-
-conversion = torch.tensor([
-    1., 1., HAR2EV, HAR2EV, HAR2EV, 1., HAR2EV, HAR2EV, HAR2EV, HAR2EV, HAR2EV,
-    1., KCALMOL2EV, KCALMOL2EV, KCALMOL2EV, KCALMOL2EV, 1., 1., 1.
-])
-
 
 URLS = {
-    "precise3d": "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb9.tar.gz",
-    "optimized3d": "https://www.dropbox.com/scl/fi/drgk2ecv9lpni3ljmiixh/gdb9-3d-opt.tar.gz?rlkey=btqxv4q7zrt20452p1lg094yu&st=9yqcri8w&dl=1",
-    "rdkit3d": "https://www.dropbox.com/scl/fi/6sh166f4u3sr26mc6ukl9/gdb9-3d.tar.gz?rlkey=hvhoe463o9doa89hsmqfhjoi7&st=rlrrx9ah&dl=1",
-    "rdkit2d": "https://www.dropbox.com/scl/fi/c5pbodfm08nc6uo71dfr7/gdb9-2d.tar.gz?rlkey=oelmidne9e0nhpqee3v2bpuc3&st=ywpp5u4a&dl=1"
+    "precise3d": "https://drive.google.com/uc?export=download&id=1GxX_t5iYKsihokV4022XoFkr9io51yuM",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=11ilXVEo2oajhfI5Gd7-hNn2_XbypP3kg",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1FxzX7qHAJmrVaZGcf8VK60-RtLT_k9P0",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1FTVrvkt6R_qQwvWLAXSXDm-K5VZEwiI8"
+}
+
+sider_target_dict = {
+    'Hepatobiliary disorders': 0,
+    'Metabolism and nutrition disorders': 1,
+    'Product issues': 2,
+    'Eye disorders': 3,
+    'Investigations': 4,
+    'Musculoskeletal and connective tissue disorders': 5,
+    'Gastrointestinal disorders': 6,
+    'Social circumstances': 7,
+    'Immune system disorders': 8,
+    'Reproductive system and breast disorders': 9,
+    'Neoplasms benign, malignant and unspecified (incl cysts and polyps)': 10,
+    'General disorders and administration site conditions': 11,
+    'Endocrine disorders': 12,
+    'Surgical and medical procedures': 13,
+    'Vascular disorders': 14,
+    'Blood and lymphatic system disorders': 15,
+    'Skin and subcutaneous tissue disorders': 16,
+    'Congenital, familial and genetic disorders': 17,
+    'Infections and infestations': 18,
+    'Respiratory, thoracic and mediastinal disorders': 19,
+    'Psychiatric disorders': 20,
+    'Renal and urinary disorders': 21,
+    'Pregnancy, puerperium and perinatal conditions': 22,
+    'Ear and labyrinth disorders': 23,
+    'Cardiac disorders': 24,
+    'Nervous system disorders': 25,
+    'Injury, poisoning and procedural complications': 26
 }
 
 
-class QM9(InMemoryDataset):
+class Sider(InMemoryDataset):
     def __init__(self, 
                  root: str, 
                  transform: Optional[Callable] = None,
                  pre_transform: Optional[Callable] = None,
                  pre_filter: Optional[Callable] = None,
                  force_reload: bool = False,
-                 structure: str = "precise3d",
+                 structure: str = "rdkit3d",
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = [qm9_target_dict[label] for label in dataset_args] if dataset_args is not None else list(qm9_target_dict.values())
+        self.labels = [sider_target_dict[label] for label in dataset_args] if dataset_args is not None else list(sider_target_dict.values())
 
         if transform is None:
             transform = self._filter_label
@@ -68,7 +87,13 @@ class QM9(InMemoryDataset):
     def raw_file_names(self) -> List[str]:
         try:
             import rdkit  # noqa
-            return ['gdb9.sdf', 'gdb9.sdf.csv']
+            file_names = {
+                "precise3d": ['sider_exp.sdf', 'sider_exp.sdf.csv'],
+                "optimized3d": ['sider_opt.sdf', 'sider_opt.sdf.csv'],
+                "rdkit3d": ['sider.sdf', 'sider.sdf.csv'],
+                "rdkit2d": ['sider_graph.sdf', 'sider_graph.sdf.csv']
+            }
+            return file_names[self.structure]
         except ImportError:
             return ImportError("Please install 'rdkit' to download the dataset.")
 
@@ -79,8 +104,10 @@ class QM9(InMemoryDataset):
     def download(self):
         try:
             import rdkit  # noqa
+            #import gdown
             file_path = download_url(self.raw_url, self.raw_dir)
-            extract_tar(file_path, self.raw_dir)
+            #gdown.download(self.raw_url, output=file_path, quiet=False)
+            extract_zip(file_path, self.raw_dir)
             os.unlink(file_path)
 
         except ImportError:
@@ -114,15 +141,16 @@ class QM9(InMemoryDataset):
             self.save(data_list, self.processed_paths[0])
             return
 
-        types = {'H': 0, 'C': 1, 'N': 2, 'O': 3, 'F': 4}
-        bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
+      
+        types = {'C': 0, 'N': 1, 'O': 2, 'S': 3, 'Cl': 4, 'F': 5, 'Tl': 6, 'I': 7, 'Ca': 8, 'P': 9, 'H': 10, 'Gd': 11, 'Na': 12, 'K': 13, 'Mg': 14, 'Ge': 15, 'Br': 16, 'Fe': 17, 'Au': 18, 'Ba': 19, 'Sr': 20, 'As': 21, 'Se': 22, 'Pt': 23, 'Co': 24, 'Li': 25, 'B': 26, 'Ra': 27, 'In': 28, 'Mn': 29, 'La': 30, 'Ag': 31, 'Zn': 32, 'Tc': 33, 'Cf': 34, 'Ga': 35, 'Sm': 36, 'Cr': 37, 'Cu': 38, 'Y': 39}
+        bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3, BT.DATIVE: 4} # bonds dictionary maps bond types (single, double, triple, aromatic) to integers
+
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) for x in line.split(',')[1:20]]
+            target = [[float(x) if x != '-100' and x != '' else -1
+                       for x in line.split(',')]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
-            y = torch.cat([y[:, 3:], y[:, :3]], dim=-1)
-            y = y * conversion.view(1, -1)
 
         suppl = Chem.SDMolSupplier(self.raw_paths[0], removeHs=False,
                                    sanitize=False)
@@ -136,9 +164,23 @@ class QM9(InMemoryDataset):
             pos = conf.GetPositions()
             pos = torch.tensor(pos, dtype=torch.float)
 
+            ## Create a mask for the diagonal
+            # mask = torch.eye(N, dtype=bool)
+            
+            # # Compute the pairwise distances
+            # distances = torch.cdist(pos, pos)
+            
+            # # Apply the mask to the distances (this will set the diagonal elements to infinity)
+            # distances.masked_fill_(mask, float('inf'))
+            
+            # # Now check for overlapping atoms
+            # if not torch.all(distances > 0):
+            #     #print(f"Skipping molecule {i} due to overlapping atoms.")
+            #     continue
+              
             # check if any two atoms are overlapping
             if torch.unique(pos, dim=0).size(0) != N:
-                print(f"Skipping molecule {mol.GetProp('_Name')} as it contains overlapping atoms.")
+                # print(f"Skipping molecule {mol.GetProp('_Name')} as it contains overlapping atoms.")
                 continue
 
             type_idx = []

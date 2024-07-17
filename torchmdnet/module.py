@@ -33,6 +33,8 @@ class LNNP(LightningModule):
         self.auc = {"val": [], "test": [], "train": []}
         self.b_AUROC = BinaryAUROC()
 
+        self.preds_csv = []
+
     def configure_optimizers(self):
         optimizer = AdamW(
             self.model.parameters(),
@@ -81,21 +83,31 @@ class LNNP(LightningModule):
         with torch.set_grad_enabled(self.hparams.derivative):
             pred, _, _ = self(batch.z, batch.pos, batch.batch)
 
-        smiles = batch.name
-        header = 'smiles'
-        for i in range(len(self.hparams.dataset_args)):
-            header += f',pred_{i},actual_{i}'
-        with open(self.hparams.log_dir + '-preds.csv', 'w') as f:
-            f.write(header + '\n')
-            for i in range(len(smiles)):
-                f.write(smiles[i])
-                for j in range(len(self.hparams.dataset_args)):
-                    f.write(f',{pred[i][j].item()}')
-                    f.write(f',{batch.y[i][j].item()}')
-                f.write('\n')
-                
+        for i in range(len(pred)):
+            row = [batch.name[i]]
+            for j in range(len(self.hparams.dataset_args)):
+                row.append(pred[i][j].item())
+                row.append(batch.y[i][j].item())
+                if self.hparams.task_type == "class":
+                    row.append(int(round(pred[i][j].item())))
+                    # row.append(int(pred[i][j].item() > 0.5))
+
+            self.preds_csv.append(row)
 
         return self.step(batch, getattr(functional, self.hparams.val_test_loss_fn), "test")
+    
+    def on_test_end(self):
+        import csv
+        header = ["smiles"]
+        for target in self.hparams.dataset_args:
+            header.append(f"pred_{target}")
+            header.append(f"actual_{target}")
+            if self.hparams.task_type == "class":
+                header.append(f"pred_{target}_class")
+        with open(self.hparams.log_dir + "/preds.csv", 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(header)
+            writer.writerows(self.preds_csv)
 
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):

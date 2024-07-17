@@ -12,17 +12,19 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-FREESOLV.yaml",
+        "examples/ET-SIDER-FT.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",
-        "freesolv-test",
+        "tox21-test",
         "--num-epochs",
         "1",
         "--pretrained-model",
         "checkpoints/denoised-pcqm4mv2.ckpt",
         "--accelerator",
-        "cpu"
+        "cpu",
+        "--structure",
+        "rdkit3d"
       ]
     }
   ]

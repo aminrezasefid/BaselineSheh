@@ -10,5 +10,6 @@ from .tox21 import TOX21
 from .esol import ESOL
 from .freesolv import FreeSolv
 from .lipophilicity import Lipophilicity
+from .sider import Sider
 
-__all__ = ["QM9", "QM8", "QM7", "MD17", "ANI1", "Custom", "HDF5", "PCQM4MV2", "TOX21", "ESOL", "FreeSolv", "Lipophilicity"]
+__all__ = ["QM9", "QM8", "QM7", "MD17", "ANI1", "Custom", "HDF5", "PCQM4MV2", "TOX21", "ESOL", "FreeSolv", "Lipophilicity", "Sider"]
