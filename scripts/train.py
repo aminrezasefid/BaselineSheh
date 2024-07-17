@@ -69,7 +69,7 @@ def get_args():
     # dataset specific
     parser.add_argument('--dataset', default=None, type=str, choices=datasets.__all__, help='Name of the torch_geometric dataset')
     parser.add_argument('--dataset-root', default='data', type=str, help='Data storage directory (not used if dataset is "CG")')
-    parser.add_argument('--dataset-args', default=None, type=str, help='Additional dataset argument, e.g. an array for target properties for QM9 or molecule for MD17. If not provided, all properties are used')
+    parser.add_argument('--dataset-args', default=None, type=list[str], help='Additional dataset argument, e.g. an array for target properties for QM9 or molecule for MD17. If not provided, all properties are used')
     # TODO (armin) add literal_eval for dataset-args
     parser.add_argument('--structure', choices=["precise3d", "rdkit3d", "optimized3d", "rdkit2d"], default="precise3d", help='Structure of the input data')
     parser.add_argument('--coord-files', default=None, type=str, help='Custom coordinate files glob')
@@ -206,26 +206,12 @@ def main():
         logger=[tb_logger, csv_logger],
         reload_dataloaders_every_n_epochs= 0,
         precision=args.precision,
-        # strategy = "ddp", # not supported for mps, REMEMBER!
+        strategy = "ddp", # not supported for mps, REMEMBER!
     )
 
     trainer.fit(model, data)
 
     trainer.test(model= model, datamodule = data)
-
-    # predictions = trainer.predict(model= model, datamodule = data)
-
-    # smiles, actuals, preds = [], [], []
-    # for batch, pred in zip(data.test_dataloader(), predictions):
-    #     smiles.extend(batch["names"])
-    #     actuals.extend(batch["y"].numpy())
-    #     preds.extend(pred.numpy())
-
-    # with open(os.path.join(args.log_dir, "predictions.csv"), "w") as f:
-    #     writer = csv.writer(f)
-    #     writer.writerow(["smiles", "actual", "pred"])
-    #     for s, a, p in zip(smiles, actuals, preds):
-    #         writer.writerow([s, a, p])
 
     print("Done!")
 

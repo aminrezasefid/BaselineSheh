@@ -23,6 +23,36 @@ URLS = {
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1FTVrvkt6R_qQwvWLAXSXDm-K5VZEwiI8"
 }
 
+sider_target_dict = {
+    'Hepatobiliary disorders': 0,
+    'Metabolism and nutrition disorders': 1,
+    'Product issues': 2,
+    'Eye disorders': 3,
+    'Investigations': 4,
+    'Musculoskeletal and connective tissue disorders': 5,
+    'Gastrointestinal disorders': 6,
+    'Social circumstances': 7,
+    'Immune system disorders': 8,
+    'Reproductive system and breast disorders': 9,
+    'Neoplasms benign, malignant and unspecified (incl cysts and polyps)': 10,
+    'General disorders and administration site conditions': 11,
+    'Endocrine disorders': 12,
+    'Surgical and medical procedures': 13,
+    'Vascular disorders': 14,
+    'Blood and lymphatic system disorders': 15,
+    'Skin and subcutaneous tissue disorders': 16,
+    'Congenital, familial and genetic disorders': 17,
+    'Infections and infestations': 18,
+    'Respiratory, thoracic and mediastinal disorders': 19,
+    'Psychiatric disorders': 20,
+    'Renal and urinary disorders': 21,
+    'Pregnancy, puerperium and perinatal conditions': 22,
+    'Ear and labyrinth disorders': 23,
+    'Cardiac disorders': 24,
+    'Nervous system disorders': 25,
+    'Injury, poisoning and procedural complications': 26
+}
+
 
 class Sider(InMemoryDataset):
     def __init__(self, 
@@ -35,7 +65,7 @@ class Sider(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else list(range(0, 27))
+        self.labels = [sider_target_dict[label] for label in dataset_args] if dataset_args is not None else list(sider_target_dict.values())
 
         if transform is None:
             transform = self._filter_label
