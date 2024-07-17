@@ -35,7 +35,7 @@ class MUV(InMemoryDataset): ###### CHANGE ######
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else list(range(0, 17)) #list(range(1, 28)) ###### CHANGE ######
+        self.labels = [muv_target_dict[label] for label in dataset_args] if dataset_args is not None else list(muv_target_dict.values()) ###### CHANGE ######
 
         if transform is None:
             transform = self._filter_label

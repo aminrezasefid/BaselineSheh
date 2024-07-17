@@ -35,7 +35,7 @@ class Clintox(InMemoryDataset): ###### CHANGE ######
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else [0, 1] #list(range(1, 28)) ###### CHANGE ######
+        self.labels = [clintox_target_dict[label] for label in dataset_args] if dataset_args is not None else list(clintox_target_dict.values())
 
         if transform is None:
             transform = self._filter_label
