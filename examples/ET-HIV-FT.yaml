@@ -68,4 +68,4 @@ job_id: auto
 out_channels: 1
 strict_load: false
 task_type: class
-dataset_args : None
+dataset_args : ['HIV_active']
