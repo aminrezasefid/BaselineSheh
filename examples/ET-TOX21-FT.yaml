@@ -65,7 +65,7 @@ denoising_weight: 0.1
 layernorm_on_vec: null
 wandb_notes: ""
 job_id: auto
-out_channels: 11
+out_channels: 12
 strict_load: false
 task_type: class
-dataset_args : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+dataset_args : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
