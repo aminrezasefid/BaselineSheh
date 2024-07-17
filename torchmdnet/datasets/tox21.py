@@ -116,7 +116,7 @@ class TOX21(InMemoryDataset):
 
         with open(self.raw_paths[1], 'r') as f:
             target = [[float(x) if x != '-100' and x != '' else -1
-                       for x in line.split(',')[0:-2]]
+                       for x in line.split(',')[:-2]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 

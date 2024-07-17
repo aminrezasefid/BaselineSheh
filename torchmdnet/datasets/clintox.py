@@ -35,7 +35,7 @@ class Clintox(InMemoryDataset): ###### CHANGE ######
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else [1, 2] #list(range(1, 28)) ###### CHANGE ######
+        self.labels = dataset_args if dataset_args is not None else [0, 1] #list(range(1, 28)) ###### CHANGE ######
 
         if transform is None:
             transform = self._filter_label
@@ -117,7 +117,7 @@ class Clintox(InMemoryDataset): ###### CHANGE ######
 
         with open(self.raw_paths[1], 'r') as f:
             target = [[float(x) if x != '-100' and x != '' else -1
-                       for x in line.split(',')[1:-1]]
+                       for x in line.split(',')]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 

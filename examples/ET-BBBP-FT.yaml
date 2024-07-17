@@ -6,8 +6,8 @@ batch_size: 16 #128
 coord_files: null
 cutoff_lower: 0.0
 cutoff_upper: 5.0
-dataset: Clintox                       ###### CHANGE ######
-dataset_root: data/clintox             ###### CHANGE ######
+dataset: BBBP                     ###### CHANGE ######
+dataset_root: data/bbbp          ###### CHANGE ######
 derivative: false
 distance_influence: both
 distributed_backend: ddp
@@ -65,7 +65,7 @@ layernorm_on_vec: null
 wandb_notes: ""
 job_id: auto
 ####
-out_channels: 2
+out_channels: 1
 strict_load: false
 task_type: class ###### CHANGE ######
-dataset_args : [0, 1]
+dataset_args : [0]

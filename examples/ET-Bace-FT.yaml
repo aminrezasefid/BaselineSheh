@@ -65,7 +65,7 @@ layernorm_on_vec: null
 wandb_notes: ""
 job_id: auto
 ####
-out_channels: ?
+out_channels: 1
 strict_load: false
 task_type: class ###### CHANGE ######
-dataset_args : None
+dataset_args : [0]
