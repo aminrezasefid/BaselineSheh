@@ -69,3 +69,4 @@ out_channels: 2
 strict_load: false
 task_type: class
 dataset_args: ["Vascular disorders", "Ear and labyrinth disorders"]
+

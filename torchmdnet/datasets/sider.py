@@ -253,4 +253,6 @@ class Sider(InMemoryDataset):
     def _filter_label(self, batch):
         if self.labels:
             batch.y = batch.y[:, self.labels]
+
         return batch
+

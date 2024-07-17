@@ -2,13 +2,12 @@ activation: silu
 aggr: add
 atom_filter: -1
 attn_activation: silu
-batch_size: 
+batch_size: 16 #128
 coord_files: null
 cutoff_lower: 0.0
 cutoff_upper: 5.0
-dataset: TOX21
-dataset_args: null
-dataset_root: data/tox21
+dataset: Clintox                       ###### CHANGE ######
+dataset_root: data/clintox             ###### CHANGE ######
 derivative: false
 distance_influence: both
 distributed_backend: ddp
@@ -21,7 +20,7 @@ energy_files: null
 energy_weight: 1.0
 force_files: null
 force_weight: 1.0
-inference_batch_size: 128
+inference_batch_size: 16 #128
 load_model: null
 pretrained_model: null
 log_dir: experiments/
@@ -37,7 +36,7 @@ max_z: 100
 model: equivariant-transformer
 neighbor_embedding: true
 ngpus: -1
-num_epochs: 3000
+num_epochs: 50
 num_steps: 300000
 num_heads: 8
 num_layers: 8
@@ -53,12 +52,11 @@ reduce_op: add
 save_interval: 10
 splits: null
 standardize: true
-test_interval: 10
-test_size: null
-train_size: .2
+test_interval: 1 #10
+test_size: 0.1
+train_size: 0.8 #110000
 trainable_rbf: false
-val_size: .025
-test_size: .025
+val_size: 0.1 #10000
 weight_decay: 0.0
 output_model_noise: VectorOutput
 position_noise_scale: 0.005
@@ -66,7 +64,8 @@ denoising_weight: 0.1
 layernorm_on_vec: null
 wandb_notes: ""
 job_id: auto
-out_channels: 8
+####
+out_channels: 2
 strict_load: false
-task_type: class
-dataset_args : [1, 2, 3, 4, 5, 6, 7, 8]
+task_type: class ###### CHANGE ######
+dataset_args : [0, 1]

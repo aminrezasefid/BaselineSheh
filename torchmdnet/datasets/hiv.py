@@ -17,14 +17,14 @@ from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
 URLS = {
-    "precise3d": "https://drive.google.com/uc?export=download&id=14BOVxSdJuzmxFwAut8GXxsOgNdAqhJaO",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=179ljL62tkCAeC2jicr2xdTpg2i3Niath",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1ZaqlLBk8UepuolAnAWm49DKsUj3cb3o6", # Replaced Armin's
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=10gwCtoqL2rY27Od5JzMwzyiYvQ5wU47x"
+    "precise3d": "https://drive.google.com/uc?export=download&id=1ds24awf65cfP0_AYBUiVQ_WM5QsngjZB",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=17LlB17yrLwbGjYxN3HqmKJrr0r6pSbSJ",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1JCT-kdtg1ST596O-kQrEmeLSIhK9G7ge",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1j2XmEahtYcQaS1rK9vOWH9mAKYwsh_Hi"
 }
 
 
-class TOX21(InMemoryDataset):
+class HIV(InMemoryDataset):
     def __init__(self, 
                  root: str, 
                  transform: Optional[Callable] = None,
@@ -35,7 +35,7 @@ class TOX21(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else list(range(0, 12))
+        self.labels = dataset_args if dataset_args is not None else [2] #list(range(1, 28))
 
         if transform is None:
             transform = self._filter_label
@@ -58,10 +58,10 @@ class TOX21(InMemoryDataset):
         try:
             import rdkit  # noqa
             file_names = {
-                "precise3d": ['tox21_exp.sdf', 'tox21_exp.sdf.csv'],
-                "optimized3d": ['tox21_opt.sdf', 'tox21_opt.sdf.csv'],
-                "rdkit3d": ['tox21.sdf', 'tox21.sdf.csv'],
-                "rdkit2d": ['tox21_graph.sdf', 'tox21_graph.sdf.csv']
+                "precise3d": ['HIV_exp.sdf', 'HIV_exp.sdf.csv'],
+                "optimized3d": ['HIV_opt.sdf', 'HIV_opt.sdf.csv'],
+                "rdkit3d": ['HIV.sdf', 'HIV.sdf.csv'],
+                "rdkit2d": ['HIV_graph.sdf', 'HIV_graph.sdf.csv']
             }
             return file_names[self.structure]
         except ImportError:
@@ -74,7 +74,9 @@ class TOX21(InMemoryDataset):
     def download(self):
         try:
             import rdkit  # noqa
+            #import gdown
             file_path = download_url(self.raw_url, self.raw_dir)
+            #gdown.download(self.raw_url, output=file_path, quiet=False)
             extract_zip(file_path, self.raw_dir)
             os.unlink(file_path)
 
@@ -108,15 +110,14 @@ class TOX21(InMemoryDataset):
 
             self.save(data_list, self.processed_paths[0])
             return
-
-        types = {'C': 0, 'O': 1, 'N': 2, 'S': 3, 'P': 4, 'Cl': 5, 'I': 6, 'Zn': 7, 'F': 8, 'Ca': 9, 'As': 10, 'Br': 11, 'B': 12, 'H': 13, 'K': 14, 'Si': 15, 'Cu': 16, 'Mg': 17, 'Hg': 18, 'Cr': 19, 'Zr': 20, 'Sn': 21, 'Na': 22, 'Ba': 23, 'Au': 24, 'Pd': 25, 'Tl': 26, 'Fe': 27, 'Al': 28, 'Gd': 29, 'Ag': 30, 'Mo': 31, 'V': 32, 'Nd': 33, 'Co': 34, 'Yb': 35, 'Pb': 36, 'Sb': 37, 'In': 38, 'Li': 39, 'Ni': 40, 'Bi': 41, 'Cd': 42, 'Ti': 43, 'Se': 44, 'Dy': 45, 'Mn': 46, 'Sr': 47, 'Be': 48, 'Pt': 49, 'Ge': 50}
-
+ 
+        types = {'C': 0, 'O': 1, 'Cu': 2, 'N': 3, 'S': 4, 'P': 5, 'Cl': 6, 'Zn': 7, 'B': 8, 'Br': 9, 'Co': 10, 'Mn': 11, 'As': 12, 'Al': 13, 'Ni': 14, 'Se': 15, 'Si': 16, 'V': 17, 'Zr': 18, 'Sn': 19, 'I': 20, 'F': 21, 'Li': 22, 'Sb': 23, 'Fe': 24, 'Pd': 25, 'Hg': 26, 'Bi': 27, 'Na': 28, 'Ca': 29, 'Ti': 30, 'H': 31, 'Ho': 32, 'Ge': 33, 'Pt': 34, 'Ru': 35, 'Rh': 36, 'Cr': 37, 'Ga': 38, 'K': 39, 'Ag': 40, 'Au': 41, 'Tb': 42, 'Ir': 43, 'Te': 44, 'Mg': 45, 'Pb': 46, 'W': 47, 'Cs': 48, 'Mo': 49, 'Re': 50, 'U': 51, 'Gd': 52, 'Tl': 53, 'Ac': 54}
         bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3, BT.DATIVE: 4}
 
 
         with open(self.raw_paths[1], 'r') as f:
             target = [[float(x) if x != '-100' and x != '' else -1
-                       for x in line.split(',')[:-2]]
+                       for x in line.split(',')[1:-1]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 
@@ -132,6 +133,20 @@ class TOX21(InMemoryDataset):
             pos = conf.GetPositions()
             pos = torch.tensor(pos, dtype=torch.float)
 
+            ## Create a mask for the diagonal
+            # mask = torch.eye(N, dtype=bool)
+            
+            # # Compute the pairwise distances
+            # distances = torch.cdist(pos, pos)
+            
+            # # Apply the mask to the distances (this will set the diagonal elements to infinity)
+            # distances.masked_fill_(mask, float('inf'))
+            
+            # # Now check for overlapping atoms
+            # if not torch.all(distances > 0):
+            #     #print(f"Skipping molecule {i} due to overlapping atoms.")
+            #     continue
+              
             # check if any two atoms are overlapping
             if torch.unique(pos, dim=0).size(0) != N:
                 # print(f"Skipping molecule {mol.GetProp('_Name')} as it contains overlapping atoms.")
