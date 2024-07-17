@@ -53,11 +53,11 @@ reduce_op: add
 save_interval: 10
 splits: null
 standardize: true
-test_interval: 10
-test_size: null
-train_size: 6470
+test_interval: 1 #10
+test_size: 0.1
+train_size: 0.8 #6470
 trainable_rbf: false
-val_size: 615
+val_size: 0.1 #615
 weight_decay: 0.0
 output_model_noise: VectorOutput
 position_noise_scale: 0.005
@@ -65,7 +65,7 @@ denoising_weight: 0.1
 layernorm_on_vec: null
 wandb_notes: ""
 job_id: auto
-out_channels: 12
+out_channels: 11
 strict_load: false
 task_type: class
 dataset_args : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
