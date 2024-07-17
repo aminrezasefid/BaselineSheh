@@ -17,7 +17,7 @@ from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
 URLS = {
-    "precise3d": "https://drive.google.com/uc?export=download&id=1Pqbt1_l7umO3DmQE8lt4jjtADsm-AWL7",
+    "precise3d": "https://drive.google.com/uc?export=download&id=1_8RBt_Jc3LJQCDSLtIaq6SQjwCsD7S0X",
     "optimized3d": "https://drive.google.com/uc?export=download&id=1qHWv0Rrq_zbbAd5YO2ky8-7FIVHD5Si7", ###### CHANGE ######
     "rdkit3d": "https://drive.google.com/uc?export=download&id=16A4pwzm6i9XLFmHN_8HdSOEHzmiEG2gQ",
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1g6A6SbGWjO8BYo0bRFQV2zJ6Z7Lm8sEp"
