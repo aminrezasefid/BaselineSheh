@@ -1,0 +1,3 @@
+# Pushing Checklist
+
+- [x] ddp
