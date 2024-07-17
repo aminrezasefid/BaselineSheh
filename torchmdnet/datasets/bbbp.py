@@ -23,6 +23,7 @@ URLS = {
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1gVTv-704TDHg8ah11KkMVrrQBCBigZj4"
 }
 
+bbbp_target_dict = {'p_np' : 0}
 
 class BBBP(InMemoryDataset): ###### CHANGE ######
     def __init__(self, 

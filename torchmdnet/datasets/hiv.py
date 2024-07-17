@@ -23,6 +23,7 @@ URLS = {
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1j2XmEahtYcQaS1rK9vOWH9mAKYwsh_Hi"
 }
 
+hiv_target_dict = {'HIV_active': 0}
 
 class HIV(InMemoryDataset):
     def __init__(self, 
@@ -117,7 +118,7 @@ class HIV(InMemoryDataset):
 
         with open(self.raw_paths[1], 'r') as f:
             target = [[float(x) if x != '-100' and x != '' else -1
-                       for x in line.split(',')[1:-1]]
+                       for x in line.split(',')[2]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 

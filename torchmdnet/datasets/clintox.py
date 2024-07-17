@@ -23,6 +23,7 @@ URLS = {
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1CYn0ukLZq67H5ZvuPCPJ6jDGlmv-7mTR"
 }
 
+clintox_target_dict = {'FDA_APPROVED': 0, 'CT_TOX': 1}
 
 class Clintox(InMemoryDataset): ###### CHANGE ######
     def __init__(self, 

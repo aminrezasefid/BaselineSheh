@@ -23,6 +23,8 @@ URLS = {
     "rdkit2d": "https://drive.google.com/uc?export=download&id=10gwCtoqL2rY27Od5JzMwzyiYvQ5wU47x"
 }
 
+tox21_target_dict = {'NR-AR': 0, 'NR-AR-LBD': 1, 'NR-AhR': 2, 'NR-Aromatase': 3, 'NR-ER': 4, 'NR-ER-LBD': 5, 'NR-PPAR-gamma': 6, 'SR-ARE': 7, 'SR-ATAD5': 8, 'SR-HSE': 9, 'SR-MMP': 10, 'SR-p53': 11}
+
 
 class TOX21(InMemoryDataset):
     def __init__(self, 

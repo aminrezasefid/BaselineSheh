@@ -23,6 +23,7 @@ URLS = {
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1g6A6SbGWjO8BYo0bRFQV2zJ6Z7Lm8sEp"
 }
 
+bace_target_dict = {'Class': 0}
 
 class Bace(InMemoryDataset): ###### CHANGE ######
     def __init__(self, 
