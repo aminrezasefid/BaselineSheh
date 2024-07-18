@@ -16,6 +16,10 @@ from torch_geometric.transforms import Compose
 from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
+esol_target_dict = {
+    "measured log solubility in mols per litre": 0
+}
+
 URLS = {
     "precise3d": "https://drive.google.com/uc?export=download&id=1jvbadpMz7A7Dtggfw3i2R4BT8F2WQNDa",
     "optimized3d": "https://drive.google.com/uc?export=download&id=1spz8XILpSjF6JrasaSeqyNuKqozfEf_N",
@@ -35,7 +39,7 @@ class ESOL(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = [0]
+        self.labels = [esol_target_dict[label] for label in dataset_args] if dataset_args is not None else list(esol_target_dict.values())
 
         if transform is None:
             transform = self._filter_label
