@@ -113,7 +113,7 @@ class TOXCAST(InMemoryDataset):
             return
 
       
-        types = {'C': 0, 'N': 1, 'O': 2, 'S': 3, 'Cl': 4, 'F': 5, 'Tl': 6, 'I': 7, 'Ca': 8, 'P': 9, 'H': 10, 'Gd': 11, 'Na': 12, 'K': 13, 'Mg': 14, 'Ge': 15, 'Br': 16, 'Fe': 17, 'Au': 18, 'Ba': 19, 'Sr': 20, 'As': 21, 'Se': 22, 'Pt': 23, 'Co': 24, 'Li': 25, 'B': 26, 'Ra': 27, 'In': 28, 'Mn': 29, 'La': 30, 'Ag': 31, 'Zn': 32, 'Tc': 33, 'Cf': 34, 'Ga': 35, 'Sm': 36, 'Cr': 37, 'Cu': 38, 'Y': 39}
+        types = {'O': 0, 'N': 1, 'C': 2, 'Cl': 3, 'H': 4, 'Si': 5, 'Br': 6, 'Ba': 7, 'Nd': 8, 'Dy': 9, 'In': 10, 'P': 11, 'Sb': 12, 'Co': 13, 'S': 14, 'K': 15, 'Na': 16, 'B': 17, 'Ca': 18, 'Hg': 19, 'Ni': 20, 'Se': 21, 'Tl': 22, 'Cd': 23, 'F': 24, 'Fe': 25, 'Li': 26, 'Yb': 27, 'I': 28, 'Cr': 29, 'Sn': 30, 'Zn': 31, 'Cu': 32, 'Pb': 33, 'As': 34, 'Bi': 35, 'Gd': 36, 'V': 37, 'Mn': 38, 'Au': 39, 'Ti': 40, 'Zr': 41, 'Mo': 42, 'Mg': 43, 'Eu': 44, 'Al': 45, 'Pt': 46, 'Sr': 47, 'Sc': 48, 'Ag': 49, 'Pd': 50, 'Be': 51, 'Ge': 52}
         bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3, BT.DATIVE: 4}
 
 
