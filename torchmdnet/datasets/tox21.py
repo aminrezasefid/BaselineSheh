@@ -20,7 +20,7 @@ URLS = {
     "precise3d": "https://drive.google.com/uc?export=download&id=14BOVxSdJuzmxFwAut8GXxsOgNdAqhJaO",
     "optimized3d": "https://drive.google.com/uc?export=download&id=179ljL62tkCAeC2jicr2xdTpg2i3Niath",
     "rdkit3d": "https://drive.google.com/uc?export=download&id=1ZaqlLBk8UepuolAnAWm49DKsUj3cb3o6", # Replaced Armin's
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=10gwCtoqL2rY27Od5JzMwzyiYvQ5wU47x"
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1EF1i1SwI-tQZEoi2QGDvnUZSJzKtej_C"
 }
 
 tox21_target_dict = {'NR-AR': 0, 'NR-AR-LBD': 1, 'NR-AhR': 2, 'NR-Aromatase': 3, 'NR-ER': 4, 'NR-ER-LBD': 5, 'NR-PPAR-gamma': 6, 'SR-ARE': 7, 'SR-ATAD5': 8, 'SR-HSE': 9, 'SR-MMP': 10, 'SR-p53': 11}
