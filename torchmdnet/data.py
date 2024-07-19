@@ -10,7 +10,7 @@ from torch_geometric.utils import scatter
 from pytorch_lightning import LightningDataModule
 from pytorch_lightning.utilities import rank_zero_warn
 from torchmdnet import datasets
-from torchmdnet.utils import make_splits, MissingEnergyException
+from torchmdnet.utils import make_splits, MissingEnergyException, scaffold_split
 
 
 class DataModule(LightningDataModule):
@@ -54,15 +54,8 @@ class DataModule(LightningDataModule):
                 # Clean version of dataset
                 self.dataset = dataset_factory(None)
 
-        self.idx_train, self.idx_val, self.idx_test = make_splits(
-            len(self.dataset),
-            self.hparams["train_size"],
-            self.hparams["val_size"],
-            self.hparams["test_size"],
-            self.hparams["seed"],
-            join(self.hparams["log_dir"], "splits.npz"),
-            self.hparams["splits"],
-        )
+        self.idx_train, self.idx_val, self.idx_test = scaffold_split(dataset=self.dataset,frac_train=self.hparams["train_size"],frac_val=self.hparams["val_size"],frac_test=self.hparams["test_size"])
+        
         print(
             f"train {len(self.idx_train)}, val {len(self.idx_val)}, test {len(self.idx_test)}"
         )
