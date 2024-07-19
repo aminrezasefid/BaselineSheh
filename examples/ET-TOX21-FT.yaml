@@ -60,7 +60,7 @@ val_size: 0.1
 test_size: 0.1
 weight_decay: 0.0
 output_model_noise: VectorOutput
-position_noise_scale: 0.005
+position_noise_scale: 0 #0.005
 denoising_weight: 0.1
 layernorm_on_vec: null
 wandb_notes: ""
