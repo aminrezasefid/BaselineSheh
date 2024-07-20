@@ -64,7 +64,7 @@ def get_args():
     parser.add_argument('--job-id', default="auto", type=str, help='Job ID. If auto, pick the next available numeric job id.')
     parser.add_argument('--pretrained-model', default=None, type=str, help='Pre-trained weights checkpoint.')
     parser.add_argument('--strict-load', type=bool, default=False, help='load weights strictly.')
-    parser.add_argument('--split', type=str, default='random', choices=['random', 'scaffold'], help='Split type')
+    parser.add_argument('--split', type=str, default='scaffold', choices=['random', 'scaffold'], help='Split type')
 
 
     # dataset specific
