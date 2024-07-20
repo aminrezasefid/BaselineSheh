@@ -114,7 +114,7 @@ class LNNP(LightningModule):
             "epoch": "test",
             "test_loss": torch.stack(self.losses["test"]).mean(),
         }
-        if self.task_type == "class":
+        if self.hparams.task_type == "class":
             result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
         self.log_dict(result_dict, sync_dist=True)
         self._reset_losses_dict()
