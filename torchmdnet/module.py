@@ -111,7 +111,7 @@ class LNNP(LightningModule):
             writer.writerows(self.preds_csv)
 
         result_dict = {
-            "epoch": "test",
+            "epoch": -1,
             "test_loss": torch.stack(self.losses["test"]).mean(),
         }
         if self.hparams.task_type == "class":
