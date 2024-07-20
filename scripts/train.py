@@ -207,7 +207,6 @@ def main():
         reload_dataloaders_every_n_epochs= 0,
         precision=args.precision,
         strategy = "ddp", # not supported for mps, REMEMBER!
-        log_every_n_steps=5
     )
 
     trainer.fit(model, data)
