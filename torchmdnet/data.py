@@ -54,7 +54,7 @@ class DataModule(LightningDataModule):
                 # Clean version of dataset
                 self.dataset = dataset_factory(None)
 
-        if self.hparams.split == "scaffold":
+        if self.hparams["split"] == "scaffold":
             self.idx_train, self.idx_val, self.idx_test = scaffold_split(dataset=self.dataset,frac_train=self.hparams["train_size"],frac_val=self.hparams["val_size"],frac_test=self.hparams["test_size"])
         else:
             self.idx_train, self.idx_val, self.idx_test = make_splits(
