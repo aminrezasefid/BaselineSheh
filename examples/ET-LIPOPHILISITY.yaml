@@ -68,3 +68,4 @@ job_id: auto
 out_channels: 1
 strict_load: false
 task_type: regr
+split: scaffold

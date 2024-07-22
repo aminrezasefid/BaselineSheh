@@ -69,3 +69,4 @@ out_channels: 1
 strict_load: false
 task_type: regr
 dataset_args : ["measured log solubility in mols per litre"]
+split: scaffold
