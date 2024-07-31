@@ -39,7 +39,8 @@ class ESOL(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = [esol_target_dict[label] for label in dataset_args] if dataset_args is not None else list(esol_target_dict.values())
+        assert dataset_args is not None and (label in esol_target_dict for label in dataset_args)
+        self.labels = [esol_target_dict[label] for label in dataset_args]
 
         if transform is None:
             transform = self._filter_label

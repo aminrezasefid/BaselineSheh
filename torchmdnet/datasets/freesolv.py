@@ -23,6 +23,10 @@ URLS = {
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1rnxECBjASyIRuD9KfbL2YOuyTJeyjpzL"
 }
 
+freesolv_taget_dict = {
+    "expt" : 0,
+}
+
 
 class FreeSolv(InMemoryDataset):
     def __init__(self, 
@@ -35,7 +39,8 @@ class FreeSolv(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = [0]
+        assert dataset_args is not None and (arg in freesolv_taget_dict for arg in dataset_args)
+        self.labels = [freesolv_taget_dict[arg] for arg in dataset_args]
 
         if transform is None:
             transform = self._filter_label

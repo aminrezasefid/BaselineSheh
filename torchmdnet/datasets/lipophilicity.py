@@ -23,6 +23,10 @@ URLS = {
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1WiyMPIEWHo0MzBIfCVFyLMiHYxBdk0MS"
 }
 
+lipophilicity_taget_dict = {
+    "exp" : 0,
+}
+
 
 class Lipophilicity(InMemoryDataset):
     def __init__(self, 
@@ -35,7 +39,8 @@ class Lipophilicity(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = [0]
+        assert dataset_args is not None and (label in lipophilicity_taget_dict for label in dataset_args)
+        self.labels = [lipophilicity_taget_dict[label] for label in dataset_args]
 
         if transform is None:
             transform = self._filter_label

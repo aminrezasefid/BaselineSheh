@@ -43,6 +43,7 @@ class QM7(InMemoryDataset):
                  force_reload: bool = False,
                  structure: str = "precise3d",
                  dataset_args: List[str] = None):
+        self.structure = structure
         self.raw_url = URLS[structure]
         self.labels = dataset_args if dataset_args is not None else list(qm7_target_dict.keys())
         super().__init__(root, transform, pre_transform, pre_filter, force_reload=force_reload)
@@ -60,7 +61,7 @@ class QM7(InMemoryDataset):
     def raw_file_names(self) -> List[str]:
         try:
             import rdkit  # noqa
-            return ['gdb7.sdf', 'gdb7.sdf.csv']
+            return ['gdb7.sdf', 'gdb7.sdf.csv'] if self.structure != "pubchem3d" else ['qm7.sdf', 'qm7.sdf.csv']
         except ImportError:
             return ['qm7_v3']
 
@@ -175,7 +176,7 @@ class QM7(InMemoryDataset):
                               dtype=torch.float).t().contiguous()
             x = torch.cat([x1, x2], dim=-1)
 
-            name = mol.GetProp('_Name')
+            name = mol.GetProp('_Name') if self.structure != "precise3d" else Chem.MolToSmiles(mol, isomericSmiles=False)
 
             if name in SKIP_LIST:
                 inval_counter += 1
