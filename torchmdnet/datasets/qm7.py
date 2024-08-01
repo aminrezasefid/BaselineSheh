@@ -176,11 +176,14 @@ class QM7(InMemoryDataset):
                               dtype=torch.float).t().contiguous()
             x = torch.cat([x1, x2], dim=-1)
 
+            name = mol.GetProp('_Name')
+
             if name in SKIP_LIST:
                 inval_counter += 1
                 continue
 
-            name = mol.GetProp('_Name') if self.structure != "precise3d" else Chem.MolToSmiles(mol, isomericSmiles=False)
+            if self.structure == "precise3d":
+                name = Chem.MolToSmiles(mol, isomericSmiles=False)
 
             smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
 
