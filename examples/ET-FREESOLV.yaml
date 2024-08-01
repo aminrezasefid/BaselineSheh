@@ -68,4 +68,4 @@ job_id: auto
 out_channels: 1
 strict_load: false
 task_type: regr
-dataset_args: [0]
+dataset_args: ['expt']
