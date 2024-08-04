@@ -183,7 +183,6 @@ class QM7(InMemoryDataset):
                 continue
 
             if self.structure == "precise3d":
-                mol.UpdatePropertyCache(strict=True)
                 name = Chem.MolToSmiles(mol, isomericSmiles=False)
 
             smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
