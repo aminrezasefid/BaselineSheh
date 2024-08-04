@@ -6,6 +6,8 @@ from os.path import dirname, join, exists
 from pytorch_lightning.utilities import rank_zero_warn
 from rdkit.Chem.Scaffolds import MurckoScaffold
 
+failed_scaffolds = []
+
 def generate_scaffold(smiles, include_chirality=False):
     """
     Obtain Bemis-Murcko scaffold from smiles
@@ -17,8 +19,13 @@ def generate_scaffold(smiles, include_chirality=False):
     Return: 
         the scaffold of the given smiles.
     """
-    scaffold = MurckoScaffold.MurckoScaffoldSmiles(
-        smiles=smiles, includeChirality=include_chirality)
+    try:
+        scaffold = MurckoScaffold.MurckoScaffoldSmiles(
+            smiles=smiles, includeChirality=include_chirality
+        )
+    except Exception as e:
+        print(e)
+        return None
     return scaffold
 def scaffold_split( dataset, 
             frac_train=None, 
@@ -31,12 +38,17 @@ def scaffold_split( dataset,
     for i in range(N):
         datapoint=dataset[i]
         smi=datapoint['name']
-        scaffold = generate_scaffold(smi, include_chirality=True)
+        scaffold = generate_scaffold(smi)
+        if scaffold is None:
+            failed_scaffolds.append(smi)
+            continue
         if scaffold not in all_scaffolds:
             all_scaffolds[scaffold] = [i]
         else:
             all_scaffolds[scaffold].append(i)
 
+    N = N - len(failed_scaffolds)
+    
     # sort from largest to smallest sets
     all_scaffolds = {key: sorted(value) for key, value in all_scaffolds.items()}
     all_scaffold_sets = [

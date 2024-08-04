@@ -12,7 +12,7 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-ESOL.yaml",
+        "examples/ET-QM7-FT.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",

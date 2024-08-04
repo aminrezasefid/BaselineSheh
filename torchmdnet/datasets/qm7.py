@@ -182,7 +182,8 @@ class QM7(InMemoryDataset):
                 inval_counter += 1
                 continue
 
-            if self.structure == "pubchem3d":
+            if self.structure == "precise3d":
+                mol.UpdatePropertyCache(strict=True)
                 name = Chem.MolToSmiles(mol, isomericSmiles=False)
 
             smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
