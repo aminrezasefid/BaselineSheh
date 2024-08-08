@@ -12,19 +12,17 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-SIDER-FT.yaml",
+        "examples/ET-QM7-FT.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",
-        "tox21-test",
+        "sider-test",
         "--num-epochs",
         "1",
         "--pretrained-model",
         "checkpoints/denoised-pcqm4mv2.ckpt",
         "--accelerator",
-        "cpu",
-        "--structure",
-        "rdkit3d"
+        "cpu"
       ]
     }
   ]

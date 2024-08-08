@@ -54,9 +54,9 @@ splits: null
 standardize: true
 test_interval: 10
 test_size: null
-train_size: 6100
+train_size: .8
 trainable_rbf: false
-val_size: 600
+val_size: .1
 weight_decay: 0.0
 output_model_noise: VectorOutput
 position_noise_scale: 0.005
@@ -65,3 +65,4 @@ layernorm_on_vec: null
 wandb_notes: ""
 job_id: auto
 strict_load: false
+dataset_args: ["u0_atom"]

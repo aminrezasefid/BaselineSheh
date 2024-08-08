@@ -17,10 +17,14 @@ from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
 URLS = {
-    "precise3d": "https://drive.google.com/uc?export=download&id=1JVXo9c3WaBQ0i_VJVvvR7u9n8ljt3z1i",
+    "precise3d": "https://drive.google.com/uc?export=download&id=103QEi4qpe2GCC3buTnRGmiASt5F9nw8n",
     "optimized3d": "https://drive.google.com/uc?export=download&id=1bs8CV8Yi90GbHIpmbYQvZVzYs6-iITL3",
     "rdkit3d": "https://drive.google.com/uc?export=download&id=1Q-0mvE8muG-VJq2__iP_211UCdDC6clB",
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1WiyMPIEWHo0MzBIfCVFyLMiHYxBdk0MS"
+}
+
+lipophilicity_taget_dict = {
+    "exp" : 0,
 }
 
 
@@ -35,7 +39,8 @@ class Lipophilicity(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = [0]
+        assert dataset_args is not None and (label in lipophilicity_taget_dict for label in dataset_args)
+        self.labels = [lipophilicity_taget_dict[label] for label in dataset_args]
 
         if transform is None:
             transform = self._filter_label

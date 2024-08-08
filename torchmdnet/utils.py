@@ -4,7 +4,80 @@ import numpy as np
 import torch
 from os.path import dirname, join, exists
 from pytorch_lightning.utilities import rank_zero_warn
+from rdkit.Chem.Scaffolds import MurckoScaffold
 
+failed_scaffolds = []
+
+def generate_scaffold(smiles, include_chirality=False):
+    """
+    Obtain Bemis-Murcko scaffold from smiles
+
+    Args:
+        smiles: smiles sequence
+        include_chirality: Default=False
+    
+    Return: 
+        the scaffold of the given smiles.
+    """
+    try:
+        scaffold = MurckoScaffold.MurckoScaffoldSmiles(
+            smiles=smiles, includeChirality=include_chirality
+        )
+    except Exception as e:
+        print(e)
+        return None
+    return scaffold
+def scaffold_split( dataset, 
+            frac_train=None, 
+            frac_val=None, 
+            frac_test=None):
+    N = len(dataset)
+
+    # create dict of the form {scaffold_i: [idx1, idx....]}
+    all_scaffolds = {}
+    for i in range(N):
+        datapoint=dataset[i]
+        smi=datapoint['name']
+        scaffold = generate_scaffold(smi)
+        if scaffold is None:
+            failed_scaffolds.append(smi)
+            continue
+        if scaffold not in all_scaffolds:
+            all_scaffolds[scaffold] = [i]
+        else:
+            all_scaffolds[scaffold].append(i)
+
+    N = N - len(failed_scaffolds)
+    
+    # sort from largest to smallest sets
+    all_scaffolds = {key: sorted(value) for key, value in all_scaffolds.items()}
+    all_scaffold_sets = [
+        scaffold_set for (scaffold, scaffold_set) in sorted(
+            all_scaffolds.items(), key=lambda x: (len(x[1]), x[1][0]), reverse=True)
+    ]
+
+    # get train, valid test indices
+    train_cutoff = frac_train * N
+    valid_cutoff = (frac_train + frac_val) * N
+    train_idx, valid_idx, test_idx = [], [], []
+    for scaffold_set in all_scaffold_sets:
+        if len(train_idx) + len(scaffold_set) > train_cutoff:
+            if len(train_idx) + len(valid_idx) + len(scaffold_set) > valid_cutoff:
+                test_idx.extend(scaffold_set)
+            else:
+                valid_idx.extend(scaffold_set)
+        else:
+            train_idx.extend(scaffold_set)
+
+    assert len(set(train_idx).intersection(set(valid_idx))) == 0
+    # Shouldn't this be between train and test?
+    assert len(set(test_idx).intersection(set(valid_idx))) == 0
+
+    return (
+        torch.tensor(train_idx, dtype=torch.long),
+        torch.tensor(valid_idx, dtype=torch.long),
+        torch.tensor(test_idx, dtype=torch.long),
+    )
 
 def train_val_test_split(dset_len, train_size, val_size, test_size, seed, order=None):
     assert (train_size is None) + (val_size is None) + (

@@ -30,7 +30,8 @@ URLS = {
     "precise3d": "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/gdb7.tar.gz",
     "rdkit3d": "https://drive.google.com/uc?export=download&id=1ROIGtfrxVP1f9NiQDLNLCtOzWEjLyxJq",
     "optimized3d": "https://drive.google.com/uc?export=download&id=1FdIzgupmFGZHwkoxM5IdUY82VoGd-gvf",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1cFE2X2PeGP9wVOhr4AOYvqTGTCvuFoM9"
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1cFE2X2PeGP9wVOhr4AOYvqTGTCvuFoM9",
+    "pubchem3d": "https://drive.google.com/uc?export=download&id=1zaNUsbLNARMU89sC9UsBLPkTnRG4sl0X"
 }
 
 class QM7(InMemoryDataset):
@@ -42,6 +43,7 @@ class QM7(InMemoryDataset):
                  force_reload: bool = False,
                  structure: str = "precise3d",
                  dataset_args: List[str] = None):
+        self.structure = structure
         self.raw_url = URLS[structure]
         self.labels = dataset_args if dataset_args is not None else list(qm7_target_dict.keys())
         super().__init__(root, transform, pre_transform, pre_filter, force_reload=force_reload)
@@ -59,7 +61,7 @@ class QM7(InMemoryDataset):
     def raw_file_names(self) -> List[str]:
         try:
             import rdkit  # noqa
-            return ['gdb7.sdf', 'gdb7.sdf.csv']
+            return ['gdb7.sdf', 'gdb7.sdf.csv'] if self.structure != "pubchem3d" else ['qm7.sdf', 'qm7.sdf.csv']
         except ImportError:
             return ['qm7_v3']
 
@@ -179,6 +181,9 @@ class QM7(InMemoryDataset):
             if name in SKIP_LIST:
                 inval_counter += 1
                 continue
+
+            if self.structure == "precise3d":
+                name = Chem.MolToSmiles(mol, isomericSmiles=False)
 
             smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
 

@@ -80,8 +80,7 @@ class LNNP(LightningModule):
         return self.step(batch, getattr(functional, self.hparams.val_test_loss_fn), "test")
 
     def test_step(self, batch):
-        with torch.set_grad_enabled(self.hparams.derivative):
-            pred, _, _ = self(batch.z, batch.pos, batch.batch)
+        pred, _, _ = self(batch.z, batch.pos, batch.batch)
 
         for i in range(len(pred)):
             row = [batch.name[i]]
@@ -97,6 +96,7 @@ class LNNP(LightningModule):
         return self.step(batch, getattr(functional, self.hparams.val_test_loss_fn), "test")
     
     def on_test_end(self):
+        # TODO (armin) doesn't work with multiple GPUs
         import csv
         header = ["smiles"]
         for target in self.hparams.dataset_args:
@@ -108,6 +108,18 @@ class LNNP(LightningModule):
             writer = csv.writer(file)
             writer.writerow(header)
             writer.writerows(self.preds_csv)
+
+        result_dict = {
+            "test_loss": torch.stack(self.losses["test"]).mean(),
+        }
+        print(f'Test loss: {result_dict["test_loss"]}')
+        if self.hparams.task_type == "class":
+            result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
+            print(f'Test AUC: {result_dict["test_auc"]}')
+
+        self.logger.log_metrics(result_dict)
+
+
 
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):

@@ -64,6 +64,7 @@ def get_args():
     parser.add_argument('--job-id', default="auto", type=str, help='Job ID. If auto, pick the next available numeric job id.')
     parser.add_argument('--pretrained-model', default=None, type=str, help='Pre-trained weights checkpoint.')
     parser.add_argument('--strict-load', type=bool, default=False, help='load weights strictly.')
+    parser.add_argument('--split', type=str, default='scaffold', choices=['random', 'scaffold'], help='Split type')
 
 
     # dataset specific
@@ -71,7 +72,7 @@ def get_args():
     parser.add_argument('--dataset-root', default='data', type=str, help='Data storage directory (not used if dataset is "CG")')
     parser.add_argument('--dataset-args', default=None, type=list[str], help='Additional dataset argument, e.g. an array for target properties for QM9 or molecule for MD17. If not provided, all properties are used')
     # TODO (armin) add literal_eval for dataset-args
-    parser.add_argument('--structure', choices=["precise3d", "rdkit3d", "optimized3d", "rdkit2d"], default="precise3d", help='Structure of the input data')
+    parser.add_argument('--structure', choices=["precise3d", "rdkit3d", "optimized3d", "rdkit2d", "pubchem3d"], default="precise3d", help='Structure of the input data')
     parser.add_argument('--coord-files', default=None, type=str, help='Custom coordinate files glob')
     parser.add_argument('--embed-files', default=None, type=str, help='Custom embedding files glob')
     parser.add_argument('--energy-files', default=None, type=str, help='Custom energy files glob')
@@ -173,7 +174,7 @@ def main():
         monitor= metric_name,
         save_top_k=3,
         filename="{step}-{epoch}-{"+metric_name+":.4f}-{test_loss:.4f}-{train_per_step:.4f}",
-        every_n_epochs=args.save_interval,
+        # every_n_epochs=args.save_interval,
         # save_last=True,
         mode=args.callback_mode
     )
