@@ -60,10 +60,10 @@ class TOX21(InMemoryDataset):
         try:
             import rdkit  # noqa
             file_names = {
-                "precise3d": ['tox21_exp.sdf', 'tox21_exp.sdf.csv'],
-                "optimized3d": ['tox21_opt.sdf', 'tox21_opt.sdf.csv'],
-                "rdkit3d": ['tox21.sdf', 'tox21.sdf.csv'],
-                "rdkit2d": ['tox21_graph.sdf', 'tox21_graph.sdf.csv']
+                "precise3d": ['pubchem.sdf', 'pubchem.sdf.csv'],
+                "optimized3d": ['rdkit_opt.sdf', 'rdkit_opt.sdf.csv'],
+                "rdkit3d": ['rdkit_3D.sdf', 'rdkit_3D.sdf.csv'],          ###### CHANGE ######
+                "rdkit2d": ['rdkit_graph.sdf', 'rdkit_graph.sdf.csv']
             }
             return file_names[self.structure]
         except ImportError:
