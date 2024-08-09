@@ -18,9 +18,9 @@ from tqdm import tqdm
 
 URLS = {
     "precise3d": "https://drive.google.com/uc?export=download&id=1ceiVUUYf06ruyDGrTwiHU8JF6F_HPT4M",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=1wDDn9hOgPcD8G7qQsXGfJPs2dqZpSDmg", ###### CHANGE ######
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1kRVZ-oLN8s3Rs-_le7DsVMH2EuwQoNJj",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1CYn0ukLZq67H5ZvuPCPJ6jDGlmv-7mTR"
+    "optimized3d": "https://drive.google.com/uc?export=download&id=13jAtzZlrwqharHJP99KLoYfclkhIyhTb", ###### CHANGE ######
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1Rn_U3A4S3yyhnspHMr73GEvl8EcM0pe_",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=10xcs5Yq5ZP29j7VcdXVTuLUnV62rAzQV"
 }
 
 clintox_target_dict = {'FDA_APPROVED': 0, 'CT_TOX': 1}

@@ -18,9 +18,9 @@ from tqdm import tqdm
 
 URLS = {
     "precise3d": "https://drive.google.com/uc?export=download&id=14BOVxSdJuzmxFwAut8GXxsOgNdAqhJaO",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=1gsllavg6bFs17cF_3tIl-DmGOtX97AQw",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1cjmv8eBzhfit-PZSY-gjTYNTtMFId_FD", # Replaced Armin's
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1kb53_2v-SdZCagVu2FgOLkBPSOy6b3v7"
+    "optimized3d": "https://drive.google.com/uc?export=download&id=18drX152XEU8rnrunFH52zx07jWQgNXtR",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1StLIbEfiFhw83A5zD86K_DDX7pesYQb8", # Replaced Armin's
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1xMZh0RFG7jcX4YrqwLa_U8-_MOi9FrXl"
 }
 
 tox21_target_dict = {'NR-AR': 0, 'NR-AR-LBD': 1, 'NR-AhR': 2, 'NR-Aromatase': 3, 'NR-ER': 4, 'NR-ER-LBD': 5, 'NR-PPAR-gamma': 6, 'SR-ARE': 7, 'SR-ATAD5': 8, 'SR-HSE': 9, 'SR-MMP': 10, 'SR-p53': 11}

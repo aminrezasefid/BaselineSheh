@@ -18,9 +18,9 @@ from tqdm import tqdm
 
 URLS = {
     "precise3d": "https://drive.google.com/uc?export=download&id=1GxX_t5iYKsihokV4022XoFkr9io51yuM",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=11ilXVEo2oajhfI5Gd7-hNn2_XbypP3kg",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1FxzX7qHAJmrVaZGcf8VK60-RtLT_k9P0",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1FTVrvkt6R_qQwvWLAXSXDm-K5VZEwiI8"
+    "optimized3d": "https://drive.google.com/uc?export=download&id=1-2O-h-BKIZDzsTyV0iubsFYyMazuyrJo",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=15syV1KuBjUgKJcAVP83HZSQ9uGyygQ-E",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1xflnu_safr6SRjEt8_dZFMt4kmGsZo9z"
 }
 
 sider_target_dict = {

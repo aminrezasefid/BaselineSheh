@@ -18,9 +18,9 @@ from tqdm import tqdm
 
 URLS = {
     "precise3d": "https://drive.google.com/uc?export=download&id=1s8FRdrslf6nHJmVcUptodJHYPV_u8o3i",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=1MhdKpuPVtCJsOyACnTSl4X0V9e6D8KXy", ###### CHANGE ######
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1MfIfX6OY0W-OPRdu2Tu2-qMWsrU7YW2l",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1gVTv-704TDHg8ah11KkMVrrQBCBigZj4"
+    "optimized3d": "https://drive.google.com/uc?export=download&id=1dVXXTDTIZh6Nu22WjEfyAEHhisaAB7cf", ###### CHANGE ######
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=13Lp5ATHoft-lyNoctOX3j8UHapluLWwi",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1oQo5lYtL6237vPKAnn6swHQCfY3Ag1xU"
 }
 
 bbbp_target_dict = {'p_np' : 0}
