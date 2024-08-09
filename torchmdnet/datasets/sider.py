@@ -88,10 +88,10 @@ class Sider(InMemoryDataset):
         try:
             import rdkit  # noqa
             file_names = {
-                "precise3d": ['sider_exp.sdf', 'sider_exp.sdf.csv'],
-                "optimized3d": ['sider_opt.sdf', 'sider_opt.sdf.csv'],
-                "rdkit3d": ['sider.sdf', 'sider.sdf.csv'],
-                "rdkit2d": ['sider_graph.sdf', 'sider_graph.sdf.csv']
+                "precise3d": ['pubchem.sdf', 'pubchem.sdf.csv'],
+                "optimized3d": ['rdkit_opt.sdf', 'rdkit_opt.sdf.csv'],
+                "rdkit3d": ['rdkit_3D.sdf', 'rdkit_3D.sdf.csv'],          ###### CHANGE ######
+                "rdkit2d": ['rdkit_graph.sdf', 'rdkit_graph.sdf.csv']
             }
             return file_names[self.structure]
         except ImportError:
