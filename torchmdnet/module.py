@@ -219,6 +219,8 @@ class LNNP(LightningModule):
         # if batch size is 1, and the loss was NaN, print the batch index
         if torch.isnan(loss_y):
             print(f"NaN loss in {batch.name}")
+        # Add print statement here to see the name of the data being processed
+        print(f"Processing data: {batch.name}")
         return loss
 
     def optimizer_step(self, *args, **kwargs):
