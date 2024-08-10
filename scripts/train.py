@@ -133,6 +133,12 @@ def get_args():
         default=False,
         help="If true, add noise to the test set",
     )
+    parser.add_argument(
+        "--fine-tuned-checkpoint",
+        type=str,
+        default=None,
+        help="If specified, download and load fine-tuned checkpoint from this URL",
+    )
 
     args = parser.parse_args()
 
@@ -149,16 +155,16 @@ def get_args():
     if args.inference_batch_size is None:
         args.inference_batch_size = args.batch_size
 
-    if args.pretrained_model.startswith("http"):
-        pretrained_model_name = os.path.basename(args.pretrained_model)
-        pretrained_model_path = os.path.join("checkpoints", pretrained_model_name)
+    if args.fine_tuned_checkpoint:
+        finetuned_ckpt_name = os.path.basename(args.fine_tuned_checkpoint)
+        finetuned_ckpt_path = os.path.join("checkpoints", finetuned_ckpt_name)
         try:
-            urllib.request.urlretrieve(args.pretrained_model, pretrained_model_path)
+            urllib.request.urlretrieve(args.fine_tuned_checkpoint, finetuned_ckpt_path)
         except:
             raise ValueError(
-                f"Could not download pretrained model from {args.pretrained_model}."
+                f"Could not download pretrained model from {args.fine_tuned_checkpoint}."
             )
-        args.pretrained_model = pretrained_model_path
+        args.fine_tuned_checkpoint = finetuned_ckpt_path
 
     save_argparse(args, os.path.join(args.log_dir, "input.yaml"), exclude=["conf"])
 

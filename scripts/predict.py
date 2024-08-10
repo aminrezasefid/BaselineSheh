@@ -73,7 +73,7 @@ def main():
         strategy="ddp",  # not supported for mps, REMEMBER!
     )
 
-    trainer.test(model, datamodule=data)
+    trainer.test(model, datamodule=data, ckpt_path=args.fine_tuned_checkpoint)
 
     print("Done!")
 
