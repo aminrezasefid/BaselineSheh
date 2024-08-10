@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python Debugger: Current File",
+      "name": "Python Debugger: Fine Tuning",
       "type": "debugpy",
       "request": "launch",
       "program": "scripts/train.py",
@@ -23,6 +23,29 @@
         "checkpoints/denoised-pcqm4mv2.ckpt",
         "--accelerator",
         "cpu"
+      ]
+    },
+    {
+      "name": "Python Debugger: Testing Noise",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "scripts/predict.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--conf",
+        "examples/ET-QM7-FT.yaml",
+        "--layernorm-on-vec",
+        "whitened",
+        "--job-id",
+        "qm7-test",
+        "--num-epochs",
+        "1",
+        "--pretrained-model",
+        "https://www.kaggleusercontent.com/kf/191141157/eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7jk59DbrwuZB96_tvJEACw.xBQKyuPBcUnElE5LcVZ8rEoCBvSZQWVqvjGe8sCAQ_CfX_gT42SgTOfOmXNEtLQ6BC6OFZPvo5_DQ6FfHavrAuXHtU2C3BJKlFkNV99DlwtBmHmoke_TtIE90UNe2nq8j-gUxKQ3irAa2_uTGlzjrgnr2xADqXS7ys4q0r5Ba6LYqD1-nKEBEG9ToTz4ezQtUH_-8wcBFkI4oma_qr6FdUAvQh31IRbzaRcIUPw-Pl_3V6ZdM1ocJI6UibvIQIpsazWNRCqN2mKIInAgL6pA1nb4zHG4vVpoeZ2zWRuGHiJ-Ul_M_GOaZMOPvdkKiMCTfRp1LSPeHckz30K7OmhDTq_Imj7SbDCy5j0tZU8FknlD95wmyACr-Sq78TEQhboGrtznb2Czon3-IrDP_b6DboH2U7mOVUbiqlcs99huM5UncBnlPvTn520rA2IP8zcg2IgQVyjn5h-n4iruZUMHbJtN3GT_8qr7c4me6--RrOmTNIWklNVEhGSHQg1m2k-m8oSd4ZPG1OB6DPPPyGhk6-mV8aQHjhBowPUdACcrgOIkwhm4nlP1tscEd1u-1cZ6M7vXMKieHQBTVAaBl2W8vs4ayG5kKemdSWjbcqVbkuy2SLuKKrmQbfEv-Zpojc7oNobdSljcqX5HZy2ZgULKMwEgWFfLIcq8RV8hKKM7d8w.VHfbFVzzdcnL56OL14bhDg/BaselineSheh/experiments/qm7ac/step=1926-epoch=46-val_loss=29.8318-test_loss=46.2771-train_per_step=34.7319.ckpt",
+        "--accelerator",
+        "cpu",
+        "--testing-noisy",
+        "True"
       ]
     }
   ]

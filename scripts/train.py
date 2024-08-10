@@ -2,6 +2,7 @@ import numpy as np  # sometimes needed to avoid mkl-service error
 import sys
 import os
 
+import urllib
 
 import argparse
 import logging
@@ -24,6 +25,7 @@ from torchmdnet.utils import LoadFromFile, LoadFromCheckpoint, save_argparse, nu
 from pathlib import Path
 import wandb
 import csv
+
 
 def get_args():
     # fmt: off
@@ -125,8 +127,14 @@ def get_args():
     parser.add_argument('--callback-mode', type=str, default='min', help='callback mode')
     # fmt: on
 
-    args = parser.parse_args()
+    parser.add_argument(
+        "--testing-noisy",
+        type=bool,
+        default=False,
+        help="If true, add noise to the test set",
+    )
 
+    args = parser.parse_args()
 
     args.log_dir = str(Path(args.log_dir, args.job_id))
     Path(args.log_dir).mkdir(parents=True, exist_ok=True)
@@ -141,9 +149,21 @@ def get_args():
     if args.inference_batch_size is None:
         args.inference_batch_size = args.batch_size
 
+    if args.pretrained_model.startswith("http"):
+        pretrained_model_name = os.path.basename(args.pretrained_model)
+        pretrained_model_path = os.path.join("checkpoints", pretrained_model_name)
+        try:
+            urllib.request.urlretrieve(args.pretrained_model, pretrained_model_path)
+        except:
+            raise ValueError(
+                f"Could not download pretrained model from {args.pretrained_model}."
+            )
+        args.pretrained_model = pretrained_model_path
+
     save_argparse(args, os.path.join(args.log_dir, "input.yaml"), exclude=["conf"])
 
     return args
+
 
 def main():
     args = get_args()
@@ -171,14 +191,18 @@ def main():
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=args.log_dir,
-        monitor= metric_name,
+        monitor=metric_name,
         save_top_k=3,
-        filename="{step}-{epoch}-{"+metric_name+":.4f}-{test_loss:.4f}-{train_per_step:.4f}",
+        filename="{step}-{epoch}-{"
+        + metric_name
+        + ":.4f}-{test_loss:.4f}-{train_per_step:.4f}",
         # every_n_epochs=args.save_interval,
         # save_last=True,
-        mode=args.callback_mode
+        mode=args.callback_mode,
     )
-    early_stopping = EarlyStopping(metric_name, patience=args.early_stopping_patience, mode=args.callback_mode)
+    early_stopping = EarlyStopping(
+        metric_name, patience=args.early_stopping_patience, mode=args.callback_mode
+    )
 
     tb_logger = pl.loggers.TensorBoardLogger(
         args.log_dir, name="tensorbord", version="", default_hp_metric=False
@@ -189,7 +213,7 @@ def main():
     #     name=args.job_id,
     #     project='pre-training-via-denoising',
     #     log_model='all',
-    #     settings=wandb.Settings(start_method='fork'), 
+    #     settings=wandb.Settings(start_method='fork'),
     #     notes=args.wandb_notes,
     #     save_dir=args.log_dir,
     #     id=args.job_id + f"_{wandb.util.generate_id()}",  # Ensures unique run ID
@@ -205,16 +229,17 @@ def main():
         # resume_from_checkpoint=args.load_model, # TODO (armin) resume_from_chechpoint is deprecated but since load_model is None at moment, we will ignore it
         callbacks=[early_stopping, checkpoint_callback],
         logger=[tb_logger, csv_logger],
-        reload_dataloaders_every_n_epochs= 0,
+        reload_dataloaders_every_n_epochs=0,
         precision=args.precision,
-        strategy = "ddp", # not supported for mps, REMEMBER!
+        strategy="ddp",  # not supported for mps, REMEMBER!
     )
 
     trainer.fit(model, data)
 
-    trainer.test(model= model, datamodule = data)
+    trainer.test(model=model, datamodule=data)
 
     print("Done!")
+
 
 if __name__ == "__main__":
     main()

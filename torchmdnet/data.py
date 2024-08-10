@@ -26,7 +26,7 @@ class DataModule(LightningDataModule):
         return self._hparams
 
     def transform(self, data):
-        noise = torch.randn_like(data.pos) * self.hparams['position_noise_scale']
+        noise = torch.randn_like(data.pos) * self.hparams["position_noise_scale"]
         data.pos_target = noise
         data.pos = data.pos + noise
         return data
@@ -41,13 +41,18 @@ class DataModule(LightningDataModule):
                     self.hparams["force_files"],
                 )
             else:
-                if self.hparams['position_noise_scale'] > 0.:
+                if self.hparams["position_noise_scale"] > 0.0:
                     transform = self.transform
                 else:
                     transform = None
 
                 print(self.hparams)
-                dataset_factory = lambda t: getattr(datasets, self.hparams["dataset"])(root = self.hparams["dataset_root"]+"-"+self.hparams["structure"], dataset_args=self.hparams["dataset_args"], transform=t, structure=self.hparams["structure"])
+                dataset_factory = lambda t: getattr(datasets, self.hparams["dataset"])(
+                    root=self.hparams["dataset_root"] + "-" + self.hparams["structure"],
+                    dataset_args=self.hparams["dataset_args"],
+                    transform=t,
+                    structure=self.hparams["structure"],
+                )
 
                 # Noisy version of dataset
                 self.dataset_maybe_noisy = dataset_factory(transform)
@@ -55,18 +60,23 @@ class DataModule(LightningDataModule):
                 self.dataset = dataset_factory(None)
 
         if self.hparams["split"] == "scaffold":
-            self.idx_train, self.idx_val, self.idx_test = scaffold_split(dataset=self.dataset,frac_train=self.hparams["train_size"],frac_val=self.hparams["val_size"],frac_test=self.hparams["test_size"])
+            self.idx_train, self.idx_val, self.idx_test = scaffold_split(
+                dataset=self.dataset,
+                frac_train=self.hparams["train_size"],
+                frac_val=self.hparams["val_size"],
+                frac_test=self.hparams["test_size"],
+            )
         else:
             self.idx_train, self.idx_val, self.idx_test = make_splits(
-            len(self.dataset),
-            self.hparams["train_size"],
-            self.hparams["val_size"],
-            self.hparams["test_size"],
-            self.hparams["seed"],
-            join(self.hparams["log_dir"], "splits.npz"),
-            self.hparams["splits"],
-        )
-        
+                len(self.dataset),
+                self.hparams["train_size"],
+                self.hparams["val_size"],
+                self.hparams["test_size"],
+                self.hparams["seed"],
+                join(self.hparams["log_dir"], "splits.npz"),
+                self.hparams["splits"],
+            )
+
         print(
             f"train {len(self.idx_train)}, val {len(self.idx_val)}, test {len(self.idx_test)}"
         )
@@ -74,9 +84,9 @@ class DataModule(LightningDataModule):
         self.train_dataset = Subset(self.dataset_maybe_noisy, self.idx_train)
 
         # If denoising is the only task, test/val datasets are also used for measuring denoising performance.
-        if self.hparams['denoising_only']:
+        if self.hparams["denoising_only"] or self.hparams["testing_noisy"]:
             self.val_dataset = Subset(self.dataset_maybe_noisy, self.idx_val)
-            self.test_dataset = Subset(self.dataset_maybe_noisy, self.idx_test)            
+            self.test_dataset = Subset(self.dataset_maybe_noisy, self.idx_test)
         else:
             self.val_dataset = Subset(self.dataset, self.idx_val)
             self.test_dataset = Subset(self.dataset, self.idx_test)
@@ -95,10 +105,10 @@ class DataModule(LightningDataModule):
         ):
             loaders.append(self._get_dataloader(self.test_dataset, "test"))
         return loaders
-    
+
     def test_dataloader(self):
         return self._get_dataloader(self.test_dataset, "test")
-    
+
     def predict_dataloader(self):
         return self._get_dataloader(self.test_dataset, "test")
 

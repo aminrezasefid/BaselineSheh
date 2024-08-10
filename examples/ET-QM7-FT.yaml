@@ -66,3 +66,4 @@ wandb_notes: ""
 job_id: auto
 strict_load: false
 dataset_args: ["u0_atom"]
+testing_noisy: true
