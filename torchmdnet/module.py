@@ -174,6 +174,12 @@ class LNNP(LightningModule):
             # TODO (armin) here as well, these are all generalizable and shouldn't be hardcoded based on task type
             if self.hparams.task_type == "class":
                 target_not_minus_one = batch.y != -1 # -1 is the default value for missing labels
+                # # Ensure predictions are within the range [0, 1]
+                # pred = torch.sigmoid(pred)
+                # loss_y = loss_fn(pred[target_not_minus_one], batch.y[target_not_minus_one])
+                # Print predictions and actual labels for debugging
+                print(f"Predicted labels: {pred}")
+                print(f"Actual labels: {batch.y}")
                 loss_y = loss_fn(pred[target_not_minus_one], batch.y[target_not_minus_one])
             else:
                 loss_y = loss_fn(pred, batch.y)
