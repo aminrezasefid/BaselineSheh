@@ -9,16 +9,19 @@ from torch.nn import functional
 from pytorch_lightning import LightningModule
 from torchmdnet.models.model import create_model, load_model
 
+
 class LNNP(LightningModule):
     def __init__(self, hparams, prior_model=None, mean=None, std=None):
         super(LNNP, self).__init__()
         self.save_hyperparameters(hparams)
-        self.val_labels=[]
-        self.val_preds=[]
+        self.val_labels = []
+        self.val_preds = []
         if self.hparams.load_model:
             self.model = load_model(self.hparams.load_model, args=self.hparams)
         elif self.hparams.pretrained_model:
-            self.model = load_model(self.hparams.pretrained_model, args=self.hparams, mean=mean, std=std)
+            self.model = load_model(
+                self.hparams.pretrained_model, args=self.hparams, mean=mean, std=std
+            )
         else:
             self.model = create_model(self.hparams, prior_model, mean, std)
 
@@ -41,14 +44,14 @@ class LNNP(LightningModule):
             lr=self.hparams.lr,
             weight_decay=self.hparams.weight_decay,
         )
-        if self.hparams.lr_schedule == 'cosine':
+        if self.hparams.lr_schedule == "cosine":
             scheduler = CosineAnnealingLR(optimizer, self.hparams.lr_cosine_length)
             lr_scheduler = {
                 "scheduler": scheduler,
                 "interval": "step",
                 "frequency": 1,
             }
-        elif self.hparams.lr_schedule == 'reduce_on_plateau':
+        elif self.hparams.lr_schedule == "reduce_on_plateau":
             scheduler = ReduceLROnPlateau(
                 optimizer,
                 "min",
@@ -70,41 +73,37 @@ class LNNP(LightningModule):
         return self.model(z, pos, batch=batch)
 
     def training_step(self, batch):
-        return self.step(batch, getattr(functional, self.hparams.train_loss_fn), "train")
+        return self.step(
+            batch, getattr(functional, self.hparams.train_loss_fn), "train"
+        )
 
     def validation_step(self, batch, *args):
         if len(args) == 0 or (len(args) > 0 and args[0] == 0):
             # validation step
-            return self.step(batch, getattr(functional, self.hparams.val_test_loss_fn), "val")
+            return self.step(
+                batch, getattr(functional, self.hparams.val_test_loss_fn), "val"
+            )
         # test step
-        return self.step(batch, getattr(functional, self.hparams.val_test_loss_fn), "test")
+        return self.step(
+            batch, getattr(functional, self.hparams.val_test_loss_fn), "test"
+        )
 
     def test_step(self, batch):
-        pred, _, _ = self(batch.z, batch.pos, batch.batch)
+        return self.step(
+            batch, getattr(functional, self.hparams.val_test_loss_fn), "test"
+        )
 
-        for i in range(len(pred)):
-            row = [batch.name[i]]
-            for j in range(len(self.hparams.dataset_args)):
-                row.append(pred[i][j].item())
-                row.append(batch.y[i][j].item())
-                if self.hparams.task_type == "class":
-                    row.append(int(round(pred[i][j].item())))
-                    # row.append(int(pred[i][j].item() > 0.5))
-
-            self.preds_csv.append(row)
-
-        return self.step(batch, getattr(functional, self.hparams.val_test_loss_fn), "test")
-    
     def on_test_end(self):
         # TODO (armin) doesn't work with multiple GPUs
         import csv
+
         header = ["smiles"]
         for target in self.hparams.dataset_args:
             header.append(f"pred_{target}")
             header.append(f"actual_{target}")
             if self.hparams.task_type == "class":
                 header.append(f"pred_{target}_class")
-        with open(self.hparams.log_dir + "/preds.csv", 'w', newline='') as file:
+        with open(self.hparams.log_dir + "/preds.csv", "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(header)
             writer.writerows(self.preds_csv)
@@ -119,15 +118,17 @@ class LNNP(LightningModule):
 
         self.logger.log_metrics(result_dict)
 
-
-
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
             # TODO: the model doesn't necessarily need to return a derivative once
             # Union typing works under TorchScript (https://github.com/pytorch/pytorch/pull/53180)
             pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch)
 
-        denoising_is_on = ("pos_target" in batch) and (self.hparams.denoising_weight > 0) and (noise_pred is not None)
+        denoising_is_on = (
+            ("pos_target" in batch)
+            and (self.hparams.denoising_weight > 0)
+            and (noise_pred is not None)
+        )
 
         loss_y, loss_dy, loss_pos = 0, 0, 0
         if self.hparams.derivative:
@@ -142,10 +143,11 @@ class LNNP(LightningModule):
             # TODO (armin) this is temporary
             if self.hparams.task_type == "class":
                 target_not_minus_one = batch.dy != -1
-                loss_dy = loss_fn(deriv[target_not_minus_one], batch.dy[target_not_minus_one])
+                loss_dy = loss_fn(
+                    deriv[target_not_minus_one], batch.dy[target_not_minus_one]
+                )
             else:
                 loss_dy = loss_fn(deriv, batch.dy)
-
 
             if stage in ["train", "val"] and self.hparams.ema_alpha_dy < 1:
                 if self.ema[stage + "_dy"] is None:
@@ -171,8 +173,12 @@ class LNNP(LightningModule):
             # energy/prediction loss
             # TODO (armin) here as well, these are all generalizable and shouldn't be hardcoded based on task type
             if self.hparams.task_type == "class":
-                target_not_minus_one = batch.y != -1 # -1 is the default value for missing labels
-                loss_y = loss_fn(pred[target_not_minus_one], batch.y[target_not_minus_one])
+                target_not_minus_one = (
+                    batch.y != -1
+                )  # -1 is the default value for missing labels
+                loss_y = loss_fn(
+                    pred[target_not_minus_one], batch.y[target_not_minus_one]
+                )
             else:
                 loss_y = loss_fn(pred, batch.y)
 
@@ -198,24 +204,45 @@ class LNNP(LightningModule):
             if "y" not in batch:
                 # "use" both outputs of the model's forward (see comment above).
                 noise_pred = noise_pred + pred.sum() * 0
-                
+
             normalized_pos_target = self.model.pos_normalizer(batch.pos_target)
             loss_pos = mse_loss(noise_pred, normalized_pos_target)
             self.losses[stage + "_pos"].append(loss_pos.detach())
 
         # total loss
-        loss = loss_y * self.hparams.energy_weight + loss_dy * self.hparams.force_weight + loss_pos * self.hparams.denoising_weight
+        loss = (
+            loss_y * self.hparams.energy_weight
+            + loss_dy * self.hparams.force_weight
+            + loss_pos * self.hparams.denoising_weight
+        )
 
         self.losses[stage].append(loss.detach())
 
         # Frequent per-batch logging for training
-        if stage == 'train':
-            train_metrics = {k + "_per_step": v[-1] for k, v in self.losses.items() if (k.startswith("train") and len(v) > 0)}
-            train_metrics['lr_per_step'] = self.trainer.optimizers[0].param_groups[0]["lr"]
-            train_metrics['step'] = self.trainer.global_step   
-            train_metrics['batch_pos_mean'] = batch.pos.mean().item()
+        if stage == "train":
+            train_metrics = {
+                k + "_per_step": v[-1]
+                for k, v in self.losses.items()
+                if (k.startswith("train") and len(v) > 0)
+            }
+            train_metrics["lr_per_step"] = self.trainer.optimizers[0].param_groups[0][
+                "lr"
+            ]
+            train_metrics["step"] = self.trainer.global_step
+            train_metrics["batch_pos_mean"] = batch.pos.mean().item()
             self.log_dict(train_metrics, sync_dist=True)
-        
+        elif stage == "test":
+            for i in range(len(pred)):
+                row = [batch.name[i]]
+                for j in range(len(self.hparams.dataset_args)):
+                    row.append(pred[i][j].item())
+                    row.append(batch.y[i][j].item())
+                    if self.hparams.task_type == "class":
+                        row.append(int(round(pred[i][j].item())))
+                        # row.append(int(pred[i][j].item() > 0.5))
+
+                self.preds_csv.append(row)
+
         # if batch size is 1, and the loss was NaN, print the batch index
         if torch.isnan(loss_y):
             print(f"NaN loss in {batch.name}")
@@ -235,7 +262,6 @@ class LNNP(LightningModule):
         super().optimizer_step(*args, **kwargs)
         optimizer.zero_grad()
 
-
     def on_train_epoch_end(self):
         dm = self.trainer.datamodule
         if hasattr(dm, "test_dataset") and len(dm.test_dataset) > 0:
@@ -247,7 +273,6 @@ class LNNP(LightningModule):
                 # reset validation dataloaders before and after testing epoch, which is faster
                 # than skipping test validation steps by returning None
                 self.trainer.fit_loop.setup_data()
-
 
     # TODO(shehzaidi): clean up this function, redundant logging if dy loss exists.
     def on_validation_epoch_end(self):
@@ -283,12 +308,10 @@ class LNNP(LightningModule):
 
             if len(self.losses["train_y"]) > 0:
                 result_dict["train_loss_y"] = torch.stack(self.losses["train_y"]).mean()
-            if len(self.losses['val_y']) > 0:
-              result_dict["val_loss_y"] = torch.stack(self.losses["val_y"]).mean()
+            if len(self.losses["val_y"]) > 0:
+                result_dict["val_loss_y"] = torch.stack(self.losses["val_y"]).mean()
             if len(self.losses["test_y"]) > 0:
-                result_dict["test_loss_y"] = torch.stack(
-                    self.losses["test_y"]
-                ).mean()
+                result_dict["test_loss_y"] = torch.stack(self.losses["test_y"]).mean()
 
             # if denoising is present, also log it
             if len(self.losses["train_pos"]) > 0:
@@ -297,9 +320,7 @@ class LNNP(LightningModule):
                 ).mean()
 
             if len(self.losses["val_pos"]) > 0:
-                result_dict["val_loss_pos"] = torch.stack(
-                    self.losses["val_pos"]
-                ).mean()
+                result_dict["val_loss_pos"] = torch.stack(self.losses["val_pos"]).mean()
 
             if len(self.losses["test_pos"]) > 0:
                 result_dict["test_loss_pos"] = torch.stack(
@@ -310,7 +331,6 @@ class LNNP(LightningModule):
                 result_dict["val_auc"] = torch.stack(self.auc["val"]).mean()
                 if len(self.auc["test"]) > 0:
                     result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
-
 
             self.log_dict(result_dict, sync_dist=True)
         self._reset_losses_dict()
