@@ -158,12 +158,15 @@ def get_args():
     if args.fine_tuned_checkpoint:
         finetuned_ckpt_name = os.path.basename(args.fine_tuned_checkpoint)
         finetuned_ckpt_path = os.path.join("checkpoints", finetuned_ckpt_name)
-        try:
-            urllib.request.urlretrieve(args.fine_tuned_checkpoint, finetuned_ckpt_path)
-        except:
-            raise ValueError(
-                f"Could not download pretrained model from {args.fine_tuned_checkpoint}."
-            )
+        if not os.path.exists(finetuned_ckpt_path):
+            try:
+                urllib.request.urlretrieve(
+                    args.fine_tuned_checkpoint, finetuned_ckpt_path
+                )
+            except:
+                raise ValueError(
+                    f"Could not download pretrained model from {args.fine_tuned_checkpoint}."
+                )
         args.fine_tuned_checkpoint = finetuned_ckpt_path
 
     save_argparse(args, os.path.join(args.log_dir, "input.yaml"), exclude=["conf"])
