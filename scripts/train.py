@@ -245,7 +245,7 @@ def main():
 
     trainer.fit(model, data)
 
-    trainer.test(model=model, datamodule=data)
+    trainer.test(datamodule=data)
 
     print("Done!")
 
