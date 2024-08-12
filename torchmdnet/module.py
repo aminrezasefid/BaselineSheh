@@ -199,10 +199,6 @@ class LNNP(LightningModule):
             if self.hparams.task_type == "class":
                 auc = self.b_AUROC(pred, batch.y)
                 self.auc[stage].append(auc)
-            # Print predicted and actual labels for debugging
-            print(f"Stage: {stage}")
-            print(f"Predicted labels: {pred}")
-            print(f"Actual labels: {batch.y}")
 
         if denoising_is_on:
             if "y" not in batch:
