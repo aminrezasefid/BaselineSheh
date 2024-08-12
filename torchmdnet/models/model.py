@@ -80,16 +80,22 @@ def create_model(args, prior_model=None, mean=None, std=None):
     # create output network
     output_prefix = "Equivariant" if is_equivariant else ""
     output_model = getattr(output_modules, output_prefix + args["output_model"])(
-        args["embedding_dimension"], args["activation"], task_type = args["task_type"], out_channels = args["out_channels"]
+        args["embedding_dimension"],
+        args["activation"],
+        task_type=args["task_type"],
+        out_channels=args["out_channels"],
     )
 
     # create the denoising output network
     output_model_noise = None
-    if args['output_model_noise'] is not None:
-        output_model_noise = getattr(output_modules, output_prefix + args["output_model_noise"])(
-            args["embedding_dimension"], args["activation"],
+    if args["output_model_noise"] is not None:
+        output_model_noise = getattr(
+            output_modules, output_prefix + args["output_model_noise"]
+        )(
+            args["embedding_dimension"],
+            args["activation"],
         )
-        
+
     # combine representation and output network
     model = TorchMD_Net(
         representation_model,
@@ -100,7 +106,7 @@ def create_model(args, prior_model=None, mean=None, std=None):
         std=std,
         derivative=args["derivative"],
         output_model_noise=output_model_noise,
-        position_noise_scale=args['position_noise_scale'],
+        position_noise_scale=args["position_noise_scale"],
     )
     return model
 
@@ -112,7 +118,7 @@ def load_model(filepath, args=None, device="cpu", mean=None, std=None, **kwargs)
 
     for key, value in kwargs.items():
         if not key in args:
-            warnings.warn(f'Unknown hyperparameter: {key}={value}')
+            warnings.warn(f"Unknown hyperparameter: {key}={value}")
         args[key] = value
 
     model = create_model(args)
@@ -124,15 +130,18 @@ def load_model(filepath, args=None, device="cpu", mean=None, std=None, **kwargs)
         del state_dict["output_model.output_network.1.update_net.2.weight"]
         del state_dict["output_model.output_network.1.update_net.2.bias"]
     loading_return = model.load_state_dict(state_dict, strict=args["strict_load"])
-    
+
     if len(loading_return.unexpected_keys) > 0:
         # Should only happen if not applying denoising during fine-tuning.
-        assert all(("output_model_noise" in k or "pos_normalizer" in k) for k in loading_return.unexpected_keys)
+        assert all(
+            ("output_model_noise" in k or "pos_normalizer" in k)
+            for k in loading_return.unexpected_keys
+        )
     # assert len(loading_return.missing_keys) == 0, f"Missing keys: {loading_return.missing_keys}"
 
-    if mean.any():
+    if mean:
         model.mean = mean
-    if std.any():
+    if std:
         model.std = std
 
     return model.to(device)
@@ -149,7 +158,7 @@ class TorchMD_Net(nn.Module):
         std=None,
         derivative=False,
         output_model_noise=None,
-        position_noise_scale=0.,
+        position_noise_scale=0.0,
     ):
         super(TorchMD_Net, self).__init__()
         self.representation_model = representation_model
@@ -167,7 +176,7 @@ class TorchMD_Net(nn.Module):
 
         self.reduce_op = reduce_op
         self.derivative = derivative
-        self.output_model_noise = output_model_noise        
+        self.output_model_noise = output_model_noise
         self.position_noise_scale = position_noise_scale
 
         mean = torch.scalar_tensor(0) if mean is None else mean
@@ -199,7 +208,7 @@ class TorchMD_Net(nn.Module):
         # predict noise
         noise_pred = None
         if self.output_model_noise is not None:
-            noise_pred = self.output_model_noise.pre_reduce(x, v, z, pos, batch) 
+            noise_pred = self.output_model_noise.pre_reduce(x, v, z, pos, batch)
 
         # apply the output network
         x = self.output_model.pre_reduce(x, v, z, pos, batch)
@@ -241,6 +250,7 @@ class TorchMD_Net(nn.Module):
 
 class AccumulatedNormalization(nn.Module):
     """Running normalization of a tensor."""
+
     def __init__(self, accumulator_shape: Tuple[int, ...], epsilon: float = 1e-8):
         super(AccumulatedNormalization, self).__init__()
 
@@ -274,5 +284,4 @@ class AccumulatedNormalization(nn.Module):
     def forward(self, batch: torch.Tensor):
         if self.training:
             self.update_statistics(batch)
-        return ((batch - self.mean) / self.std)
-
+        return (batch - self.mean) / self.std
