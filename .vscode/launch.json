@@ -47,6 +47,33 @@
         "--testing-noisy",
         "True"
       ]
+    },
+    {
+      "name": "tox21 debugger",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "scripts/train.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--conf",
+        "examples/ET-TOX21-FT.yaml",
+        "--layernorm-on-vec",
+        "whitened",
+        "--job-id",
+        "tox21-test",
+        "--num-epochs",
+        "1",
+        "--pretrained-model",
+        "checkpoints/denoised-pcqm4mv2.ckpt",
+        "--accelerator",
+        "cpu",
+        "--structure",
+        "rdkit3d",
+        "--train-loss-fn",
+        "binary_cross_entropy",
+        "--val-test-loss-fn",
+        "binary_cross_entropy"
+      ]
     }
   ]
 }
