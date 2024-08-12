@@ -17,10 +17,10 @@ from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
 URLS = {
-    "precise3d": "https://drive.google.com/uc?export=download&id=1GxX_t5iYKsihokV4022XoFkr9io51yuM",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=11ilXVEo2oajhfI5Gd7-hNn2_XbypP3kg",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1FxzX7qHAJmrVaZGcf8VK60-RtLT_k9P0",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1FTVrvkt6R_qQwvWLAXSXDm-K5VZEwiI8"
+    "precise3d": "https://drive.google.com/uc?export=download&id=1j_3YHv-IyUFr5JVXPIOOOvG6d72rE3iA",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=1-2O-h-BKIZDzsTyV0iubsFYyMazuyrJo",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=15syV1KuBjUgKJcAVP83HZSQ9uGyygQ-E",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1xflnu_safr6SRjEt8_dZFMt4kmGsZo9z"
 }
 
 sider_target_dict = {
@@ -88,10 +88,10 @@ class Sider(InMemoryDataset):
         try:
             import rdkit  # noqa
             file_names = {
-                "precise3d": ['sider_exp.sdf', 'sider_exp.sdf.csv'],
-                "optimized3d": ['sider_opt.sdf', 'sider_opt.sdf.csv'],
-                "rdkit3d": ['sider.sdf', 'sider.sdf.csv'],
-                "rdkit2d": ['sider_graph.sdf', 'sider_graph.sdf.csv']
+                "precise3d": ['pubchem.sdf', 'pubchem.sdf.csv'],
+                "optimized3d": ['rdkit_opt.sdf', 'rdkit_opt.sdf.csv'],
+                "rdkit3d": ['rdkit_3D.sdf', 'rdkit_3D.sdf.csv'],          ###### CHANGE ######
+                "rdkit2d": ['rdkit_graph.sdf', 'rdkit_graph.sdf.csv']
             }
             return file_names[self.structure]
         except ImportError:
@@ -147,8 +147,8 @@ class Sider(InMemoryDataset):
 
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) if x != '-100' and x != '' else -1
-                       for x in line.split(',')]
+            target = [[float(x) if x != '' else -1
+                       for x in line.split(',')[1:]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 

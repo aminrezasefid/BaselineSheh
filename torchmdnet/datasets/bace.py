@@ -17,12 +17,13 @@ from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
 URLS = {
-    "precise3d": "https://drive.google.com/uc?export=download&id=1_8RBt_Jc3LJQCDSLtIaq6SQjwCsD7S0X",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=1qHWv0Rrq_zbbAd5YO2ky8-7FIVHD5Si7", ###### CHANGE ######
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=16A4pwzm6i9XLFmHN_8HdSOEHzmiEG2gQ",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1g6A6SbGWjO8BYo0bRFQV2zJ6Z7Lm8sEp"
+    "precise3d": "https://drive.google.com/uc?export=download&id=1RV-6uSbR33b81wfAEpV_Y7EMeH9hUf9J",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=1xgRIFpsd45HamcG1nUKN6BRpUOu5-U72", ###### CHANGE ######
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=19lnBBkb5YJn05j2fFhtKDfXlsuFlNsqu",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1MeM4GTtnJyBk-TFN2LO6lfGC529o6RI2"
 }
 
+bace_target_dict = {'Class': 0}
 
 class Bace(InMemoryDataset): ###### CHANGE ######
     def __init__(self, 
@@ -35,7 +36,7 @@ class Bace(InMemoryDataset): ###### CHANGE ######
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else [0] ###### CHANGE ######
+        self.labels = [bace_target_dict[label] for label in dataset_args] if dataset_args is not None else list(bace_target_dict.values())
 
         if transform is None:
             transform = self._filter_label
@@ -116,8 +117,8 @@ class Bace(InMemoryDataset): ###### CHANGE ######
 
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) if x != '-100' and x != '' else -1
-                       for x in line.split(',')]
+            target = [[float(x) if x != '' else -1
+                       for x in line.split(',')[1]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 

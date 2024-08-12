@@ -17,12 +17,13 @@ from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
 URLS = {
-    "precise3d": "https://drive.google.com/uc?export=download&id=1ceiVUUYf06ruyDGrTwiHU8JF6F_HPT4M",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=1wDDn9hOgPcD8G7qQsXGfJPs2dqZpSDmg", ###### CHANGE ######
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1kRVZ-oLN8s3Rs-_le7DsVMH2EuwQoNJj",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1CYn0ukLZq67H5ZvuPCPJ6jDGlmv-7mTR"
+    "precise3d": "https://drive.google.com/uc?export=download&id=10UM_rXc83Gmh1oZ2SbNhRlnzp8Nn7x3Q",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=13jAtzZlrwqharHJP99KLoYfclkhIyhTb", ###### CHANGE ######
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1Rn_U3A4S3yyhnspHMr73GEvl8EcM0pe_",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=10xcs5Yq5ZP29j7VcdXVTuLUnV62rAzQV"
 }
 
+clintox_target_dict = {'FDA_APPROVED': 0, 'CT_TOX': 1}
 
 class Clintox(InMemoryDataset): ###### CHANGE ######
     def __init__(self, 
@@ -35,7 +36,7 @@ class Clintox(InMemoryDataset): ###### CHANGE ######
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else [0, 1] #list(range(1, 28)) ###### CHANGE ######
+        self.labels = [clintox_target_dict[label] for label in dataset_args] if dataset_args is not None else list(clintox_target_dict.values())
 
         if transform is None:
             transform = self._filter_label
@@ -116,8 +117,8 @@ class Clintox(InMemoryDataset): ###### CHANGE ######
 
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) if x != '-100' and x != '' else -1
-                       for x in line.split(',')]
+            target = [[float(x) if x != '' else -1
+                       for x in line.split(',')[1:]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 

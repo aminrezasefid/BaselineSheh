@@ -17,12 +17,13 @@ from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
 URLS = {
-    "precise3d": "https://drive.google.com/uc?export=download&id=1s8FRdrslf6nHJmVcUptodJHYPV_u8o3i",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=1MhdKpuPVtCJsOyACnTSl4X0V9e6D8KXy", ###### CHANGE ######
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1MfIfX6OY0W-OPRdu2Tu2-qMWsrU7YW2l",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1gVTv-704TDHg8ah11KkMVrrQBCBigZj4"
+    "precise3d": "https://drive.google.com/uc?export=download&id=1RSAyCMyradgUgzYLKw8FxVLeSVhyMfwC",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=1dVXXTDTIZh6Nu22WjEfyAEHhisaAB7cf", ###### CHANGE ######
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=13Lp5ATHoft-lyNoctOX3j8UHapluLWwi",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1oQo5lYtL6237vPKAnn6swHQCfY3Ag1xU"
 }
 
+bbbp_target_dict = {'p_np' : 0}
 
 class BBBP(InMemoryDataset): ###### CHANGE ######
     def __init__(self, 
@@ -35,7 +36,7 @@ class BBBP(InMemoryDataset): ###### CHANGE ######
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else [0] ###### CHANGE ######
+        self.labels = [bbbp_target_dict[label] for label in dataset_args] if dataset_args is not None else list(bbbp_target_dict.values())
 
         if transform is None:
             transform = self._filter_label
@@ -116,8 +117,8 @@ class BBBP(InMemoryDataset): ###### CHANGE ######
 
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) if x != '-100' and x != '' else -1
-                       for x in line.split(',')]
+            target = [[float(x) if x != '' else -1
+                       for x in line.split(',')[0]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 

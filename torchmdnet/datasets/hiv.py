@@ -19,10 +19,11 @@ from tqdm import tqdm
 URLS = {
     "precise3d": "https://drive.google.com/uc?export=download&id=1ds24awf65cfP0_AYBUiVQ_WM5QsngjZB",
     "optimized3d": "https://drive.google.com/uc?export=download&id=17LlB17yrLwbGjYxN3HqmKJrr0r6pSbSJ",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1JCT-kdtg1ST596O-kQrEmeLSIhK9G7ge",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1j2XmEahtYcQaS1rK9vOWH9mAKYwsh_Hi"
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1-zYsiXHxj958s0-EMHUQ19ru36fGjxP-",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1CQHysGKSmBJyqNxGnt9aozrAsOADZKkj"
 }
 
+hiv_target_dict = {'HIV_active': 0}
 
 class HIV(InMemoryDataset):
     def __init__(self, 
@@ -35,7 +36,7 @@ class HIV(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else [2] #list(range(1, 28))
+        self.labels = [hiv_target_dict[label] for label in dataset_args] if dataset_args is not None else list(hiv_target_dict.values())
 
         if transform is None:
             transform = self._filter_label
@@ -117,7 +118,7 @@ class HIV(InMemoryDataset):
 
         with open(self.raw_paths[1], 'r') as f:
             target = [[float(x) if x != '-100' and x != '' else -1
-                       for x in line.split(',')[1:-1]]
+                       for x in line.split(',')[2]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)
 

@@ -199,6 +199,10 @@ class LNNP(LightningModule):
             if self.hparams.task_type == "class":
                 auc = self.b_AUROC(pred, batch.y)
                 self.auc[stage].append(auc)
+            # Print predicted and actual labels for debugging
+            print(f"Stage: {stage}")
+            print(f"Predicted labels: {pred}")
+            print(f"Actual labels: {batch.y}")
 
         if denoising_is_on:
             if "y" not in batch:
@@ -246,6 +250,8 @@ class LNNP(LightningModule):
         # if batch size is 1, and the loss was NaN, print the batch index
         if torch.isnan(loss_y):
             print(f"NaN loss in {batch.name}")
+        # Add print statement here to see the name of the data being processed
+        print(f"Processing data: {batch.name}")
         return loss
 
     def optimizer_step(self, *args, **kwargs):

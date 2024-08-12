@@ -23,6 +23,7 @@ URLS = {
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1PY-3pCqlEbycJMYgeEaDQllMzQlOa97E"
 }
 
+muv_target_dict = {'MUV-466': 0, 'MUV-548': 1, 'MUV-600': 2, 'MUV-644': 3, 'MUV-652': 4, 'MUV-689': 5, 'MUV-692': 6, 'MUV-712': 7, 'MUV-713': 8, 'MUV-733': 9, 'MUV-737': 10, 'MUV-810': 11, 'MUV-832': 12, 'MUV-846': 13, 'MUV-852': 14, 'MUV-858': 15, 'MUV-859': 16}
 
 class MUV(InMemoryDataset): ###### CHANGE ######
     def __init__(self, 
@@ -35,7 +36,7 @@ class MUV(InMemoryDataset): ###### CHANGE ######
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else list(range(0, 17)) #list(range(1, 28)) ###### CHANGE ######
+        self.labels = [muv_target_dict[label] for label in dataset_args] if dataset_args is not None else list(muv_target_dict.values()) ###### CHANGE ######
 
         if transform is None:
             transform = self._filter_label

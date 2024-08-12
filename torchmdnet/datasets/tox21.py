@@ -17,11 +17,13 @@ from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
 URLS = {
-    "precise3d": "https://drive.google.com/uc?export=download&id=14BOVxSdJuzmxFwAut8GXxsOgNdAqhJaO",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=179ljL62tkCAeC2jicr2xdTpg2i3Niath",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1ZaqlLBk8UepuolAnAWm49DKsUj3cb3o6", # Replaced Armin's
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=10gwCtoqL2rY27Od5JzMwzyiYvQ5wU47x"
+    "precise3d": "https://drive.google.com/uc?export=download&id=11yuFbKwHXDUO8IdFhLzfoF-188-s9IIC",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=18drX152XEU8rnrunFH52zx07jWQgNXtR",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=1StLIbEfiFhw83A5zD86K_DDX7pesYQb8", # Replaced Armin's
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1xMZh0RFG7jcX4YrqwLa_U8-_MOi9FrXl"
 }
+
+tox21_target_dict = {'NR-AR': 0, 'NR-AR-LBD': 1, 'NR-AhR': 2, 'NR-Aromatase': 3, 'NR-ER': 4, 'NR-ER-LBD': 5, 'NR-PPAR-gamma': 6, 'SR-ARE': 7, 'SR-ATAD5': 8, 'SR-HSE': 9, 'SR-MMP': 10, 'SR-p53': 11}
 
 
 class TOX21(InMemoryDataset):
@@ -35,7 +37,7 @@ class TOX21(InMemoryDataset):
                  dataset_args: List[str] = None):
         self.structure = structure
         self.raw_url = URLS[structure]
-        self.labels = dataset_args if dataset_args is not None else list(range(0, 12))
+        self.labels = [tox21_target_dict[label] for label in dataset_args] if dataset_args is not None else list(tox21_target_dict.values())
 
         if transform is None:
             transform = self._filter_label
@@ -58,10 +60,10 @@ class TOX21(InMemoryDataset):
         try:
             import rdkit  # noqa
             file_names = {
-                "precise3d": ['tox21_exp.sdf', 'tox21_exp.sdf.csv'],
-                "optimized3d": ['tox21_opt.sdf', 'tox21_opt.sdf.csv'],
-                "rdkit3d": ['tox21.sdf', 'tox21.sdf.csv'],
-                "rdkit2d": ['tox21_graph.sdf', 'tox21_graph.sdf.csv']
+                "precise3d": ['pubchem.sdf', 'pubchem.sdf.csv'],
+                "optimized3d": ['rdkit_opt.sdf', 'rdkit_opt.sdf.csv'],
+                "rdkit3d": ['rdkit_3D.sdf', 'rdkit_3D.sdf.csv'],          ###### CHANGE ######
+                "rdkit2d": ['rdkit_graph.sdf', 'rdkit_graph.sdf.csv']
             }
             return file_names[self.structure]
         except ImportError:
@@ -115,7 +117,7 @@ class TOX21(InMemoryDataset):
 
 
         with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x) if x != '-100' and x != '' else -1
+            target = [[float(x) if x != '' else -1
                        for x in line.split(',')[:-2]]
                       for line in f.read().split('\n')[1:-1]]
             y = torch.tensor(target, dtype=torch.float)

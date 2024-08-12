@@ -68,4 +68,4 @@ job_id: auto
 out_channels: 2
 strict_load: false
 task_type: class ###### CHANGE ######
-dataset_args : [0, 1]
+dataset_args : ['FDA_APPROVED', 'CT_TOX']
