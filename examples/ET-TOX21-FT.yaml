@@ -52,7 +52,7 @@ redirect: false
 reduce_op: add
 save_interval: 10
 splits: null
-standardize: true
+standardize: false
 test_interval: 1
 train_size: 0.8
 trainable_rbf: false
@@ -68,5 +68,18 @@ job_id: auto
 out_channels: 12
 strict_load: false
 task_type: class
-dataset_args : ['NR-AR', 'NR-AR-LBD', 'NR-AhR', 'NR-Aromatase', 'NR-ER', 'NR-ER-LBD',
-           'NR-PPAR-gamma', 'SR-ARE', 'SR-ATAD5', 'SR-HSE', 'SR-MMP', 'SR-p53']
+dataset_args:
+  [
+    "NR-AR",
+    "NR-AR-LBD",
+    "NR-AhR",
+    "NR-Aromatase",
+    "NR-ER",
+    "NR-ER-LBD",
+    "NR-PPAR-gamma",
+    "SR-ARE",
+    "SR-ATAD5",
+    "SR-HSE",
+    "SR-MMP",
+    "SR-p53",
+  ]
