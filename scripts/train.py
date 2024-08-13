@@ -206,7 +206,7 @@ def main():
         + metric_name
         + ":.4f}-{test_loss:.4f}-{train_per_step:.4f}",
         # every_n_epochs=args.save_interval,
-        # save_last=True,
+        save_last=True,
         mode=args.callback_mode,
     )
     early_stopping = EarlyStopping(
