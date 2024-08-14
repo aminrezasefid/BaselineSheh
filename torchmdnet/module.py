@@ -35,7 +35,6 @@ class LNNP(LightningModule):
 
         self.auc = {"val": [], "test": [], "train": []}
         self._reset_losses_dict()
-        self.b_AUROC = BinaryAUROC()
 
         self.preds_csv = []
 
