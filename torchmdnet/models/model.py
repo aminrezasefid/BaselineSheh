@@ -147,7 +147,9 @@ def load_model(filepath, args=None, device="cpu", mean=None, std=None, **kwargs)
     return model.to(device)
 
 def nan_analys(t):
-    return t.shape,torch.argwhere(torch.isnan(t))
+    nan_indices=torch.argwhere(torch.isnan(t))
+    uniquerows=torch.unique(nan_indices[:,0])
+    return t.shape,nan_indices,len(nan_indices),uniquerows
 class TorchMD_Net(nn.Module):
     def __init__(
         self,
