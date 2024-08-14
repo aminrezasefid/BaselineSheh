@@ -205,14 +205,19 @@ class TorchMD_Net(nn.Module):
         # run the potentially wrapped representation model
         x, v, z, pos, batch = self.representation_model(z, pos, batch=batch)
         if torch.isnan(x).any():
+            print("x rep model")
             print(x)
         if torch.isnan(v).any():
+            print("v rep model")
             print(v)
         if torch.isnan(z).any():
+            print("z rep model")
             print(z)
         if torch.isnan(pos).any():
+            print("pos rep model")
             print(pos)
         if torch.isnan(batch).any():
+            print("batch rep model")
             print(batch)
         # predict noise
         noise_pred = None
@@ -226,6 +231,7 @@ class TorchMD_Net(nn.Module):
         if self.std is not None:
             x = x * self.std
         if torch.isnan(x).any():
+            print("x pre reduce")
             print(x)
         # apply prior model
         if self.prior_model is not None:
@@ -234,6 +240,7 @@ class TorchMD_Net(nn.Module):
         # aggregate atoms
         out = scatter(x, batch, dim=0, reduce=self.reduce_op)
         if torch.isnan(out).any():
+            print("out scatter")
             print(out)
         # shift by data mean
         if self.mean is not None:
@@ -243,6 +250,7 @@ class TorchMD_Net(nn.Module):
         out = self.output_model.post_reduce(out)
         
         if torch.isnan(out).any():
+            print("out post reduce")
             print(out)
         # compute gradients with respect to coordinates
         if self.derivative:
