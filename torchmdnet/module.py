@@ -31,9 +31,10 @@ class LNNP(LightningModule):
 
         # initialize loss collection
         self.losses = None
-        self._reset_losses_dict()
+        
 
         self.auc = {"val": [], "test": [], "train": []}
+        self._reset_losses_dict()
         self.b_AUROC = BinaryAUROC()
 
         self.preds_csv = []
@@ -78,16 +79,10 @@ class LNNP(LightningModule):
         )
 
     def validation_step(self, batch, *args):
-        if len(args) == 0 or (len(args) > 0 and args[0] == 0):
-            # validation step
-            return self.step(
-                batch, getattr(functional, self.hparams.val_test_loss_fn), "val"
-            )
-        # test step
         return self.step(
-            batch, getattr(functional, self.hparams.val_test_loss_fn), "test"
+            batch, getattr(functional, self.hparams.val_test_loss_fn), "val"
         )
-
+       
     def test_step(self, batch):
         return self.step(
             batch, getattr(functional, self.hparams.val_test_loss_fn), "test"
@@ -198,7 +193,7 @@ class LNNP(LightningModule):
             # calculate AUC if the task is classification
             if self.hparams.task_type == "class":
                 auc = self.b_AUROC(pred, batch.y)
-                self.auc[stage].append(auc)
+                self.auc[stage].append(auc.detach())
 
         if denoising_is_on:
             if "y" not in batch:
