@@ -334,6 +334,9 @@ class LNNP(LightningModule):
         self._reset_losses_dict()
 
     def _reset_losses_dict(self):
+        self.auc["val"]=[]
+        self.auc["test"]=[]
+        self.auc["train"]=[]
         self.losses = {
             "train": [],
             "val": [],
