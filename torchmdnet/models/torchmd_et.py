@@ -11,7 +11,10 @@ from torchmdnet.models.utils import (
     act_class_mapping,
 )
 from torch.nn.parameter import Parameter
-
+def nan_analys(t):
+    nan_indices=torch.argwhere(torch.isnan(t))
+    uniquerows=torch.unique(nan_indices[:,0])
+    return t.shape,nan_indices,len(nan_indices),uniquerows
 
 class TorchMD_ET(nn.Module):
     r"""The TorchMD equivariant Transformer architecture.
@@ -178,6 +181,9 @@ class TorchMD_ET(nn.Module):
             dx, dvec = attn(x, vec, edge_index, edge_weight, edge_attr, edge_vec)
             x = x + dx
             vec = vec + dvec
+            if torch.isnan(x).any():
+                print("x inside repr")
+                print(*nan_analys(x))
         x = self.out_norm(x)
         if self.layernorm_on_vec:
             vec = self.out_norm_vec(vec)
