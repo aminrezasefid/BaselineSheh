@@ -230,7 +230,8 @@ class TorchMD_Net(nn.Module):
 
         # apply output model after reduction
         out = self.output_model.post_reduce(out)
-
+        if torch.isnan(out).any():
+            print(out)
         # compute gradients with respect to coordinates
         if self.derivative:
             grad_outputs: List[Optional[torch.Tensor]] = [torch.ones_like(out)]
