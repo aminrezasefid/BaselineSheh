@@ -268,11 +268,6 @@ class LNNP(LightningModule):
     def on_train_epoch_end(self):
         dm = self.trainer.datamodule
         if hasattr(dm, "test_dataset") and len(dm.test_dataset) > 0:
-            # should_reset = (
-            #     self.current_epoch % self.hparams.test_interval == 0
-            #     or (self.current_epoch - 1) % self.hparams.test_interval == 0
-            # )
-            # if should_reset:
             # reset validation dataloaders before and after testing epoch, which is faster
             # than skipping test validation steps by returning None
             self.trainer.fit_loop.setup_data()
