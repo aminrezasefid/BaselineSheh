@@ -185,6 +185,9 @@ class TorchMD_ET(nn.Module):
                 print("x inside repr")
                 print(*nan_analys(x))
         x = self.out_norm(x)
+        if torch.isnan(x).any():
+                print("x after outnorm repr")
+                print(*nan_analys(x))
         if self.layernorm_on_vec:
             vec = self.out_norm_vec(vec)
 
