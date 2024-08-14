@@ -146,7 +146,8 @@ def load_model(filepath, args=None, device="cpu", mean=None, std=None, **kwargs)
 
     return model.to(device)
 
-
+def nan_analys(t):
+    return t.shape,torch.argwhere(torch.isnan(t))
 class TorchMD_Net(nn.Module):
     def __init__(
         self,
@@ -206,19 +207,19 @@ class TorchMD_Net(nn.Module):
         x, v, z, pos, batch = self.representation_model(z, pos, batch=batch)
         if torch.isnan(x).any():
             print("x rep model")
-            print(x)
+            print(*nan_analys(x))
         if torch.isnan(v).any():
             print("v rep model")
-            print(v)
+            print(*nan_analys(v))
         if torch.isnan(z).any():
             print("z rep model")
-            print(z)
+            print(*nan_analys(z))
         if torch.isnan(pos).any():
             print("pos rep model")
-            print(pos)
+            print(*nan_analys(pos))
         if torch.isnan(batch).any():
             print("batch rep model")
-            print(batch)
+            print(*nan_analys(batch))
         # predict noise
         noise_pred = None
         if self.output_model_noise is not None:
@@ -232,7 +233,7 @@ class TorchMD_Net(nn.Module):
             x = x * self.std
         if torch.isnan(x).any():
             print("x pre reduce")
-            print(x)
+            print(*nan_analys(x))
         # apply prior model
         if self.prior_model is not None:
             x = self.prior_model(x, z, pos, batch)
@@ -241,7 +242,7 @@ class TorchMD_Net(nn.Module):
         out = scatter(x, batch, dim=0, reduce=self.reduce_op)
         if torch.isnan(out).any():
             print("out scatter")
-            print(out)
+            print(*nan_analys(out))
         # shift by data mean
         if self.mean is not None:
             out = out + self.mean
@@ -251,7 +252,7 @@ class TorchMD_Net(nn.Module):
         
         if torch.isnan(out).any():
             print("out post reduce")
-            print(out)
+            print(*nan_analys(out))
         # compute gradients with respect to coordinates
         if self.derivative:
             grad_outputs: List[Optional[torch.Tensor]] = [torch.ones_like(out)]
