@@ -133,7 +133,7 @@ class TOX21(InMemoryDataset):
             conf = mol.GetConformer()
             pos = conf.GetPositions()
             pos = torch.tensor(pos, dtype=torch.float)
-            dista_mat=torch.cdist(pos,pos)
+            dista_mat=torch.cdist(pos,pos,p=1)
             if torch.logical_and(dista_mat<0.01,dista_mat!=0).any():
                 continue
             
