@@ -31,7 +31,6 @@ class LNNP(LightningModule):
 
         # initialize loss collection
         self.losses = None
-        
 
         self.auc = {"val": [], "test": [], "train": []}
         self._reset_losses_dict()
@@ -81,7 +80,7 @@ class LNNP(LightningModule):
         return self.step(
             batch, getattr(functional, self.hparams.val_test_loss_fn), "val"
         )
-       
+
     def test_step(self, batch):
         return self.step(
             batch, getattr(functional, self.hparams.val_test_loss_fn), "test"
@@ -113,9 +112,10 @@ class LNNP(LightningModule):
         self.logger.log_metrics(result_dict)
 
     def step(self, batch, loss_fn, stage):
+
+        # TODO (armin) BRING BACK THE COMMENTS!
+
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
-            # TODO: the model doesn't necessarily need to return a derivative once
-            # Union typing works under TorchScript (https://github.com/pytorch/pytorch/pull/53180)
             pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch)
 
         denoising_is_on = (
@@ -127,14 +127,8 @@ class LNNP(LightningModule):
         loss_y, loss_dy, loss_pos = 0, 0, 0
         if self.hparams.derivative:
             if "y" not in batch:
-                # "use" both outputs of the model's forward function but discard the first
-                # to only use the derivative and avoid 'Expected to have finished reduction
-                # in the prior iteration before starting a new one.', which otherwise get's
-                # thrown because of setting 'find_unused_parameters=False' in the DDPPlugin
                 deriv = deriv + pred.sum() * 0
 
-            # force/derivative loss
-            # TODO (armin) this is temporary
             if self.hparams.task_type == "class":
                 target_not_minus_one = batch.dy != -1
                 loss_dy = loss_fn(
@@ -146,7 +140,6 @@ class LNNP(LightningModule):
             if stage in ["train", "val"] and self.hparams.ema_alpha_dy < 1:
                 if self.ema[stage + "_dy"] is None:
                     self.ema[stage + "_dy"] = loss_dy.detach()
-                # apply exponential smoothing over batches to dy
                 loss_dy = (
                     self.hparams.ema_alpha_dy * loss_dy
                     + (1 - self.hparams.ema_alpha_dy) * self.ema[stage + "_dy"]
@@ -158,18 +151,13 @@ class LNNP(LightningModule):
 
         if "y" in batch:
             if (noise_pred is not None) and not denoising_is_on:
-                # "use" both outputs of the model's forward (see comment above).
                 pred = pred + noise_pred.sum() * 0
 
             if batch.y.ndim == 1:
                 batch.y = batch.y.unsqueeze(1)
 
-            # energy/prediction loss
-            # TODO (armin) here as well, these are all generalizable and shouldn't be hardcoded based on task type
             if self.hparams.task_type == "class":
-                target_not_minus_one = (
-                    batch.y != -1
-                )  # -1 is the default value for missing labels
+                target_not_minus_one = batch.y != -1
                 loss_y = loss_fn(
                     pred[target_not_minus_one], batch.y[target_not_minus_one]
                 )
@@ -179,7 +167,6 @@ class LNNP(LightningModule):
             if stage in ["train", "val"] and self.hparams.ema_alpha_y < 1:
                 if self.ema[stage + "_y"] is None:
                     self.ema[stage + "_y"] = loss_y.detach()
-                # apply exponential smoothing over batches to y
                 loss_y = (
                     self.hparams.ema_alpha_y * loss_y
                     + (1 - self.hparams.ema_alpha_y) * self.ema[stage + "_y"]
@@ -189,17 +176,15 @@ class LNNP(LightningModule):
             if self.hparams.energy_weight > 0:
                 self.losses[stage + "_y"].append(loss_y.detach())
 
-            # calculate AUC if the task is classification
             if self.hparams.task_type == "class":
-                target_not_minus_one = (
-                    batch.y != -1
+                target_not_minus_one = batch.y != -1
+                auc = binary_auroc(
+                    pred[target_not_minus_one], batch.y[target_not_minus_one]
                 )
-                auc = binary_auroc(pred[target_not_minus_one], batch.y[target_not_minus_one])
                 self.auc[stage].append(auc.detach())
 
         if denoising_is_on:
             if "y" not in batch:
-                # "use" both outputs of the model's forward (see comment above).
                 noise_pred = noise_pred + pred.sum() * 0
 
             normalized_pos_target = self.model.pos_normalizer(batch.pos_target)
@@ -214,6 +199,18 @@ class LNNP(LightningModule):
         )
 
         self.losses[stage].append(loss.detach())
+
+        # Log parameters and their sizes
+        param_sizes = {name: param.size() for name, param in self.named_parameters()}
+        self.log_dict(
+            {f"param_size_{k}": v for k, v in param_sizes.items()}, sync_dist=True
+        )
+
+        # Log the sizes of the losses
+        self.log(f"loss_y_size", loss_y.size() if loss_y != 0 else torch.Size([]))
+        self.log(f"loss_dy_size", loss_dy.size() if loss_dy != 0 else torch.Size([]))
+        self.log(f"loss_pos_size", loss_pos.size() if loss_pos != 0 else torch.Size([]))
+        self.log(f"total_loss_size", loss.size())
 
         # Frequent per-batch logging for training
         if stage == "train":
@@ -236,15 +233,12 @@ class LNNP(LightningModule):
                     row.append(batch.y[i][j].item())
                     if self.hparams.task_type == "class":
                         row.append(int(round(pred[i][j].item())))
-                        # row.append(int(pred[i][j].item() > 0.5))
 
                 self.preds_csv.append(row)
 
-        # if batch size is 1, and the loss was NaN, print the batch index
         if torch.isnan(loss_y):
             print(f"Processing data: {batch.name}")
             print(f"NaN loss in {batch.name}")
-        # Add print statement here to see the name of the data being processed
 
         return loss
 
@@ -331,9 +325,9 @@ class LNNP(LightningModule):
         self._reset_losses_dict()
 
     def _reset_losses_dict(self):
-        self.auc["val"]=[]
-        self.auc["test"]=[]
-        self.auc["train"]=[]
+        self.auc["val"] = []
+        self.auc["test"] = []
+        self.auc["train"] = []
         self.losses = {
             "train": [],
             "val": [],
