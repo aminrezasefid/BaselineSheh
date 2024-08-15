@@ -16,6 +16,10 @@ def nan_analys(t):
     uniquerows=torch.unique(nan_indices[:,0])
     return t.shape,nan_indices,len(nan_indices),uniquerows
 
+def inf_analys(t):
+    nan_indices=torch.argwhere(torch.isinf(t))
+    uniquerows=torch.unique(nan_indices[:,0])
+    return t.shape,nan_indices,len(nan_indices),uniquerows
 class TorchMD_ET(nn.Module):
     r"""The TorchMD equivariant Transformer architecture.
 
@@ -181,10 +185,17 @@ class TorchMD_ET(nn.Module):
             dx, dvec = attn(x, vec, edge_index, edge_weight, edge_attr, edge_vec)
             x = x + dx
             vec = vec + dvec
+            
             if torch.isnan(x).any():
                 print("x inside repr")
                 print(*nan_analys(x))
+            if torch.isinf(x).any():
+                print("x inside repr infinite")
+                print(*inf_analys(x))
         x = self.out_norm(x)
+        if torch.isinf(x).any():
+                print("x after outnorm repr infinite")
+                print(*inf_analys(x))
         if torch.isnan(x).any():
                 print("x after outnorm repr")
                 print(*nan_analys(x))
