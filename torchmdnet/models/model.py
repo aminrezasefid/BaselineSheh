@@ -253,6 +253,12 @@ class TorchMD_Net(nn.Module):
         out = self.output_model.post_reduce(out)
         
         if torch.isnan(out).any():
+            total_norm=0
+            for param in self.parameters():
+                norm=param.data.norm(2)
+                total_norm+=norm.item()
+            total_norm=total_norm ** (1. / 2) 
+            print("model last norm:",total_norm)
             print("out post reduce")
             print(*nan_analys(out))
         # compute gradients with respect to coordinates
