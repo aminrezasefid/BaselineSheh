@@ -134,7 +134,7 @@ class TOX21(InMemoryDataset):
             pos = conf.GetPositions()
             pos = torch.tensor(pos, dtype=torch.float)
             dista_mat=torch.cdist(pos,pos)
-            if toch.logical_and(dista_mat<0.01,dista_mat!=0).any():
+            if torch.logical_and(dista_mat<0.01,dista_mat!=0).any():
                 continue
             
             # check if any two atoms are overlapping
