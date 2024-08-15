@@ -28,7 +28,7 @@ class LNNP(LightningModule):
         for param in self.model.parameters():
             norm=param.data.norm(2)
             total_norm+=norm.item()
-        total_norm=torch.sqrt(total_norm)
+        total_norm=total_norm ** (1. / 2) 
         print("model_norm inital:",total_norm)
         # initialize exponential smoothing
         self.ema = None
