@@ -2,7 +2,7 @@ import torch
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
 from torch.nn.functional import mse_loss, l1_loss, cross_entropy, binary_cross_entropy
-
+from torcheval.metrics.functional import binary_auroc
 from torchmetrics.classification import BinaryAUROC
 from torch.nn import functional
 
@@ -31,10 +31,10 @@ class LNNP(LightningModule):
 
         # initialize loss collection
         self.losses = None
-        self._reset_losses_dict()
+        
 
         self.auc = {"val": [], "test": [], "train": []}
-        self.b_AUROC = BinaryAUROC()
+        self._reset_losses_dict()
 
         self.preds_csv = []
 
@@ -78,16 +78,10 @@ class LNNP(LightningModule):
         )
 
     def validation_step(self, batch, *args):
-        if len(args) == 0 or (len(args) > 0 and args[0] == 0):
-            # validation step
-            return self.step(
-                batch, getattr(functional, self.hparams.val_test_loss_fn), "val"
-            )
-        # test step
         return self.step(
-            batch, getattr(functional, self.hparams.val_test_loss_fn), "test"
+            batch, getattr(functional, self.hparams.val_test_loss_fn), "val"
         )
-
+       
     def test_step(self, batch):
         return self.step(
             batch, getattr(functional, self.hparams.val_test_loss_fn), "test"
@@ -197,8 +191,11 @@ class LNNP(LightningModule):
 
             # calculate AUC if the task is classification
             if self.hparams.task_type == "class":
-                auc = self.b_AUROC(pred, batch.y)
-                self.auc[stage].append(auc)
+                target_not_minus_one = (
+                    batch.y != -1
+                )
+                auc = binary_auroc(pred[target_not_minus_one], batch.y[target_not_minus_one])
+                self.auc[stage].append(auc.detach())
 
         if denoising_is_on:
             if "y" not in batch:
@@ -334,6 +331,9 @@ class LNNP(LightningModule):
         self._reset_losses_dict()
 
     def _reset_losses_dict(self):
+        self.auc["val"]=[]
+        self.auc["test"]=[]
+        self.auc["train"]=[]
         self.losses = {
             "train": [],
             "val": [],

@@ -30,7 +30,7 @@ lr_schedule: cosine
 lr_factor: 0.8
 lr_min: 1.0e-07
 lr_patience: 15
-lr_warmup_steps: 10000
+lr_warmup_steps: 4000
 lr_cosine_length: 300000
 max_num_neighbors: 32
 max_z: 100
@@ -59,7 +59,7 @@ trainable_rbf: false
 val_size: 0.1
 test_size: 0.1
 weight_decay: 0.0
-output_model_noise: VectorOutput
+output_model_noise: null
 position_noise_scale: 0 #0.005
 denoising_weight: 0.1
 layernorm_on_vec: null

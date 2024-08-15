@@ -98,12 +98,7 @@ class DataModule(LightningDataModule):
         return self._get_dataloader(self.train_dataset, "train")
 
     def val_dataloader(self):
-        loaders = [self._get_dataloader(self.val_dataset, "val")]
-        # if (
-        #     len(self.test_dataset) > 0
-        #     and self.trainer.current_epoch % self.hparams["test_interval"] == 0
-        # ):
-        #     loaders.append(self._get_dataloader(self.test_dataset, "test"))
+        loaders = self._get_dataloader(self.val_dataset, "val")
         return loaders
 
     def test_dataloader(self):
