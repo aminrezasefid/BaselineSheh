@@ -138,9 +138,9 @@ class TOX21(InMemoryDataset):
             #    continue
             
             # check if any two atoms are overlapping
-            if torch.unique(pos, dim=0).size(0) != N:
+            #if torch.unique(pos, dim=0).size(0) != N:
                 # print(f"Skipping molecule {mol.GetProp('_Name')} as it contains overlapping atoms.")
-                continue
+             #   continue
 
             type_idx = []
             atomic_number = []
