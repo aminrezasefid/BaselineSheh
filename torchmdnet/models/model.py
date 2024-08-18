@@ -146,10 +146,13 @@ def load_model(filepath, args=None, device="cpu", mean=None, std=None, **kwargs)
 
     return model.to(device)
 
+
 def nan_analys(t):
-    nan_indices=torch.argwhere(torch.isnan(t))
-    uniquerows=torch.unique(nan_indices[:,0])
-    return t.shape,nan_indices,len(nan_indices),uniquerows
+    nan_indices = torch.argwhere(torch.isnan(t))
+    uniquerows = torch.unique(nan_indices[:, 0])
+    return t.shape, nan_indices, len(nan_indices), uniquerows
+
+
 class TorchMD_Net(nn.Module):
     def __init__(
         self,
@@ -251,14 +254,14 @@ class TorchMD_Net(nn.Module):
 
         # apply output model after reduction
         out = self.output_model.post_reduce(out)
-        
+
         if torch.isnan(out).any():
-            total_norm=0
+            total_norm = 0
             for param in self.parameters():
-                norm=param.data.norm(2)
-                total_norm+=norm.item()
-            total_norm=total_norm ** (1. / 2) 
-            print("model last norm:",total_norm)
+                norm = param.data.norm(2)
+                total_norm += norm.item()
+            total_norm = total_norm ** (1.0 / 2)
+            print("model last norm:", total_norm)
             print("out post reduce")
             print(*nan_analys(out))
         # compute gradients with respect to coordinates
