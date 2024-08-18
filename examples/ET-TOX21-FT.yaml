@@ -4,7 +4,7 @@ atom_filter: -1
 attn_activation: silu
 batch_size: 16
 coord_files: null
-cutoff_lower: 0.0
+cutoff_lower: 0.5
 cutoff_upper: 5.0
 dataset: TOX21
 #dataset_args: null
@@ -59,8 +59,8 @@ trainable_rbf: false
 val_size: 0.1
 test_size: 0.1
 weight_decay: 0.0
-output_model_noise: null
-position_noise_scale: 0 #0.005
+output_model_noise: VectorOutput
+position_noise_scale: 0.04 #0.005
 denoising_weight: 0.1
 layernorm_on_vec: null
 wandb_notes: ""

@@ -24,7 +24,12 @@ class LNNP(LightningModule):
             )
         else:
             self.model = create_model(self.hparams, prior_model, mean, std)
-
+        total_norm=0
+        for param in self.model.parameters():
+            norm=param.data.norm(2)
+            total_norm+=norm.item()
+        total_norm=total_norm ** (1. / 2) 
+        print("model_norm inital:",total_norm)
         # initialize exponential smoothing
         self.ema = None
         self._reset_ema_dict()

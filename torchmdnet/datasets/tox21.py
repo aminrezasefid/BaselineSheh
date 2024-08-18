@@ -133,11 +133,14 @@ class TOX21(InMemoryDataset):
             conf = mol.GetConformer()
             pos = conf.GetPositions()
             pos = torch.tensor(pos, dtype=torch.float)
-
+            #dista_mat=torch.cdist(pos,pos,p=1)
+            #if torch.logical_and(dista_mat<0.1,dista_mat!=0).any():
+            #    continue
+            
             # check if any two atoms are overlapping
-            if torch.unique(pos, dim=0).size(0) != N:
+            #if torch.unique(pos, dim=0).size(0) != N:
                 # print(f"Skipping molecule {mol.GetProp('_Name')} as it contains overlapping atoms.")
-                continue
+             #   continue
 
             type_idx = []
             atomic_number = []
