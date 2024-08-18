@@ -112,9 +112,6 @@ class LNNP(LightningModule):
         self.logger.log_metrics(result_dict)
 
     def step(self, batch, loss_fn, stage):
-
-        # TODO (armin) BRING BACK THE COMMENTS!
-
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
             pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch)
 
@@ -200,17 +197,29 @@ class LNNP(LightningModule):
 
         self.losses[stage].append(loss.detach())
 
-        # Log parameters and their sizes
-        param_sizes = {name: param.size() for name, param in self.named_parameters()}
-        self.log_dict(
-            {f"param_size_{k}": v for k, v in param_sizes.items()}, sync_dist=True
-        )
+        # Log parameter norms
+        if stage == "train":
+            param_norms = {
+                f"{name}_norm": param.norm().item()
+                for name, param in self.named_parameters()
+                if param.requires_grad
+            }
+            self.log_dict(param_norms, sync_dist=True)
 
-        # Log the sizes of the losses
-        self.log(f"loss_y_size", loss_y.size() if loss_y != 0 else torch.Size([]))
-        self.log(f"loss_dy_size", loss_dy.size() if loss_dy != 0 else torch.Size([]))
-        self.log(f"loss_pos_size", loss_pos.size() if loss_pos != 0 else torch.Size([]))
-        self.log(f"total_loss_size", loss.size())
+        # Log loss norms
+        loss_norms = {
+            "loss_y_norm": (
+                loss_y.norm().item() if isinstance(loss_y, torch.Tensor) else 0
+            ),
+            "loss_dy_norm": (
+                loss_dy.norm().item() if isinstance(loss_dy, torch.Tensor) else 0
+            ),
+            "loss_pos_norm": (
+                loss_pos.norm().item() if isinstance(loss_pos, torch.Tensor) else 0
+            ),
+            "total_loss_norm": loss.norm().item(),
+        }
+        self.log_dict(loss_norms, sync_dist=True)
 
         # Frequent per-batch logging for training
         if stage == "train":
