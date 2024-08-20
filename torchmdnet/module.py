@@ -113,7 +113,7 @@ class LNNP(LightningModule):
             result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
             print(f'Test AUC: {result_dict["test_auc"]}')
         with open(self.hparams.log_dir + "/test_result.txt", "w", newline="") as file:
-            file.write(result_dict["test_auc"])
+            file.write((result_dict["test_auc"].item()))
         self.logger.log_metrics(result_dict)
 
     def step(self, batch, loss_fn, stage):
