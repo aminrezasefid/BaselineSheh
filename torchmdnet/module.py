@@ -210,21 +210,6 @@ class LNNP(LightningModule):
             }
             self.log_dict(param_norms, sync_dist=True)
 
-        # Log loss norms
-        loss_norms = {
-            "loss_y_norm": (
-                loss_y.norm().item() if isinstance(loss_y, torch.Tensor) else 0
-            ),
-            "loss_dy_norm": (
-                loss_dy.norm().item() if isinstance(loss_dy, torch.Tensor) else 0
-            ),
-            "loss_pos_norm": (
-                loss_pos.norm().item() if isinstance(loss_pos, torch.Tensor) else 0
-            ),
-            "total_loss_norm": loss.norm().item(),
-        }
-        self.log_dict(loss_norms, sync_dist=True)
-
         # Frequent per-batch logging for training
         if stage == "train":
             train_metrics = {

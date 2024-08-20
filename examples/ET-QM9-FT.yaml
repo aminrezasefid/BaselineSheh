@@ -7,7 +7,7 @@ coord_files: null
 cutoff_lower: 0.5
 cutoff_upper: 5.0
 dataset: QM9
-dataset_args: [2, 3, 4]
+dataset_args: ["homo", "lumo", "gap"]
 dataset_root: data/qm9
 derivative: false
 distance_influence: both
