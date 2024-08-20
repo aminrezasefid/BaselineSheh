@@ -4,7 +4,7 @@ atom_filter: -1
 attn_activation: silu
 batch_size: 128
 coord_files: null
-cutoff_lower: 0.0
+cutoff_lower: 0.5
 cutoff_upper: 5.0
 dataset: QM9
 dataset_args: [2, 3, 4]

@@ -4,7 +4,7 @@ atom_filter: -1
 attn_activation: silu
 batch_size: 16 #128
 coord_files: null
-cutoff_lower: 0.0
+cutoff_lower: 0.5
 cutoff_upper: 5.0
 dataset: BBBP                     ###### CHANGE ######
 dataset_root: data/bbbp          ###### CHANGE ######
@@ -59,7 +59,7 @@ trainable_rbf: false
 val_size: 0.1 #10000
 weight_decay: 0.0
 output_model_noise: VectorOutput
-position_noise_scale: 0.005
+position_noise_scale: 0.04
 denoising_weight: 0.1
 layernorm_on_vec: null
 wandb_notes: ""
