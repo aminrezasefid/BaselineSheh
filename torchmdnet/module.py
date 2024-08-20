@@ -112,7 +112,8 @@ class LNNP(LightningModule):
         if self.hparams.task_type == "class":
             result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
             print(f'Test AUC: {result_dict["test_auc"]}')
-
+        with open(self.hparams.log_dir + "/test_result.txt", "w", newline="") as file:
+            file.write(result_dict["test_auc"])
         self.logger.log_metrics(result_dict)
 
     def step(self, batch, loss_fn, stage):
@@ -202,13 +203,13 @@ class LNNP(LightningModule):
         self.losses[stage].append(loss.detach())
 
         # Log parameter norms
-        if stage == "train":
-            param_norms = {
-                f"{name}_norm": param.norm().item()
-                for name, param in self.named_parameters()
-                if param.requires_grad
-            }
-            self.log_dict(param_norms, sync_dist=True)
+        #if stage == "train":
+           # param_norms = {
+           #      f"{name}_norm": param.norm().item()
+           #      for name, param in self.named_parameters()
+           #      if param.requires_grad
+           #  }
+           #  self.log_dict(param_norms, sync_dist=True)
 
         # Frequent per-batch logging for training
         if stage == "train":
