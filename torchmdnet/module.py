@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
 from torch.nn.functional import mse_loss, l1_loss, cross_entropy, binary_cross_entropy
@@ -98,6 +99,7 @@ class LNNP(LightningModule):
         for target in self.hparams.dataset_args:
             header.append(f"pred_{target}")
             header.append(f"actual_{target}")
+            header.append(f"diff_{target}")
             if self.hparams.task_type == "class":
                 header.append(f"pred_{target}_class")
         with open(self.hparams.log_dir + "/preds.csv", "w", newline="") as file:
@@ -109,12 +111,35 @@ class LNNP(LightningModule):
             "test_loss": torch.stack(self.losses["test"]).mean(),
         }
         print(f'Test loss: {result_dict["test_loss"]}')
+
         if self.hparams.task_type == "class":
             result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
             print(f'Test AUC: {result_dict["test_auc"]}')
         with open(self.hparams.log_dir + "/test_result.txt", "w", newline="") as file:
             file.write(str(result_dict["test_auc"].item()))
         self.logger.log_metrics(result_dict)
+
+        n = len(self.preds_csv)
+        indices = np.argsort(self.preds_csv[:, 1])  # sort by actual value
+        quartile_size = n // 4
+
+        quartiles = []
+        for i in range(4):
+            start = i * quartile_size
+            end = (i + 1) * quartile_size
+            if i == 3:
+                end = n
+            quartile = self.preds_csv[indices[start:end]]
+            quartiles.append(quartile)
+
+        # Calculate errors per quartile
+        errors = []
+        for quartile in quartiles:
+            errors.append(np.mean(np.abs(quartile[:, 3])))
+
+        print("Errors by quartile:")
+        for i, error in enumerate(errors):
+            print(f"Quartile {i+1}: {error:.4f}")
 
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
@@ -202,15 +227,6 @@ class LNNP(LightningModule):
 
         self.losses[stage].append(loss.detach())
 
-        # Log parameter norms
-        #if stage == "train":
-           # param_norms = {
-           #      f"{name}_norm": param.norm().item()
-           #      for name, param in self.named_parameters()
-           #      if param.requires_grad
-           #  }
-           #  self.log_dict(param_norms, sync_dist=True)
-
         # Frequent per-batch logging for training
         if stage == "train":
             train_metrics = {
@@ -230,6 +246,7 @@ class LNNP(LightningModule):
                 for j in range(len(self.hparams.dataset_args)):
                     row.append(pred[i][j].item())
                     row.append(batch.y[i][j].item())
+                    row.append(batch.y[i][j].item() - pred[i][j].item())
                     if self.hparams.task_type == "class":
                         row.append(int(round(pred[i][j].item())))
 
