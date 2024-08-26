@@ -115,31 +115,11 @@ class LNNP(LightningModule):
         if self.hparams.task_type == "class":
             result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
             print(f'Test AUC: {result_dict["test_auc"]}')
-        with open(self.hparams.log_dir + "/test_result.txt", "w", newline="") as file:
-            file.write(str(result_dict["test_auc"].item()))
+            with open(
+                self.hparams.log_dir + "/test_result.txt", "w", newline=""
+            ) as file:
+                file.write(str(result_dict["test_auc"].item()))
         self.logger.log_metrics(result_dict)
-
-        n = len(self.preds_csv)
-        indices = np.argsort(self.preds_csv[:, 1])  # sort by actual value
-        quartile_size = n // 4
-
-        quartiles = []
-        for i in range(4):
-            start = i * quartile_size
-            end = (i + 1) * quartile_size
-            if i == 3:
-                end = n
-            quartile = self.preds_csv[indices[start:end]]
-            quartiles.append(quartile)
-
-        # Calculate errors per quartile
-        errors = []
-        for quartile in quartiles:
-            errors.append(np.mean(np.abs(quartile[:, 3])))
-
-        print("Errors by quartile:")
-        for i, error in enumerate(errors):
-            print(f"Quartile {i+1}: {error:.4f}")
 
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
