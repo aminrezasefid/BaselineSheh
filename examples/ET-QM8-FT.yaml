@@ -4,10 +4,25 @@ atom_filter: -1
 attn_activation: silu
 batch_size: 128
 coord_files: null
-cutoff_lower: 0.5
+cutoff_lower: 0.01
 cutoff_upper: 5.0
 dataset: QM8
 dataset_root: data/qm8
+dataset_args:
+  [
+    "E1-CC2",
+    "E2-CC2",
+    "f1-CC2",
+    "f2-CC2",
+    "E1-PBE0",
+    "E2-PBE0",
+    "f1-PBE0",
+    "f2-PBE0",
+    "E1-CAM",
+    "E2-CAM",
+    "f1-CAM",
+    "f2-CAM",
+  ]
 derivative: false
 distance_influence: both
 distributed_backend: ddp
