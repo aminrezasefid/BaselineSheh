@@ -55,9 +55,9 @@ splits: null
 standardize: true
 test_interval: 10
 test_size: null
-train_size: 110000
+train_size: .8
 trainable_rbf: false
-val_size: 10000
+val_size: .1
 weight_decay: 0.0
 output_model_noise: VectorOutput
 position_noise_scale: 0.005
