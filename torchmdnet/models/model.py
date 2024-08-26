@@ -111,7 +111,14 @@ def create_model(args, prior_model=None, mean=None, std=None):
     return model
 
 
-def load_model(filepath, args=None, device="cpu", mean=None, std=None, **kwargs):
+def load_model(
+    filepath,
+    args=None,
+    device="cpu",
+    mean: Optional[torch.Tensor] = None,
+    std: Optional[torch.Tensor] = None,
+    **kwargs,
+):
     ckpt = torch.load(filepath, map_location="cpu")
     if args is None:
         args = ckpt["hyper_parameters"]
@@ -139,9 +146,9 @@ def load_model(filepath, args=None, device="cpu", mean=None, std=None, **kwargs)
         )
     # assert len(loading_return.missing_keys) == 0, f"Missing keys: {loading_return.missing_keys}"
 
-    if mean:
+    if mean is not None:
         model.mean = mean
-    if std:
+    if mean is not None:
         model.std = std
 
     return model.to(device)
