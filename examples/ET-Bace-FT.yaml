@@ -6,8 +6,8 @@ batch_size: 16 #128
 coord_files: null
 cutoff_lower: 0.01
 cutoff_upper: 5.0
-dataset: Bace                       ###### CHANGE ######
-dataset_root: data/bace             ###### CHANGE ######
+dataset: Bace ###### CHANGE ######
+dataset_root: data/bace ###### CHANGE ######
 derivative: false
 distance_influence: both
 distributed_backend: ddp
@@ -60,7 +60,7 @@ val_size: 0.1 #10000
 weight_decay: 0.0
 output_model_noise: VectorOutput
 position_noise_scale: 0.04
-denoising_weight: 0.5
+denoising_weight: 0.1
 layernorm_on_vec: null
 wandb_notes: ""
 job_id: auto
@@ -68,4 +68,4 @@ job_id: auto
 out_channels: 1
 strict_load: false
 task_type: class ###### CHANGE ######
-dataset_args : ['Class']
+dataset_args: ["Class"]

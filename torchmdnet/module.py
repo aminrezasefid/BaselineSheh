@@ -232,10 +232,10 @@ class LNNP(LightningModule):
 
                 self.preds_csv.append(row)
 
-        if torch.isnan(loss_y):
-            print(f"Processing data: {batch.name}")
-            print(f"NaN loss in {batch.name}")
-        self.log("loss",loss,prog_bar=True)
+        # if torch.isnan(loss_y):
+        #     print(f"Processing data: {batch.name}")
+        #     print(f"NaN loss in {batch.name}")
+
         return loss
 
     def optimizer_step(self, *args, **kwargs):
