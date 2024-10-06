@@ -36,7 +36,7 @@ URLS = {
     "rdkit3d": "https://drive.google.com/uc?export=download&id=1hc0c--8cMbDlfplmJwRUXsfAq-Pj4daY",
     "optimized3d": "https://drive.google.com/uc?export=download&id=1qTxsIJ_aP7Qow6On4BfpBk9SorIzEh9a",
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1MAqVW5GyHmLKLJqdDrIMIBxjDPW3ce3o",
-    "pubchem": "https://drive.google.com/file/d/1NHcYEOcl6ZN4wUmBM60lB9YOZa_tZ6FG/view?usp=sharing",
+    "pubchem3d": "https://drive.google.com/file/d/1NHcYEOcl6ZN4wUmBM60lB9YOZa_tZ6FG/view?usp=sharing",
 }
 
 
