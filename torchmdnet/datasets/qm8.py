@@ -227,6 +227,13 @@ class QM8(InMemoryDataset):
 
             name = mol.GetProp("_Name")
 
+            if self.structure == "precise3d":
+                try:
+                    name = Chem.MolToSmiles(mol, isomericSmiles=False)
+                    mol.UpdatePropertyCache()
+                except:
+                    continue
+
             smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
 
             data = Data(
