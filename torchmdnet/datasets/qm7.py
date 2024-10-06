@@ -23,7 +23,7 @@ SKIP_LIST = [
 ]
 
 qm7_target_dict: Dict[int, str] = {
-    0: "u0_atom",
+    "u0_atom": 0,
 }
 
 URLS = {
@@ -49,7 +49,9 @@ class QM7(InMemoryDataset):
         self.structure = structure
         self.raw_url = URLS[structure]
         self.labels = (
-            dataset_args if dataset_args is not None else list(qm7_target_dict.keys())
+            [qm7_target_dict[label] for label in dataset_args]
+            if dataset_args is not None
+            else list(qm7_target_dict.values())
         )
         super().__init__(
             root, transform, pre_transform, pre_filter, force_reload=force_reload
