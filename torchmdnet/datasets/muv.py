@@ -17,7 +17,6 @@ from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
 
-from .makedirs import makedirs
 
 
 import gdown
