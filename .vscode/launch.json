@@ -12,17 +12,23 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-QM7-FT.yaml",
+        "examples/ET-QM8-FT.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",
-        "sider-test",
+        "qm8-test",
         "--num-epochs",
         "1",
         "--pretrained-model",
         "checkpoints/denoised-pcqm4mv2.ckpt",
         "--accelerator",
-        "cpu"
+        "cpu",
+        "--val-test-loss-fn",
+        "l1_loss",
+        "--train-loss",
+        "l1_loss",
+        "--structure",
+        "rdkit3d"
       ]
     },
     {
@@ -56,22 +62,45 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-TOX21-FT.yaml",
+        "examples/ET-QM8-FT.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",
-        "tox21-test",
+        "qm8-test",
         "--num-epochs",
         "1",
         "--pretrained-model",
         "checkpoints/denoised-pcqm4mv2.ckpt",
         "--accelerator",
         "cpu",
-        "--structure",
-        "rdkit3d",
-        "--train-loss-fn",
-        "binary_cross_entropy",
         "--val-test-loss-fn",
+        "l1_loss",
+        "--train-loss",
+        "l1_loss"
+      ]
+    },
+    {
+      "name": "bace debugger",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "scripts/train.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--conf",
+        "examples/ET-Bace-FT.yaml",
+        "--layernorm-on-vec",
+        "whitened",
+        "--job-id",
+        "bace-test",
+        "--num-epochs",
+        "1",
+        "--pretrained-model",
+        "checkpoints/denoised-pcqm4mv2.ckpt",
+        "--accelerator",
+        "cpu",
+        "--val-test-loss-fn",
+        "binary_cross_entropy",
+        "--train-loss",
         "binary_cross_entropy"
       ]
     }

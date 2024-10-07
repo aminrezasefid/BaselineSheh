@@ -39,7 +39,7 @@ ngpus: -1
 num_epochs: 50
 num_steps: 300000
 num_heads: 8
-num_layers: 4
+num_layers: 8
 num_nodes: 1
 num_rbf: 64
 num_workers: 6

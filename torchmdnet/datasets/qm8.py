@@ -16,19 +16,19 @@ from torch_geometric.transforms import Compose
 from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
-qm8_target_dict: Dict[int, str] = {
-    0: "E1-CC2",
-    1: "E2-CC2",
-    2: "f1-CC2",
-    3: "f2-CC2",
-    4: "E1-PBE0",
-    5: "E2-PBE0",
-    6: "f1-PBE0",
-    7: "f2-PBE0",
-    8: "E1-CAM",
-    9: "E2-CAM",
-    10: "f1-CAM",
-    11: "f2-CAM",
+qm8_target_dict = {
+    "E1-CC2": 0,
+    "E2-CC2": 1,
+    "f1-CC2": 2,
+    "f2-CC2": 3,
+    "E1-PBE0": 4,
+    "E2-PBE0": 5,
+    "f1-PBE0": 6,
+    "f2-PBE0": 7,
+    "E1-CAM": 8,
+    "E2-CAM": 9,
+    "f1-CAM": 10,
+    "f2-CAM": 11,
 }
 
 URLS = {
@@ -36,7 +36,7 @@ URLS = {
     "rdkit3d": "https://drive.google.com/uc?export=download&id=1hc0c--8cMbDlfplmJwRUXsfAq-Pj4daY",
     "optimized3d": "https://drive.google.com/uc?export=download&id=1qTxsIJ_aP7Qow6On4BfpBk9SorIzEh9a",
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1MAqVW5GyHmLKLJqdDrIMIBxjDPW3ce3o",
-    "pubchem": "https://drive.google.com/file/d/1NHcYEOcl6ZN4wUmBM60lB9YOZa_tZ6FG/view?usp=sharing",
+    "pubchem3d": "https://drive.google.com/file/d/1NHcYEOcl6ZN4wUmBM60lB9YOZa_tZ6FG/view?usp=sharing",
 }
 
 
@@ -53,8 +53,12 @@ class QM8(InMemoryDataset):
     ):
         self.structure = structure
         self.raw_url = URLS[structure]
+        # print(dataset_args)
+        # print(type(dataset_args))
         self.labels = (
-            dataset_args if dataset_args is not None else list(qm8_target_dict.keys())
+            [qm8_target_dict[label] for label in dataset_args]
+            if dataset_args is not None
+            else list(qm8_target_dict.values())
         )
 
         if transform is None:
@@ -146,7 +150,7 @@ class QM8(InMemoryDataset):
         with open(self.raw_paths[1], "r") as f:
             if self.structure == "precise3d":
                 target = [
-                    [float(x) for x in line.split(",")[1:]]
+                    [float(x) for x in line.split(",")]
                     for line in f.read().split("\n")[1:-1]
                 ]
                 target = [x[:8] + x[12:] for x in target]
@@ -222,6 +226,13 @@ class QM8(InMemoryDataset):
             x = torch.cat([x1, x2], dim=-1)
 
             name = mol.GetProp("_Name")
+
+            if self.structure == "precise3d":
+                try:
+                    name = Chem.MolToSmiles(mol, isomericSmiles=False)
+                    mol.UpdatePropertyCache()
+                except:
+                    continue
 
             smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
 

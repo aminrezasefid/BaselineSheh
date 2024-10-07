@@ -105,8 +105,8 @@ def get_args():
     parser.add_argument('--task-type',type=str,default="regr",choices=["regr","class"],help="model used for classification or regression")
     parser.add_argument('--out-channels',type=int,default=1,help="number of output neurons, must be the same as the number of properties to predict")
     loss_function_choices = ["mse_loss", "l1_loss", "cross_entropy", "binary_cross_entropy"]
-    parser.add_argument('--train-loss-fn', choices= loss_function_choices, default="mse_loss", help='Loss function for training')
-    parser.add_argument('--val-test-loss-fn', choices= loss_function_choices, default="mse_loss", help='Loss function for validation and test')
+    parser.add_argument('--train-loss-fn', choices= loss_function_choices, default="l1_loss", help='Loss function for training')
+    parser.add_argument('--val-test-loss-fn', choices= loss_function_choices, default="l1_loss", help='Loss function for validation and test')
 
     # Transformer specific
     parser.add_argument('--distance-influence', type=str, default='both', choices=['keys', 'values', 'both', 'none'], help='Where distance information is included inside the attention')
