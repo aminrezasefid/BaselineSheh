@@ -235,7 +235,7 @@ class LNNP(LightningModule):
         # if torch.isnan(loss_y):
         #     print(f"Processing data: {batch.name}")
         #     print(f"NaN loss in {batch.name}")
-        self.log("loss",loss,prog_bar=True)
+        self.log("loss_y",loss_y,prog_bar=True)
         return loss
 
     def optimizer_step(self, *args, **kwargs):

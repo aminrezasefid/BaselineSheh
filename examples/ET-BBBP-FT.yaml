@@ -39,7 +39,7 @@ ngpus: -1
 num_epochs: 50
 num_steps: 300000
 num_heads: 8
-num_layers: 4
+num_layers: 8
 num_nodes: 1
 num_rbf: 64
 num_workers: 6
@@ -60,7 +60,7 @@ val_size: 0.1 #10000
 weight_decay: 0.0
 output_model_noise: VectorOutput
 position_noise_scale: 0.04
-denoising_weight: 0.5
+denoising_weight: 0.1
 layernorm_on_vec: null
 wandb_notes: ""
 job_id: auto
