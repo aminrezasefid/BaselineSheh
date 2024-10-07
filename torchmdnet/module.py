@@ -169,8 +169,6 @@ class LNNP(LightningModule):
                     pred[target_not_minus_one], batch.y[target_not_minus_one]
                 )
             else:
-                print(pred,batch.y,batch.name)
-                return
                 loss_y = loss_fn(pred, batch.y)
 
             if stage in ["train", "val"] and self.hparams.ema_alpha_y < 1:
