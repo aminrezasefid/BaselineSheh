@@ -243,7 +243,7 @@ def main():
         strategy="ddp",  # not supported for mps, REMEMBER!
     )
 
-    trainer.fit(model, data)
+    trainer.fit(model, datamodule=data)
 
     trainer.test(datamodule=data)
 

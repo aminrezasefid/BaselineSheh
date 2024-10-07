@@ -148,7 +148,7 @@ class QM8(InMemoryDataset):
         bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
 
         with open(self.raw_paths[1], "r") as f:
-            if self.structure == "precise3d":
+            if self.structure == "precise3d" or self.structure == "pubchem3d":
                 target = [
                     [float(x) for x in line.split(",")[1:]]
                     for line in f.read().split("\n")[1:-1]

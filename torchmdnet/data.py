@@ -32,6 +32,9 @@ class DataModule(LightningDataModule):
         return data
 
     def setup(self, stage):
+        # TODO (armin) this must be done better
+        if type(stage) is not str:
+            return
         if self.dataset is None:
             if self.hparams["dataset"] == "Custom":
                 self.dataset = datasets.Custom(
