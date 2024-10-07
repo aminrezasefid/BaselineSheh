@@ -36,7 +36,7 @@ URLS = {
     "rdkit3d": "https://drive.google.com/uc?export=download&id=1hc0c--8cMbDlfplmJwRUXsfAq-Pj4daY",
     "optimized3d": "https://drive.google.com/uc?export=download&id=1qTxsIJ_aP7Qow6On4BfpBk9SorIzEh9a",
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1MAqVW5GyHmLKLJqdDrIMIBxjDPW3ce3o",
-    "pubchem3d": "https://drive.google.com/file/d/1NHcYEOcl6ZN4wUmBM60lB9YOZa_tZ6FG/view?usp=sharing",
+    "pubchem3d": "https://drive.google.com/uc?export=download&id=1NHcYEOcl6ZN4wUmBM60lB9YOZa_tZ6FG",
 }
 
 
@@ -150,7 +150,7 @@ class QM8(InMemoryDataset):
         with open(self.raw_paths[1], "r") as f:
             if self.structure == "precise3d":
                 target = [
-                    [float(x) for x in line.split(",")]
+                    [float(x) for x in line.split(",")[1:]]
                     for line in f.read().split("\n")[1:-1]
                 ]
                 target = [x[:8] + x[12:] for x in target]
