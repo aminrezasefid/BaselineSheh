@@ -16,6 +16,11 @@ from torch_geometric.transforms import Compose
 from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
+
+from .makedirs import makedirs
+
+
+import gdown
 URLS = {
     "precise3d": "https://drive.google.com/uc?export=download&id=1W7EFQlgCyK9nLjcl275ATjv_pJZqBwOe",
     "optimized3d": "https://drive.google.com/uc?export=download&id=157WRUy7Ul-QZVQfiqDMSZXVtfjIYBlhn", ###### CHANGE ######
@@ -24,7 +29,24 @@ URLS = {
 }
 
 muv_target_dict = {'MUV-466': 0, 'MUV-548': 1, 'MUV-600': 2, 'MUV-644': 3, 'MUV-652': 4, 'MUV-689': 5, 'MUV-692': 6, 'MUV-712': 7, 'MUV-713': 8, 'MUV-733': 9, 'MUV-737': 10, 'MUV-810': 11, 'MUV-832': 12, 'MUV-846': 13, 'MUV-852': 14, 'MUV-858': 15, 'MUV-859': 16}
+def gdown_download_url(id: str, folder: str, log: bool = True):
+    filename = id+".zip"
+    path = osp.join(folder, filename)
 
+    if osp.exists(path):  # pragma: no cover
+        if log:
+            print(f'Using existing file {filename}', file=sys.stderr)
+        return path
+
+    if log:
+        print(f'Downloading {id}', file=sys.stderr)
+
+    os.makedirs(folder)
+
+    data = gdown.download(id=id,output=filename)
+
+
+    return path
 class MUV(InMemoryDataset): ###### CHANGE ######
     def __init__(self, 
                  root: str, 
@@ -76,7 +98,7 @@ class MUV(InMemoryDataset): ###### CHANGE ######
         try:
             import rdkit  # noqa
             #import gdown
-            file_path = download_url(self.raw_url, self.raw_dir)
+            file_path = gdown_download_url(self.raw_url, self.raw_dir)
             #gdown.download(self.raw_url, output=file_path, quiet=False)
             extract_zip(file_path, self.raw_dir)
             os.unlink(file_path)
