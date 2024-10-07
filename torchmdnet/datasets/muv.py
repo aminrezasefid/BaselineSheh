@@ -15,8 +15,13 @@ from torch_geometric.data import (
 from torch_geometric.transforms import Compose
 from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
-
-
+import errno
+def makedirs(path):
+    try:
+        os.makedirs(osp.expanduser(osp.normpath(path)))
+    except OSError as e:
+        if e.errno != errno.EEXIST and osp.isdir(path):
+            raise e
 
 
 import gdown
@@ -40,7 +45,7 @@ def gdown_download_url(id: str, folder: str, log: bool = True):
     if log:
         print(f'Downloading {id}', file=sys.stderr)
 
-    os.makedirs(folder)
+    makedirs(folder)
 
     data = gdown.download(id=id,output=filename)
 
