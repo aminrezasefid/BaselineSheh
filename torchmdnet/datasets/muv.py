@@ -47,7 +47,7 @@ def gdown_download_url(id: str, folder: str, log: bool = True):
 
     makedirs(folder)
 
-    data = gdown.download(id=id,output=filename)
+    data = gdown.download(id=id,output=path)
 
 
     return path
