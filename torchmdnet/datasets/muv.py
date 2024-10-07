@@ -102,7 +102,7 @@ class MUV(InMemoryDataset): ###### CHANGE ######
         try:
             import rdkit  # noqa
             #import gdown
-            file_path = gdown_download_url(self.raw_url, self.raw_dir)
+            file_path = gdown_download_url(self.raw_url.split("id=")[1], self.raw_dir)
             #gdown.download(self.raw_url, output=file_path, quiet=False)
             extract_zip(file_path, self.raw_dir)
             os.unlink(file_path)
