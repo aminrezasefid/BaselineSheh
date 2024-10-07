@@ -226,6 +226,14 @@ class QM9(InMemoryDataset):
             x = torch.cat([x1, x2], dim=-1)
 
             name = mol.GetProp("_Name")
+
+            if self.structure == "precise3d":
+                try:
+                    name = Chem.MolToSmiles(mol, isomericSmiles=False)
+                    mol.UpdatePropertyCache()
+                except:
+                    continue
+
             smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
 
             data = Data(
