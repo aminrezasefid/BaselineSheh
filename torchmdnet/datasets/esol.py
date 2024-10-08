@@ -16,30 +16,32 @@ from torch_geometric.transforms import Compose
 from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
 
-esol_target_dict = {
-    "measured log solubility in mols per litre": 0
-}
+esol_target_dict = {"measured log solubility in mols per litre": 0}
 
 URLS = {
     "precise3d": "https://drive.google.com/uc?export=download&id=1jvbadpMz7A7Dtggfw3i2R4BT8F2WQNDa",
     "optimized3d": "https://drive.google.com/uc?export=download&id=1spz8XILpSjF6JrasaSeqyNuKqozfEf_N",
     "rdkit3d": "https://drive.google.com/uc?export=download&id=1UyYiVBXm5hWkl6AuBDRRUhOzB4yTr9Mp",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1DbJ4t31GOWN9zqirlrkfdeSFzlQdVWqn"
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=1DbJ4t31GOWN9zqirlrkfdeSFzlQdVWqn",
 }
 
 
 class ESOL(InMemoryDataset):
-    def __init__(self, 
-                 root: str, 
-                 transform: Optional[Callable] = None,
-                 pre_transform: Optional[Callable] = None,
-                 pre_filter: Optional[Callable] = None,
-                 force_reload: bool = False,
-                 structure: str = "rdkit3d",
-                 dataset_args: List[str] = None):
+    def __init__(
+        self,
+        root: str,
+        transform: Optional[Callable] = None,
+        pre_transform: Optional[Callable] = None,
+        pre_filter: Optional[Callable] = None,
+        force_reload: bool = False,
+        structure: str = "rdkit3d",
+        dataset_args: List[str] = None,
+    ):
         self.structure = structure
         self.raw_url = URLS[structure]
-        assert dataset_args is not None and (label in esol_target_dict for label in dataset_args)
+        assert dataset_args is not None and (
+            label in esol_target_dict for label in dataset_args
+        )
         self.labels = [esol_target_dict[label] for label in dataset_args]
 
         if transform is None:
@@ -47,7 +49,9 @@ class ESOL(InMemoryDataset):
         else:
             transform = Compose([transform, self._filter_label])
 
-        super().__init__(root, transform, pre_transform, pre_filter, force_reload=force_reload)
+        super().__init__(
+            root, transform, pre_transform, pre_filter, force_reload=force_reload
+        )
         self.load(self.processed_paths[0])
 
     def mean(self, target: int) -> float:
@@ -57,22 +61,24 @@ class ESOL(InMemoryDataset):
     def std(self, target: int) -> float:
         y = torch.cat([self.get(i).y for i in range(len(self))], dim=0)
         return float(y[:, target].std())
-    
+
     @property
     def raw_file_names(self) -> List[str]:
         try:
             import rdkit  # noqa
-            return ['ESOL.sdf', 'ESOL.sdf.csv']
+
+            return ["ESOL.sdf", "ESOL.sdf.csv"]
         except ImportError:
             return ImportError("Please install 'rdkit' to download the dataset.")
 
     @property
     def processed_file_names(self) -> str:
-        return 'data_v3.pt'
-    
+        return "data_v3.pt"
+
     def download(self):
         try:
             import rdkit  # noqa
+
             file_path = download_url(self.raw_url, self.raw_dir)
             extract_tar(file_path, self.raw_dir)
             os.unlink(file_path)
@@ -86,15 +92,20 @@ class ESOL(InMemoryDataset):
             from rdkit import Chem, RDLogger
             from rdkit.Chem.rdchem import BondType as BT
             from rdkit.Chem.rdchem import HybridizationType
-            RDLogger.DisableLog('rdApp.*')
+
+            RDLogger.DisableLog("rdApp.*")
 
         except ImportError:
             rdkit = None
 
         if rdkit is None:
-            print(("Using a pre-processed version of the dataset. Please "
-                   "install 'rdkit' to alternatively process the raw data."),
-                  file=sys.stderr)
+            print(
+                (
+                    "Using a pre-processed version of the dataset. Please "
+                    "install 'rdkit' to alternatively process the raw data."
+                ),
+                file=sys.stderr,
+            )
 
             data_list = torch.load(self.raw_paths[0])
             data_list = [Data(**data_dict) for data_dict in data_list]
@@ -109,17 +120,28 @@ class ESOL(InMemoryDataset):
             return
 
         # atom_types_counter = 0
-        types = {'O': 0, 'C': 1, 'N': 2, 'H': 3, 'S': 4, 'Cl': 5, 'P': 6, 'F': 7, 'I': 8, 'Br': 9}
+        types = {
+            "O": 0,
+            "C": 1,
+            "N": 2,
+            "H": 3,
+            "S": 4,
+            "Cl": 5,
+            "P": 6,
+            "F": 7,
+            "I": 8,
+            "Br": 9,
+        }
         bonds = {BT.SINGLE: 0, BT.DOUBLE: 1, BT.TRIPLE: 2, BT.AROMATIC: 3}
 
-        with open(self.raw_paths[1], 'r') as f:
-            target = [[float(x)
-                       for x in line.split(',')]
-                      for line in f.read().split('\n')[1:-1]]
+        with open(self.raw_paths[1], "r") as f:
+            target = [
+                [float(x) for x in line.split(",")]
+                for line in f.read().split("\n")[1:-1]
+            ]
             y = torch.tensor(target, dtype=torch.float)
 
-        suppl = Chem.SDMolSupplier(self.raw_paths[0], removeHs=False,
-                                   sanitize=False)
+        suppl = Chem.SDMolSupplier(self.raw_paths[0], removeHs=False, sanitize=False)
 
         data_list = []
         for i, mol in enumerate(tqdm(suppl)):
@@ -131,9 +153,11 @@ class ESOL(InMemoryDataset):
             pos = torch.tensor(pos, dtype=torch.float)
 
             # check if any two atoms are overlapping
-            # if torch.unique(pos, dim=0).size(0) != N:
-            #     print(f"Skipping molecule {mol.GetProp('_Name')} as it contains overlapping atoms.")
-            #     continue
+            if torch.unique(pos, dim=0).size(0) != N:
+                print(
+                    f"Skipping molecule {mol.GetProp('_Name')} as it contains overlapping atoms."
+                )
+                continue
 
             type_idx = []
             atomic_number = []
@@ -177,14 +201,19 @@ class ESOL(InMemoryDataset):
 
             row, col = edge_index
             hs = (z == 1).to(torch.float)
-            num_hs = scatter(hs[row], col, dim_size=N, reduce='sum').tolist()
+            num_hs = scatter(hs[row], col, dim_size=N, reduce="sum").tolist()
 
             x1 = one_hot(torch.tensor(type_idx), num_classes=len(types))
-            x2 = torch.tensor([atomic_number, aromatic, sp, sp2, sp3, num_hs],
-                              dtype=torch.float).t().contiguous()
+            x2 = (
+                torch.tensor(
+                    [atomic_number, aromatic, sp, sp2, sp3, num_hs], dtype=torch.float
+                )
+                .t()
+                .contiguous()
+            )
             x = torch.cat([x1, x2], dim=-1)
 
-            name = mol.GetProp('_Name')
+            name = mol.GetProp("_Name")
             smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
 
             data = Data(
