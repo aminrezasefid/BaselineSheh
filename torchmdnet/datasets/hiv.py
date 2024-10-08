@@ -15,7 +15,16 @@ from torch_geometric.data import (
 from torch_geometric.transforms import Compose
 from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
+import errno
+def makedirs(path):
+    try:
+        os.makedirs(osp.expanduser(osp.normpath(path)))
+    except OSError as e:
+        if e.errno != errno.EEXIST and osp.isdir(path):
+            raise e
 
+
+import gdown
 URLS = {
     "precise3d": "https://drive.google.com/uc?export=download&id=1ds24awf65cfP0_AYBUiVQ_WM5QsngjZB",
     "optimized3d": "https://drive.google.com/uc?export=download&id=17LlB17yrLwbGjYxN3HqmKJrr0r6pSbSJ",
@@ -24,7 +33,24 @@ URLS = {
 }
 
 hiv_target_dict = {'HIV_active': 0}
+def gdown_download_url(id: str, folder: str, log: bool = True):
+    filename = id+".zip"
+    path = osp.join(folder, filename)
 
+    if osp.exists(path):  # pragma: no cover
+        if log:
+            print(f'Using existing file {filename}', file=sys.stderr)
+        return path
+
+    if log:
+        print(f'Downloading {id}', file=sys.stderr)
+
+    makedirs(folder)
+
+    data = gdown.download(id=id,output=path)
+
+
+    return path
 class HIV(InMemoryDataset):
     def __init__(self, 
                  root: str, 
@@ -76,10 +102,11 @@ class HIV(InMemoryDataset):
         try:
             import rdkit  # noqa
             #import gdown
-            file_path = download_url(self.raw_url, self.raw_dir)
+            file_path = gdown_download_url(self.raw_url.split("id=")[1], self.raw_dir)
             #gdown.download(self.raw_url, output=file_path, quiet=False)
             extract_zip(file_path, self.raw_dir)
             os.unlink(file_path)
+
 
         except ImportError:
             print("Please install 'rdkit' to download the dataset.", file=sys.stderr)
