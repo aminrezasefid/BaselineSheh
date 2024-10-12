@@ -40,7 +40,7 @@ class LNNP(LightningModule):
         self.auc = {"val": [], "test": [], "train": []}
         self._reset_losses_dict()
 
-        self.preds_csv = None
+        self.preds_csv = []
 
     def configure_optimizers(self):
         optimizer = AdamW(
