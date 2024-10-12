@@ -230,34 +230,19 @@ def main():
     # )
 
     trainer = pl.Trainer(
+        default_root_dir=args.log_dir,
         max_epochs=args.num_epochs,
         max_steps=args.num_steps,
         num_nodes=args.num_nodes,
         accelerator=args.accelerator,
-        default_root_dir=args.log_dir,
-        # resume_from_checkpoint=args.load_model, # TODO (armin) resume_from_chechpoint is deprecated but since load_model is None at moment, we will ignore it
+        precision=args.precision,
+        strategy="ddp",
         callbacks=[early_stopping, checkpoint_callback],
         logger=[tb_logger, csv_logger],
-        reload_dataloaders_every_n_epochs=0,
-        precision=args.precision,
-        strategy="ddp",  # not supported for mps, REMEMBER!
     )
 
     trainer.fit(model, datamodule=data)
-
-    tester = pl.Trainer(
-        default_root_dir=args.log_dir,
-        max_epochs=1,
-        max_steps=1,
-        num_nodes=1,
-        devices=1,
-        accelerator=args.accelerator,
-        logger=[tb_logger, csv_logger],
-        callbacks=[early_stopping, checkpoint_callback],
-        precision=args.precision,
-        strategy="ddp",  # not supported for mps, REMEMBER!
-    )
-    tester.test(datamodule=data, ckpt_path="best", model=model)
+    trainer.test(datamodule=data, ckpt_path="best", model=model)
 
     print("Done!")
 

@@ -95,17 +95,20 @@ class LNNP(LightningModule):
         if self.trainer.is_global_zero:
             import csv
 
-            header = ["smiles"]
-            for target in self.hparams.dataset_args:
-                header.append(f"pred_{target}")
-                header.append(f"actual_{target}")
-                header.append(f"diff_{target}")
-                if self.hparams.task_type == "class":
-                    header.append(f"pred_{target}_class")
-            with open(self.hparams.log_dir + "/preds.csv", "w", newline="") as file:
-                writer = csv.writer(file)
-                writer.writerow(header)
-                writer.writerows(self.preds_csv)
+            all_preds_csv = self.all_gather(self.preds_csv)
+
+            for preds_csv in all_preds_csv:
+                header = ["smiles"]
+                for target in self.hparams.dataset_args:
+                    header.append(f"pred_{target}")
+                    header.append(f"actual_{target}")
+                    header.append(f"diff_{target}")
+                    if self.hparams.task_type == "class":
+                        header.append(f"pred_{target}_class")
+                with open(self.hparams.log_dir + "/preds.csv", "w", newline="") as file:
+                    writer = csv.writer(file)
+                    writer.writerow(header)
+                    writer.writerows(preds_csv)
 
             result_dict = {
                 "test_loss": torch.stack(self.losses["test"]).mean(),
