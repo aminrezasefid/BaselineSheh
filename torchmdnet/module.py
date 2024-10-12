@@ -95,8 +95,9 @@ class LNNP(LightningModule):
         # if self.trainer.is_global_zero:
         import csv
 
-        all_preds_csv = self.all_gather(self.preds_csv)
-        all_preds_csv = torch.stack(all_preds_csv)
+        all_preds_csv = [
+            pred for preds in self.all_gather(self.preds_csv) for pred in preds
+        ]
 
         header = ["smiles"]
         for target in self.hparams.dataset_args:
