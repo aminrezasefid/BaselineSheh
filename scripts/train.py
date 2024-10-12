@@ -245,7 +245,9 @@ def main():
 
     trainer.fit(model, datamodule=data)
 
-    trainer.test(datamodule=data)
+    trainer.num_nodes = 1
+    trainer.num_devices = 1
+    trainer.test(datamodule=data, ckpt_path="best")
 
     print("Done!")
 
