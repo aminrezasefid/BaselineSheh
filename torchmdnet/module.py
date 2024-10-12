@@ -95,17 +95,17 @@ class LNNP(LightningModule):
         if self.trainer.is_global_zero:
             import csv
 
-            # header = ["smiles"]
-            # for target in self.hparams.dataset_args:
-            #     header.append(f"pred_{target}")
-            #     header.append(f"actual_{target}")
-            #     header.append(f"diff_{target}")
-            #     if self.hparams.task_type == "class":
-            #         header.append(f"pred_{target}_class")
-            # with open(self.hparams.log_dir + "/preds.csv", "w", newline="") as file:
-            #     writer = csv.writer(file)
-            #     writer.writerow(header)
-            #     writer.writerows(self.preds_csv)
+            header = ["smiles"]
+            for target in self.hparams.dataset_args:
+                header.append(f"pred_{target}")
+                header.append(f"actual_{target}")
+                header.append(f"diff_{target}")
+                if self.hparams.task_type == "class":
+                    header.append(f"pred_{target}_class")
+            with open(self.hparams.log_dir + "/preds.csv", "w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow(header)
+                writer.writerows(self.preds_csv)
 
             result_dict = {
                 "test_loss": torch.stack(self.losses["test"]).mean(),
@@ -221,16 +221,16 @@ class LNNP(LightningModule):
             train_metrics["batch_pos_mean"] = batch.pos.mean().item()
             self.log_dict(train_metrics, sync_dist=True)
         elif stage == "test":
+            for i in range(len(pred)):
+                row = [batch.name[i]]
+                for j in range(len(self.hparams.dataset_args)):
+                    row.append(pred[i][j].item())
+                    row.append(batch.y[i][j].item())
+                    row.append(batch.y[i][j].item() - pred[i][j].item())
+                    if self.hparams.task_type == "class":
+                        row.append(int(round(pred[i][j].item())))
 
-            row = [batch.name[i]]
-            for j in range(len(self.hparams.dataset_args)):
-                row.append(pred[i][j].item())
-                row.append(batch.y[i][j].item())
-                row.append(batch.y[i][j].item() - pred[i][j].item())
-                if self.hparams.task_type == "class":
-                    row.append(int(round(pred[i][j].item())))
-
-            self.preds_csv.append(row)
+                self.preds_csv.append(row)
 
         # if torch.isnan(loss_y):
         #     print(f"Processing data: {batch.name}")
