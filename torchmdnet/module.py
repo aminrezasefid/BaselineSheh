@@ -92,37 +92,37 @@ class LNNP(LightningModule):
         )
 
     def on_test_end(self):
-        if self.trainer.is_global_zero:
-            import csv
+        # if self.trainer.is_global_zero:
+        import csv
 
-            all_preds_csv = self.all_gather(self.preds_csv)
-            all_preds_csv = np.concatenate(all_preds_csv, axis=0)
+        all_preds_csv = self.all_gather(self.preds_csv)
+        all_preds_csv = np.concatenate(all_preds_csv, axis=0)
 
-            header = ["smiles"]
-            for target in self.hparams.dataset_args:
-                header.append(f"pred_{target}")
-                header.append(f"actual_{target}")
-                header.append(f"diff_{target}")
-                if self.hparams.task_type == "class":
-                    header.append(f"pred_{target}_class")
-            with open(self.hparams.log_dir + "/preds.csv", "w", newline="") as file:
-                writer = csv.writer(file)
-                writer.writerow(header)
-                writer.writerows(all_preds_csv)
-
-            result_dict = {
-                "test_loss": torch.stack(self.losses["test"]).mean(),
-            }
-            print(f'Test loss: {result_dict["test_loss"]}')
-
+        header = ["smiles"]
+        for target in self.hparams.dataset_args:
+            header.append(f"pred_{target}")
+            header.append(f"actual_{target}")
+            header.append(f"diff_{target}")
             if self.hparams.task_type == "class":
-                result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
-                print(f'Test AUC: {result_dict["test_auc"]}')
-                with open(
-                    self.hparams.log_dir + "/test_result.txt", "w", newline=""
-                ) as file:
-                    file.write(str(result_dict["test_auc"].item()))
-            self.logger.log_metrics(result_dict)
+                header.append(f"pred_{target}_class")
+        with open(self.hparams.log_dir + "/preds.csv", "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(header)
+            writer.writerows(all_preds_csv)
+
+        result_dict = {
+            "test_loss": torch.stack(self.losses["test"]).mean(),
+        }
+        print(f'Test loss: {result_dict["test_loss"]}')
+
+        if self.hparams.task_type == "class":
+            result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
+            print(f'Test AUC: {result_dict["test_auc"]}')
+            with open(
+                self.hparams.log_dir + "/test_result.txt", "w", newline=""
+            ) as file:
+                file.write(str(result_dict["test_auc"].item()))
+        self.logger.log_metrics(result_dict)
 
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
