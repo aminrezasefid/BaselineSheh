@@ -233,7 +233,10 @@ class LNNP(LightningModule):
 
                 preds_csv.append(row)
 
-            all_preds_csv = self.all_gather(preds_csv).all()
+            all_preds_csv = self.all_gather(preds_csv)
+            all_preds_csv = [
+                item.tolist() for sublist in all_preds_csv for item in sublist
+            ]
             if self.trainer.is_global_zero:
                 self.preds_csv = all_preds_csv
 
