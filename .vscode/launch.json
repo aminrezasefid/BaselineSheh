@@ -12,7 +12,7 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-QM8-FT.yaml",
+        "examples/ET-QM7-FT.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",
@@ -28,8 +28,11 @@
         "--train-loss",
         "l1_loss",
         "--structure",
-        "rdkit3d"
-      ]
+        "rdkit3d",
+        "--num-workers",
+        "1"
+      ],
+      "justMyCode": false
     },
     {
       "name": "Python Debugger: Testing Noise",
