@@ -309,7 +309,11 @@ class HIV(InMemoryDataset):
             name = mol.GetProp("_Name")
 
             if self.structure != "precise3d":
-                name = Chem.MolToSmiles(mol, isomericSmiles=False)
+                try:
+                    name = Chem.MolToSmiles(mol, isomericSmiles=False)
+                    mol.UpdatePropertyCache()
+                except:
+                    continue
 
             smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
 
