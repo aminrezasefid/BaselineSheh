@@ -242,7 +242,7 @@ def main():
     )
 
     trainer.fit(model, datamodule=data)
-    trainer.test(datamodule=data, ckpt_path="best", model=model)
+    trainer.test(datamodule=data, ckpt_path="best")
 
     print("Done!")
 
