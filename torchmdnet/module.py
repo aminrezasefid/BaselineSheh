@@ -40,7 +40,7 @@ class LNNP(LightningModule):
         self.auc = {"val": [], "test": [], "train": []}
         self._reset_losses_dict()
 
-        self.preds_csv = []
+        self.preds_csv = None
 
     def configure_optimizers(self):
         optimizer = AdamW(
@@ -95,17 +95,17 @@ class LNNP(LightningModule):
         if self.trainer.is_global_zero:
             import csv
 
-            header = ["smiles"]
-            for target in self.hparams.dataset_args:
-                header.append(f"pred_{target}")
-                header.append(f"actual_{target}")
-                header.append(f"diff_{target}")
-                if self.hparams.task_type == "class":
-                    header.append(f"pred_{target}_class")
-            with open(self.hparams.log_dir + "/preds.csv", "w", newline="") as file:
-                writer = csv.writer(file)
-                writer.writerow(header)
-                writer.writerows(self.preds_csv)
+            # header = ["smiles"]
+            # for target in self.hparams.dataset_args:
+            #     header.append(f"pred_{target}")
+            #     header.append(f"actual_{target}")
+            #     header.append(f"diff_{target}")
+            #     if self.hparams.task_type == "class":
+            #         header.append(f"pred_{target}_class")
+            # with open(self.hparams.log_dir + "/preds.csv", "w", newline="") as file:
+            #     writer = csv.writer(file)
+            #     writer.writerow(header)
+            #     writer.writerows(self.preds_csv)
 
             result_dict = {
                 "test_loss": torch.stack(self.losses["test"]).mean(),
@@ -222,15 +222,25 @@ class LNNP(LightningModule):
             self.log_dict(train_metrics, sync_dist=True)
         elif stage == "test":
             for i in range(len(pred)):
-                row = [batch.name[i]]
-                for j in range(len(self.hparams.dataset_args)):
-                    row.append(pred[i][j].item())
-                    row.append(batch.y[i][j].item())
-                    row.append(batch.y[i][j].item() - pred[i][j].item())
-                    if self.hparams.task_type == "class":
-                        row.append(int(round(pred[i][j].item())))
+                # row = [batch.name[i]]
+                # for j in range(len(self.hparams.dataset_args)):
+                #     row.append(pred[i][j].item())
+                #     row.append(batch.y[i][j].item())
+                #     row.append(batch.y[i][j].item() - pred[i][j].item())
+                #     if self.hparams.task_type == "class":
+                #         row.append(int(round(pred[i][j].item())))
 
-                self.preds_csv.append(row)
+                preds_dict = {
+                    "name": batch.name[i],
+                    "pred": pred[i].item(),
+                    "actual": batch.y[i].item(),
+                    "diff": batch.y[i].item() - pred[i].item(),
+                }
+                if self.hparams.task_type == "class":
+                    preds_dict["pred_class"] = int(round(pred[i].item()))
+                self.log_dict(preds_dict, sync_dist=True)
+
+                # self.preds_csv.append(row)
 
         # if torch.isnan(loss_y):
         #     print(f"Processing data: {batch.name}")
