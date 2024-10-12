@@ -238,8 +238,8 @@ class LNNP(LightningModule):
 
             # Log the gathered predictions on the main GPU (rank 0)
             if self.trainer.global_rank == 0:
-                for preds_dict in gathered_preds_list:
-                    print("this should be only printed once!")
+                print(len(gathered_preds_list))
+                # for preds_dict in gathered_preds_list:
 
                 # row = [batch.name[i]]
                 # for j in range(len(self.hparams.dataset_args)):
