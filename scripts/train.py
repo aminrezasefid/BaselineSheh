@@ -245,9 +245,18 @@ def main():
 
     trainer.fit(model, datamodule=data)
 
-    trainer.num_nodes = 1
-    trainer.num_devices = 1
-    trainer.test(datamodule=data, ckpt_path="best")
+    tester = pl.Trainer(
+        default_root_dir=args.log_dir,
+        max_epochs=1,
+        max_steps=1,
+        num_nodes=args.num_nodes,
+        accelerator=args.accelerator,
+        logger=False,
+        callbacks=[early_stopping, checkpoint_callback],
+        precision=args.precision,
+        strategy="ddp",  # not supported for mps, REMEMBER!
+    )
+    tester.test(datamodule=data, ckpt_path="best", model=model)
 
     print("Done!")
 
