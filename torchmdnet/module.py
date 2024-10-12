@@ -96,7 +96,7 @@ class LNNP(LightningModule):
         import csv
 
         all_preds_csv = self.all_gather(self.preds_csv)
-        all_preds_csv = torch.cat(all_preds_csv, dim=0)
+        all_preds_csv = torch.stack(all_preds_csv)
 
         header = ["smiles"]
         for target in self.hparams.dataset_args:
