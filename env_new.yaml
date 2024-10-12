@@ -225,3 +225,4 @@ dependencies:
   - pip:
       - ase==3.23.0
       - torcheval==0.0.7
+      - gdown==5.2.0

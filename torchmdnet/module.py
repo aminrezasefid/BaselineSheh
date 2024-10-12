@@ -221,15 +221,8 @@ class LNNP(LightningModule):
             train_metrics["batch_pos_mean"] = batch.pos.mean().item()
             self.log_dict(train_metrics, sync_dist=True)
         elif stage == "test":
+            preds_list = []
             for i in range(len(pred)):
-                # row = [batch.name[i]]
-                # for j in range(len(self.hparams.dataset_args)):
-                #     row.append(pred[i][j].item())
-                #     row.append(batch.y[i][j].item())
-                #     row.append(batch.y[i][j].item() - pred[i][j].item())
-                #     if self.hparams.task_type == "class":
-                #         row.append(int(round(pred[i][j].item())))
-
                 preds_dict = {
                     "name": batch.name[i],
                     "pred": pred[i].item(),
@@ -238,7 +231,23 @@ class LNNP(LightningModule):
                 }
                 if self.hparams.task_type == "class":
                     preds_dict["pred_class"] = int(round(pred[i].item()))
-                self.log_dict(preds_dict, sync_dist=True)
+                preds_list.append(preds_dict)
+
+            # Gather predictions from all GPUs
+            gathered_preds_list = self.all_gather(preds_list)
+
+            # Log the gathered predictions on the main GPU (rank 0)
+            if self.trainer.global_rank == 0:
+                for preds_dict in gathered_preds_list:
+                    print("this should be only printed once!")
+
+                # row = [batch.name[i]]
+                # for j in range(len(self.hparams.dataset_args)):
+                #     row.append(pred[i][j].item())
+                #     row.append(batch.y[i][j].item())
+                #     row.append(batch.y[i][j].item() - pred[i][j].item())
+                #     if self.hparams.task_type == "class":
+                #         row.append(int(round(pred[i][j].item())))
 
                 # self.preds_csv.append(row)
 
