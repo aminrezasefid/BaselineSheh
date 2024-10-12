@@ -250,7 +250,7 @@ def main():
         max_epochs=1,
         max_steps=1,
         num_nodes=1,
-        num_devices=1,
+        devices=1,
         accelerator=args.accelerator,
         logger=[tb_logger, csv_logger],
         callbacks=[early_stopping, checkpoint_callback],
