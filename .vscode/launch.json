@@ -12,11 +12,11 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-QM7-FT.yaml",
+        "examples/ET-MUV-FT.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",
-        "qm8-test",
+        "-test",
         "--num-epochs",
         "1",
         "--pretrained-model",
@@ -90,7 +90,7 @@
       "console": "integratedTerminal",
       "args": [
         "--conf",
-        "examples/ET-Bace-FT.yaml",
+        "examples/ET-MUV-FT.yaml",
         "--layernorm-on-vec",
         "whitened",
         "--job-id",
