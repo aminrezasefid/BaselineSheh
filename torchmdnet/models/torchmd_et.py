@@ -11,15 +11,20 @@ from torchmdnet.models.utils import (
     act_class_mapping,
 )
 from torch.nn.parameter import Parameter
+
+
 def nan_analys(t):
-    nan_indices=torch.argwhere(torch.isnan(t))
-    uniquerows=torch.unique(nan_indices[:,0])
-    return t.shape,nan_indices,len(nan_indices),uniquerows
+    nan_indices = torch.argwhere(torch.isnan(t))
+    uniquerows = torch.unique(nan_indices[:, 0])
+    return t.shape, nan_indices, len(nan_indices), uniquerows
+
 
 def inf_analys(t):
-    nan_indices=torch.argwhere(torch.isinf(t))
-    uniquerows=torch.unique(nan_indices[:,0])
-    return t.shape,nan_indices,len(nan_indices),uniquerows
+    nan_indices = torch.argwhere(torch.isinf(t))
+    uniquerows = torch.unique(nan_indices[:, 0])
+    return t.shape, nan_indices, len(nan_indices), uniquerows
+
+
 class TorchMD_ET(nn.Module):
     r"""The TorchMD equivariant Transformer architecture.
 
@@ -150,7 +155,7 @@ class TorchMD_ET(nn.Module):
                 self.out_norm_vec = EquivariantLayerNorm(hidden_channels)
             else:
                 raise ValueError(f"{self.layernorm_on_vec} not recognized.")
-            
+
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -185,23 +190,31 @@ class TorchMD_ET(nn.Module):
             dx, dvec = attn(x, vec, edge_index, edge_weight, edge_attr, edge_vec)
             x = x + dx
             vec = vec + dvec
-            
+
             if torch.isnan(x).any():
                 print("x inside repr")
                 print(*nan_analys(x))
+                print(batch)
+                print(pos)
             if torch.isinf(x).any():
                 print("x inside repr infinite")
                 print(*inf_analys(x))
-        x2=x.detach()
+                print(batch)
+                print(pos)
+        x2 = x.detach()
         x = self.out_norm(x)
         if torch.isinf(x).any():
-                print(x2.min(),x2.max())
-                print("x after outnorm repr infinite")
-                print(*inf_analys(x))
+            print(x2.min(), x2.max())
+            print("x after outnorm repr infinite")
+            print(*inf_analys(x))
+            print(batch)
+            print(pos)
         if torch.isnan(x).any():
-                print(x2.min(),x2.max())
-                print("x after outnorm repr")
-                print(*nan_analys(x))
+            print(x2.min(), x2.max())
+            print("x after outnorm repr")
+            print(*nan_analys(x))
+            print(batch)
+            print(pos)
         if self.layernorm_on_vec:
             vec = self.out_norm_vec(vec)
 
@@ -376,6 +389,7 @@ class EquivariantLayerNorm(nn.Module):
     r"""Rotationally-equivariant Vector Layer Normalization
     Expects inputs with shape (N, n, d), where N is batch size, n is vector dimension, d is width/number of vectors.
     """
+
     __constants__ = ["normalized_shape", "elementwise_linear"]
     normalized_shape: Tuple[int, ...]
     eps: float
@@ -400,7 +414,9 @@ class EquivariantLayerNorm(nn.Module):
                 torch.empty(self.normalized_shape, **factory_kwargs)
             )
         else:
-            self.register_parameter("weight", None) # Without bias term to preserve equivariance!
+            self.register_parameter(
+                "weight", None
+            )  # Without bias term to preserve equivariance!
 
         self.reset_parameters()
 
@@ -420,9 +436,7 @@ class EquivariantLayerNorm(nn.Module):
         Based on https://github.com/pytorch/pytorch/issues/25481
         """
         _, s, v = matrix.svd()
-        good = (
-            s > s.max(-1, True).values * s.size(-1) * torch.finfo(s.dtype).eps
-        )
+        good = s > s.max(-1, True).values * s.size(-1) * torch.finfo(s.dtype).eps
         components = good.sum(-1)
         common = components.max()
         unbalanced = common != components.min()
@@ -433,12 +447,10 @@ class EquivariantLayerNorm(nn.Module):
                 good = good[..., :common]
         if unbalanced:
             s = s.where(good, torch.zeros((), device=s.device, dtype=s.dtype))
-        return (v * 1 / torch.sqrt(s + self.eps).unsqueeze(-2)) @ v.transpose(
-            -2, -1
-        )
+        return (v * 1 / torch.sqrt(s + self.eps).unsqueeze(-2)) @ v.transpose(-2, -1)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        input = input.to(torch.float64) # Need double precision for accurate inversion.
+        input = input.to(torch.float64)  # Need double precision for accurate inversion.
         input = self.mean_center(input)
         # We use different diagonal elements in case input matrix is approximately zero,
         # in which case all singular values are equal which is problematic for backprop.
@@ -451,12 +463,11 @@ class EquivariantLayerNorm(nn.Module):
         )
         covar = self.covariance(input) + self.eps * reg_matrix
         covar_sqrtinv = self.symsqrtinv(covar)
-        return (covar_sqrtinv @ input).to(
-            self.weight.dtype
-        ) * self.weight.reshape(1, 1, self.normalized_shape[0])
+        return (covar_sqrtinv @ input).to(self.weight.dtype) * self.weight.reshape(
+            1, 1, self.normalized_shape[0]
+        )
 
     def extra_repr(self) -> str:
-        return (
-            "{normalized_shape}, "
-            "elementwise_linear={elementwise_linear}".format(**self.__dict__)
+        return "{normalized_shape}, " "elementwise_linear={elementwise_linear}".format(
+            **self.__dict__
         )
