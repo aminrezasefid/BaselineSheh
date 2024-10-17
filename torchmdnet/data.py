@@ -90,6 +90,9 @@ class DataModule(LightningDataModule):
         if self.hparams["denoising_only"] or self.hparams["testing_noisy"]:
             self.val_dataset = Subset(self.dataset_maybe_noisy, self.idx_val)
             self.test_dataset = Subset(self.dataset_maybe_noisy, self.idx_test)
+        elif len(self.idx_test) == 0:
+            self.val_dataset = self.train_dataset
+            self.test_dataset = self.train_dataset
         else:
             self.val_dataset = Subset(self.dataset, self.idx_val)
             self.test_dataset = Subset(self.dataset, self.idx_test)
