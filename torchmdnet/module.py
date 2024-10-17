@@ -73,8 +73,8 @@ class LNNP(LightningModule):
             raise ValueError(f"Unknown lr_schedule: {self.hparams.lr_schedule}")
         return [optimizer], [lr_scheduler]
 
-    def forward(self, z, pos, batch=None):
-        return self.model(z, pos, batch=batch)
+    def forward(self, z, pos, batch=None, names=None):
+        return self.model(z, pos, batch=batch, names=names)
 
     def training_step(self, batch):
         return self.step(
@@ -123,7 +123,7 @@ class LNNP(LightningModule):
 
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
-            pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch)
+            pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch, batch.name)
 
         denoising_is_on = (
             ("pos_target" in batch)
