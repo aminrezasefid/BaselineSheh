@@ -186,7 +186,7 @@ class LNNP(LightningModule):
             if self.hparams.task_type == "class":
                 target_not_minus_one = batch.y != -1
                 auc = binary_auroc(
-                    pred[target_not_minus_one], batch.y[target_not_minus_one]
+                    pred[target_not_minus_one].T, batch.y[target_not_minus_one].T
                 )
                 self.auc[stage].append(auc.detach())
 
