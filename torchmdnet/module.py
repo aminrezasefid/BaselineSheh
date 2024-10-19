@@ -185,11 +185,11 @@ class LNNP(LightningModule):
 
             if self.hparams.task_type == "class":
                 target_not_minus_one = batch.y != -1
-                preds_labels = [pred > 0.5 for pred in pred[target_not_minus_one]]
-                batch_labels = [y > 0.5 for y in batch.y[target_not_minus_one]]
+                preds_labels = [int(pred > 0.5) for pred in pred[target_not_minus_one]]
+                batch_labels = [int(y > 0.5) for y in batch.y[target_not_minus_one]]
                 if len(np.unique(batch_labels)) > 1:
                     auc = binary_auroc(
-                        torch.stack(preds_labels), torch.stack(batch_labels)
+                        torch.tensor(preds_labels), torch.tensor(batch_labels)
                     )
                     self.auc[stage].append(auc.detach())
 

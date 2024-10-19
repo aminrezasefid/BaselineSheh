@@ -236,7 +236,7 @@ def main():
         num_nodes=args.num_nodes,
         accelerator=args.accelerator,
         precision=args.precision,
-        # strategy="ddp",
+        strategy="ddp",
         callbacks=[early_stopping, checkpoint_callback],
         logger=[tb_logger, csv_logger],
     )
