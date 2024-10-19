@@ -83,7 +83,7 @@
       ]
     },
     {
-      "name": "bace debugger",
+      "name": "muv debugger",
       "type": "debugpy",
       "request": "launch",
       "program": "scripts/train.py",

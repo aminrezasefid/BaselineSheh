@@ -112,7 +112,7 @@ class LNNP(LightningModule):
         }
         print(f'Test loss: {result_dict["test_loss"]}')
 
-        if self.hparams.task_type == "class":
+        if self.hparams.task_type == "class" and len(self.auc["test"]) > 0:
             result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
             print(f'Test AUC: {result_dict["test_auc"]}')
             with open(
@@ -186,12 +186,12 @@ class LNNP(LightningModule):
             if self.hparams.task_type == "class":
                 target_not_minus_one = batch.y != -1
                 preds_labels = [pred > 0.5 for pred in pred[target_not_minus_one]]
-                batch_labels = [
-                    batch.y > 0.5 for batch in batch.y[target_not_minus_one]
-                ]
-                if preds_labels > 1:
-                    auc = binary_auroc(preds_labels, batch_labels)
-                self.auc[stage].append(auc.detach())
+                batch_labels = [y > 0.5 for y in batch.y[target_not_minus_one]]
+                if len(np.unique(batch_labels)) > 1:
+                    auc = binary_auroc(
+                        torch.stack(preds_labels), torch.stack(batch_labels)
+                    )
+                    self.auc[stage].append(auc.detach())
 
         if denoising_is_on:
             if "y" not in batch:
@@ -320,7 +320,7 @@ class LNNP(LightningModule):
                     self.losses["test_pos"]
                 ).mean()
 
-            if self.hparams.task_type == "class":
+            if self.hparams.task_type == "class" and len(self.auc["val"]) > 0:
                 result_dict["val_auc"] = torch.stack(self.auc["val"]).mean()
                 if len(self.auc["test"]) > 0:
                     result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
