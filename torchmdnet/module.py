@@ -185,9 +185,12 @@ class LNNP(LightningModule):
 
             if self.hparams.task_type == "class":
                 target_not_minus_one = batch.y != -1
-                auc = binary_auroc(
-                    pred[target_not_minus_one].T, batch.y[target_not_minus_one].T
-                )
+                preds_labels = [pred > 0.5 for pred in pred[target_not_minus_one]]
+                batch_labels = [
+                    batch.y > 0.5 for batch in batch.y[target_not_minus_one]
+                ]
+                if preds_labels > 1:
+                    auc = binary_auroc(preds_labels, batch_labels)
                 self.auc[stage].append(auc.detach())
 
         if denoising_is_on:
@@ -229,7 +232,7 @@ class LNNP(LightningModule):
                     row.append(batch.y[i][j].item())
                     row.append(batch.y[i][j].item() - pred[i][j].item())
                     if self.hparams.task_type == "class":
-                        row.append(int(round(pred[i][j].item())))
+                        row.append(pred[i][j].item() > 0.5)
 
                 preds_csv.append(row)
 
