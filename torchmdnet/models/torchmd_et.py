@@ -171,8 +171,8 @@ class TorchMD_ET(nn.Module):
         if self.layernorm_on_vec:
             self.out_norm_vec.reset_parameters()
 
-    def forward(self, z, pos, batch, names):
-        names = np.array(names)
+    def forward(self, z, pos, batch):
+        # names = np.array(names)
         x = self.embedding(z)
 
         edge_index, edge_weight, edge_vec = self.distance(pos, batch)
