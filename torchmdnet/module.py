@@ -3,7 +3,9 @@ import numpy as np
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
 from torch.nn.functional import mse_loss, l1_loss, cross_entropy, binary_cross_entropy
-from torcheval.metrics.functional import binary_auroc
+
+# from torcheval.metrics.functional import binary_auroc
+from sklearn.metrics import roc_auc_score
 from torchmetrics.classification import BinaryAUROC
 from torch.nn import functional
 
@@ -136,13 +138,7 @@ class LNNP(LightningModule):
             if "y" not in batch:
                 deriv = deriv + pred.sum() * 0
 
-            if self.hparams.task_type == "class":
-                target_not_minus_one = batch.dy != -1
-                loss_dy = loss_fn(
-                    deriv[target_not_minus_one], batch.dy[target_not_minus_one]
-                )
-            else:
-                loss_dy = loss_fn(deriv, batch.dy)
+            loss_dy = loss_fn(deriv, batch.dy)
 
             if stage in ["train", "val"] and self.hparams.ema_alpha_dy < 1:
                 if self.ema[stage + "_dy"] is None:
@@ -184,14 +180,45 @@ class LNNP(LightningModule):
                 self.losses[stage + "_y"].append(loss_y.detach())
 
             if self.hparams.task_type == "class":
-                target_not_minus_one = batch.y != -1
-                preds_labels = [int(pred > 0.5) for pred in pred[target_not_minus_one]]
-                batch_labels = [int(y > 0.5) for y in batch.y[target_not_minus_one]]
-                if len(np.unique(batch_labels)) > 1:
-                    auc = binary_auroc(
-                        torch.tensor(preds_labels), torch.tensor(batch_labels)
-                    )
-                    self.auc[stage].append(auc.detach())
+                for label in range(batch.y.shape[1]):
+                    c_valid = batch.y[:, label] != -1
+                    c_label, c_pred = batch.y[c_valid, label], pred[c_valid, label]
+                    c_label = c_label.detach().cpu().numpy()
+                    c_pred = c_pred.detach().cpu().numpy()
+                    if len(np.unique(c_label)) > 1:
+                        auc = roc_auc_score(c_label, c_pred)
+                        self.auc[stage].append(auc)
+
+                # target_not_minus_one = batch.y != -1
+                # preds_labels_class = pred[target_not_minus_one]>0.5
+                # preds_labels = [pred > 0.5 for pred in pred[target_not_minus_one]]
+                # batch_labels = [y > 0.5 for y in batch.y[target_not_minus_one]]
+                # if len(np.unique(batch_labels)) > 1:
+                #     auc = binary_auroc(
+                #         torch.tensor(preds_labels), torch.tensor(batch_labels)
+                #     )
+                #     self.auc[stage].append(auc.detach())
+
+            # def calc_rocauc_score(labels, preds, valid):
+            #     """compute ROC-AUC and averaged across tasks"""
+            #     if labels.ndim == 1:
+            #         labels = labels.reshape(-1, 1)
+            #         preds = preds.reshape(-1, 1)
+
+            #     rocauc_list = []
+            #     for i in range(labels.shape[1]):
+            #         c_valid = valid[:, i].astype("bool")
+            #         c_label, c_pred = labels[c_valid, i], preds[c_valid, i]
+            #         #AUC is only defined when there is at least one positive data.
+            #         if len(np.unique(c_label)) == 2:
+            #             rocauc_list.append(roc_auc_score(c_label, c_pred))
+
+            #     print('Valid ratio: %s' % (np.mean(valid)))
+            #     print('Task evaluated: %s/%s' % (len(rocauc_list), labels.shape[1]))
+            #     if len(rocauc_list) == 0:
+            #         raise RuntimeError("No positively labeled data available. Cannot compute ROC-AUC.")
+
+            #     return sum(rocauc_list)/len(rocauc_list)
 
         if denoising_is_on:
             if "y" not in batch:

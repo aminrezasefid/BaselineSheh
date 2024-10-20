@@ -106,6 +106,33 @@
         "--train-loss",
         "binary_cross_entropy"
       ]
+    },
+    {
+      "name": "toxcast debugger",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "scripts/train.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--conf",
+        "examples/ET-TOXCAST-FT.yaml",
+        "--layernorm-on-vec",
+        "whitened",
+        "--job-id",
+        "bace-test",
+        "--num-epochs",
+        "1",
+        "--pretrained-model",
+        "checkpoints/denoised-pcqm4mv2.ckpt",
+        "--accelerator",
+        "cpu",
+        "--val-test-loss-fn",
+        "binary_cross_entropy",
+        "--train-loss",
+        "binary_cross_entropy",
+        "--num-workers",
+        "1"
+      ]
     }
   ]
 }

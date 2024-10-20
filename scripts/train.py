@@ -229,6 +229,8 @@ def main():
     #     tags=[args.dataset]
     # )
 
+    strategy = "auto" if args.accelerator == "cpu" else "ddp"
+
     trainer = pl.Trainer(
         default_root_dir=args.log_dir,
         max_epochs=args.num_epochs,
@@ -236,7 +238,7 @@ def main():
         num_nodes=args.num_nodes,
         accelerator=args.accelerator,
         precision=args.precision,
-        strategy="ddp",
+        strategy=strategy,
         callbacks=[early_stopping, checkpoint_callback],
         logger=[tb_logger, csv_logger],
     )
