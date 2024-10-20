@@ -348,9 +348,9 @@ class LNNP(LightningModule):
                 ).mean()
 
             if self.hparams.task_type == "class" and len(self.auc["val"]) > 0:
-                result_dict["val_auc"] = torch.stack(self.auc["val"]).mean()
+                result_dict["val_auc"] = np.array(self.auc["val"]).mean()
                 if len(self.auc["test"]) > 0:
-                    result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
+                    result_dict["test_auc"] = np.array(self.auc["test"]).mean()
 
             self.log_dict(result_dict, sync_dist=True)
         self._reset_losses_dict()
