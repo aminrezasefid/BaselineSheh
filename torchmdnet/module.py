@@ -75,8 +75,8 @@ class LNNP(LightningModule):
             raise ValueError(f"Unknown lr_schedule: {self.hparams.lr_schedule}")
         return [optimizer], [lr_scheduler]
 
-    def forward(self, z, pos, batch=None, names=None):
-        return self.model(z, pos, batch=batch, names=names)
+    def forward(self, z, pos, batch=None):
+        return self.model(z, pos, batch=batch)
 
     def training_step(self, batch):
         return self.step(
@@ -115,7 +115,7 @@ class LNNP(LightningModule):
         print(f'Test loss: {result_dict["test_loss"]}')
 
         if self.hparams.task_type == "class" and len(self.auc["test"]) > 0:
-            result_dict["test_auc"] = torch.stack(self.auc["test"]).mean()
+            result_dict["test_auc"] = np.array(self.auc["test"]).mean()
             print(f'Test AUC: {result_dict["test_auc"]}')
             with open(
                 self.hparams.log_dir + "/test_result.txt", "w", newline=""
@@ -125,7 +125,7 @@ class LNNP(LightningModule):
 
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
-            pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch, batch.name)
+            pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch)
 
         denoising_is_on = (
             ("pos_target" in batch)
@@ -188,37 +188,6 @@ class LNNP(LightningModule):
                     if len(np.unique(c_label)) > 1:
                         auc = roc_auc_score(c_label, c_pred)
                         self.auc[stage].append(auc)
-
-                # target_not_minus_one = batch.y != -1
-                # preds_labels_class = pred[target_not_minus_one]>0.5
-                # preds_labels = [pred > 0.5 for pred in pred[target_not_minus_one]]
-                # batch_labels = [y > 0.5 for y in batch.y[target_not_minus_one]]
-                # if len(np.unique(batch_labels)) > 1:
-                #     auc = binary_auroc(
-                #         torch.tensor(preds_labels), torch.tensor(batch_labels)
-                #     )
-                #     self.auc[stage].append(auc.detach())
-
-            # def calc_rocauc_score(labels, preds, valid):
-            #     """compute ROC-AUC and averaged across tasks"""
-            #     if labels.ndim == 1:
-            #         labels = labels.reshape(-1, 1)
-            #         preds = preds.reshape(-1, 1)
-
-            #     rocauc_list = []
-            #     for i in range(labels.shape[1]):
-            #         c_valid = valid[:, i].astype("bool")
-            #         c_label, c_pred = labels[c_valid, i], preds[c_valid, i]
-            #         #AUC is only defined when there is at least one positive data.
-            #         if len(np.unique(c_label)) == 2:
-            #             rocauc_list.append(roc_auc_score(c_label, c_pred))
-
-            #     print('Valid ratio: %s' % (np.mean(valid)))
-            #     print('Task evaluated: %s/%s' % (len(rocauc_list), labels.shape[1]))
-            #     if len(rocauc_list) == 0:
-            #         raise RuntimeError("No positively labeled data available. Cannot compute ROC-AUC.")
-
-            #     return sum(rocauc_list)/len(rocauc_list)
 
         if denoising_is_on:
             if "y" not in batch:

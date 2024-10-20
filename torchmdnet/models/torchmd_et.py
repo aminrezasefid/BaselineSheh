@@ -1,6 +1,7 @@
 from typing import Optional, Tuple
 import torch
-import numpy as np
+
+# import numpy as np
 from torch import nn
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import scatter
@@ -14,16 +15,16 @@ from torchmdnet.models.utils import (
 from torch.nn.parameter import Parameter
 
 
-def nan_analys(t, batch, names):
+def nan_analys(t):
     nan_indices = torch.argwhere(torch.isnan(t))
     uniquerows = torch.unique(nan_indices[:, 0])
-    return t.shape, nan_indices, len(nan_indices), uniquerows, names[batch[uniquerows]]
+    return t.shape, nan_indices, len(nan_indices), uniquerows
 
 
-def inf_analys(t, batch, names):
+def inf_analys(t):
     nan_indices = torch.argwhere(torch.isinf(t))
     uniquerows = torch.unique(nan_indices[:, 0])
-    return t.shape, nan_indices, len(nan_indices), uniquerows, names[batch[uniquerows]]
+    return t.shape, nan_indices, len(nan_indices), uniquerows
 
 
 class TorchMD_ET(nn.Module):
@@ -195,20 +196,20 @@ class TorchMD_ET(nn.Module):
 
             if torch.isnan(x).any():
                 print("x inside repr")
-                print(*nan_analys(x, batch, names))
+                print(*nan_analys(x))
             if torch.isinf(x).any():
                 print("x inside repr infinite")
-                print(*inf_analys(x, batch, names))
+                print(*inf_analys(x))
         x2 = x.detach()
         x = self.out_norm(x)
         if torch.isinf(x).any():
             print(x2.min(), x2.max())
             print("x after outnorm repr infinite")
-            print(*inf_analys(x, batch, names))
+            print(*inf_analys(x))
         if torch.isnan(x).any():
             print(x2.min(), x2.max())
             print("x after outnorm repr")
-            print(*nan_analys(x, batch, names))
+            print(*nan_analys(x))
         if self.layernorm_on_vec:
             vec = self.out_norm_vec(vec)
 
