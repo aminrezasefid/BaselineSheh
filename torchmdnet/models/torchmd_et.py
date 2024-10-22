@@ -151,6 +151,7 @@ class TorchMD_ET(nn.Module):
             self.attention_layers.append(layer)
 
         self.out_norm = nn.LayerNorm(hidden_channels)
+        self.x_norm = nn.LayerNorm(hidden_channels)
         if self.layernorm_on_vec:
             if self.layernorm_on_vec == "whitened":
                 self.out_norm_vec = EquivariantLayerNorm(hidden_channels)
@@ -190,6 +191,7 @@ class TorchMD_ET(nn.Module):
 
         for attn in self.attention_layers:
             dx, dvec = attn(x, vec, edge_index, edge_weight, edge_attr, edge_vec)
+            dx = self.x_norm(dx)
             x = x + dx
             vec = vec + dvec
 
@@ -199,11 +201,13 @@ class TorchMD_ET(nn.Module):
             if torch.isinf(x).any():
                 print("x inside repr infinite")
                 print(*inf_analys(x, batch, names))
+            # print(f"x min, max: {dx.min(dim=1)}, {dx.max(dim=1)}")
+            # print(f"vec min, max: {dvec.min(dim=1)}, {dvec.max(dim=1)}")
         x2 = x.detach()
-        print(x2.min(), x2.max())
+        print(f"x2 min, max: {x2.min()}, {x2.max()}")
         x = self.out_norm(x)
         if torch.isinf(x).any():
-            # print(x2.min(), x2.max())
+            print(x2.min(), x2.max())
             print("x after outnorm repr infinite")
             print(*inf_analys(x, batch, names))
         if torch.isnan(x).any():
