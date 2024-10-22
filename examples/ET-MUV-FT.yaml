@@ -53,10 +53,10 @@ save_interval: 10
 splits: null
 standardize: false
 test_interval: 1 #10
-test_size: 0.1
-train_size: 0.8 #110000
+test_size: 0
+train_size: 1 #110000
 trainable_rbf: false
-val_size: 0.1 #10000
+val_size: 0 #10000
 weight_decay: 0.0
 output_model_noise: VectorOutput
 position_noise_scale: 0.005
