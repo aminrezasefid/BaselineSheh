@@ -200,8 +200,8 @@ class MUV(InMemoryDataset):  ###### CHANGE ######
 
         data_list = []
         for i, mol in enumerate(tqdm(suppl)):
-            # if mol.GetProp("_Name") != "CCOC(=O)CC12CN3CN(C1)CC(CC(=O)OCC)(C3)C2=O":
-            # continue
+            if mol.GetProp("_Name") != "CCOC(=O)CC12CN3CN(C1)CC(CC(=O)OCC)(C3)C2=O":
+                continue
             N = mol.GetNumAtoms()
             # print(i)
 

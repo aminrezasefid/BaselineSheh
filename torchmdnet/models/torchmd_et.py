@@ -200,13 +200,14 @@ class TorchMD_ET(nn.Module):
                 print("x inside repr infinite")
                 print(*inf_analys(x, batch, names))
         x2 = x.detach()
+        print(x2.min(), x2.max())
         x = self.out_norm(x)
         if torch.isinf(x).any():
-            print(x2.min(), x2.max())
+            # print(x2.min(), x2.max())
             print("x after outnorm repr infinite")
             print(*inf_analys(x, batch, names))
         if torch.isnan(x).any():
-            print(x2.min(), x2.max())
+            # print(x2.min(), x2.max())
             print("x after outnorm repr")
             print(*nan_analys(x, batch, names))
         if self.layernorm_on_vec:
