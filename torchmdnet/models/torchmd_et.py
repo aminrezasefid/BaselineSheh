@@ -152,6 +152,7 @@ class TorchMD_ET(nn.Module):
             self.attention_layers.append(layer)
 
         self.out_norm = nn.LayerNorm(hidden_channels)
+        self.x_norm = nn.LayerNorm(hidden_channels)
         if self.layernorm_on_vec:
             if self.layernorm_on_vec == "whitened":
                 self.out_norm_vec = EquivariantLayerNorm(hidden_channels)
@@ -191,6 +192,7 @@ class TorchMD_ET(nn.Module):
 
         for attn in self.attention_layers:
             dx, dvec = attn(x, vec, edge_index, edge_weight, edge_attr, edge_vec)
+            dx = self.x_norm(dx)
             x = x + dx
             vec = vec + dvec
 
