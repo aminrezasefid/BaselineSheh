@@ -4,7 +4,7 @@ atom_filter: -1
 attn_activation: silu
 batch_size: 16 #128
 coord_files: null
-cutoff_lower: 0.5
+cutoff_lower: 0.1
 cutoff_upper: 5.0
 dataset: HIV
 dataset_root: data/hiv
@@ -68,4 +68,4 @@ job_id: auto
 out_channels: 1
 strict_load: false
 task_type: class
-dataset_args : ['HIV_active']
+dataset_args: ["HIV_active"]
