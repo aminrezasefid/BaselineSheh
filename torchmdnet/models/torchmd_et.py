@@ -152,7 +152,6 @@ class TorchMD_ET(nn.Module):
             self.attention_layers.append(layer)
 
         self.out_norm = nn.LayerNorm(hidden_channels)
-        self.x_norm = nn.LayerNorm(hidden_channels)
         if self.layernorm_on_vec:
             if self.layernorm_on_vec == "whitened":
                 self.out_norm_vec = EquivariantLayerNorm(hidden_channels)
@@ -192,7 +191,6 @@ class TorchMD_ET(nn.Module):
 
         for attn in self.attention_layers:
             dx, dvec = attn(x, vec, edge_index, edge_weight, edge_attr, edge_vec)
-            dx = self.x_norm(dx)
             x = x + dx
             vec = vec + dvec
 
@@ -260,6 +258,7 @@ class EquivariantMultiHeadAttention(MessagePassing):
         self.head_dim = hidden_channels // num_heads
 
         self.layernorm = nn.LayerNorm(hidden_channels)
+        self.dx_layernorm = nn.LayerNorm(hidden_channels)
         self.act = activation()
         self.attn_activation = act_class_mapping[attn_activation]()
         self.cutoff = CosineCutoff(cutoff_lower, cutoff_upper)
@@ -338,6 +337,7 @@ class EquivariantMultiHeadAttention(MessagePassing):
 
         o1, o2, o3 = torch.split(self.o_proj(x), self.hidden_channels, dim=1)
         dx = vec_dot * o2 + o3
+        dx = self.dx_layernorm(dx)
         dvec = vec3 * o1.unsqueeze(1) + vec
         return dx, dvec
 
