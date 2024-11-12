@@ -228,7 +228,7 @@ class HIV(InMemoryDataset):
         data_list = []
         for i, mol in enumerate(tqdm(suppl)):
             if (
-                mol.GetProp("_Name")
+                Chem.MolToSmiles(mol, isomericSmiles=False)
                 != "[H]OC1(C([H])([H])[H])C([H])=C([H])C2(Br)OC3([H])C([H])([H])C(C([H])([H])[H])=C(Br)C([H])([H])C31C2(C([H])([H])[H])C([H])([H])[H].[H]OC1(C([H])([H])[H])C([H])=C([H])C2(Br)OC3([H])C([H])([H])C(C([H])([H])[H])=C([H])C([H])([H])C31C2(C([H])([H])[H])C([H])([H])[H].[H]OC1(C([H])([H])[H])C([H])=C([H])C2(Br)OC3([H])C([H])([H])C(C([H])([H])[H])=C([H])C([H])([H])C31C2(C([H])([H])[H])C([H])([H])[H]"
             ):
                 continue
