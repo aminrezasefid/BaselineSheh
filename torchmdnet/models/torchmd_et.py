@@ -1,6 +1,7 @@
 from typing import Optional, Tuple
 import torch
-import numpy as np
+
+# import numpy as np
 from torch import nn
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import scatter
@@ -172,7 +173,7 @@ class TorchMD_ET(nn.Module):
             self.out_norm_vec.reset_parameters()
 
     def forward(self, z, pos, batch, names):
-        names = np.array(names)
+        # names = np.array(names)
         x = self.embedding(z)
 
         edge_index, edge_weight, edge_vec = self.distance(pos, batch)
@@ -262,6 +263,7 @@ class EquivariantMultiHeadAttention(MessagePassing):
         self.head_dim = hidden_channels // num_heads
 
         self.layernorm = nn.LayerNorm(hidden_channels)
+        self.dx_layernorm = nn.LayerNorm(hidden_channels)
         self.act = activation()
         self.attn_activation = act_class_mapping[attn_activation]()
         self.cutoff = CosineCutoff(cutoff_lower, cutoff_upper)
@@ -340,6 +342,7 @@ class EquivariantMultiHeadAttention(MessagePassing):
 
         o1, o2, o3 = torch.split(self.o_proj(x), self.hidden_channels, dim=1)
         dx = vec_dot * o2 + o3
+        dx = self.dx_layernorm(dx)
         dvec = vec3 * o1.unsqueeze(1) + vec
         return dx, dvec
 

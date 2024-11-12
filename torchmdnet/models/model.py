@@ -208,7 +208,7 @@ class TorchMD_Net(nn.Module):
         if self.prior_model is not None:
             self.prior_model.reset_parameters()
 
-    def forward(self, z, pos, batch: Optional[torch.Tensor] = None, names=None):
+    def forward(self, z, pos, batch: Optional[torch.Tensor] = None):
         assert z.dim() == 1 and z.dtype == torch.long
         batch = torch.zeros_like(z) if batch is None else batch
 
@@ -216,9 +216,7 @@ class TorchMD_Net(nn.Module):
             pos.requires_grad_(True)
 
         # run the potentially wrapped representation model
-        x, v, z, pos, batch = self.representation_model(
-            z, pos, batch=batch, names=names
-        )
+        x, v, z, pos, batch = self.representation_model(z, pos, batch=batch)
         # if torch.isnan(x).any():
         #     print("x rep model")
         #     print(*nan_analys(x))

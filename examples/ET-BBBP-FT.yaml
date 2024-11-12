@@ -4,10 +4,10 @@ atom_filter: -1
 attn_activation: silu
 batch_size: 16 #128
 coord_files: null
-cutoff_lower: 0.01
+cutoff_lower: 0.1
 cutoff_upper: 5.0
-dataset: BBBP                     ###### CHANGE ######
-dataset_root: data/bbbp          ###### CHANGE ######
+dataset: BBBP ###### CHANGE ######
+dataset_root: data/bbbp ###### CHANGE ######
 derivative: false
 distance_influence: both
 distributed_backend: ddp
@@ -68,4 +68,4 @@ job_id: auto
 out_channels: 1
 strict_load: false
 task_type: class ###### CHANGE ######
-dataset_args : ['p_np']
+dataset_args: ["p_np"]
