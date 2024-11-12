@@ -6,12 +6,7 @@ from typing import Callable, List, Optional, Dict
 
 import torch
 from torch import Tensor
-from torch_geometric.data import (
-    Data,
-    InMemoryDataset,
-    download_url,
-    extract_zip,
-)
+from torch_geometric.data import Data, InMemoryDataset, download_url, extract_tar
 from torch_geometric.transforms import Compose
 from torch_geometric.utils import one_hot, scatter
 from tqdm import tqdm
@@ -120,7 +115,7 @@ class HIV(InMemoryDataset):
             # import gdown
             file_path = gdown_download_url(self.raw_url.split("id=")[1], self.raw_dir)
             # gdown.download(self.raw_url, output=file_path, quiet=False)
-            extract_zip(file_path, self.raw_dir)
+            extract_tar(file_path, self.raw_dir)
             os.unlink(file_path)
 
         except ImportError:
