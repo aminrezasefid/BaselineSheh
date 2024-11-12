@@ -160,7 +160,9 @@
         "--train-loss",
         "binary_cross_entropy",
         "--num-workers",
-        "1"
+        "1",
+        "--structure",
+        "optimized3d"
       ]
     }
   ]

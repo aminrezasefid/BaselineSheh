@@ -125,7 +125,7 @@ class LNNP(LightningModule):
 
     def step(self, batch, loss_fn, stage):
         with torch.set_grad_enabled(stage == "train" or self.hparams.derivative):
-            pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch, batch.names)
+            pred, noise_pred, deriv = self(batch.z, batch.pos, batch.batch, batch.name)
 
         denoising_is_on = (
             ("pos_target" in batch)
