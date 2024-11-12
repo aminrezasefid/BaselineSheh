@@ -30,7 +30,7 @@ import gdown
 
 URLS = {
     "precise3d": "https://drive.google.com/uc?export=download&id=1ds24awf65cfP0_AYBUiVQ_WM5QsngjZB",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=17LlB17yrLwbGjYxN3HqmKJrr0r6pSbSJ",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=10C1DX_PROfDrLSkTzmMC2CsVv9cORVMC",
     "rdkit3d": "https://drive.google.com/uc?export=download&id=1-zYsiXHxj958s0-EMHUQ19ru36fGjxP-",
     "rdkit2d": "https://drive.google.com/uc?export=download&id=1CQHysGKSmBJyqNxGnt9aozrAsOADZKkj",
 }
