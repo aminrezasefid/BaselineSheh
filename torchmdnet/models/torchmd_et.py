@@ -175,7 +175,7 @@ class TorchMD_ET(nn.Module):
     def forward(self, z, pos, batch, names):
         # names = np.array(names)
         x = self.embedding(z)
-
+        print(x)
         edge_index, edge_weight, edge_vec = self.distance(pos, batch)
         assert (
             edge_vec is not None
