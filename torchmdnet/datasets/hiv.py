@@ -29,10 +29,10 @@ def makedirs(path):
 import gdown
 
 URLS = {
-    "precise3d": "https://drive.google.com/uc?export=download&id=1ds24awf65cfP0_AYBUiVQ_WM5QsngjZB",
-    "optimized3d": "https://drive.google.com/uc?export=download&id=17LlB17yrLwbGjYxN3HqmKJrr0r6pSbSJ",
-    "rdkit3d": "https://drive.google.com/uc?export=download&id=1-zYsiXHxj958s0-EMHUQ19ru36fGjxP-",
-    "rdkit2d": "https://drive.google.com/uc?export=download&id=1CQHysGKSmBJyqNxGnt9aozrAsOADZKkj",
+    "precise3d": "https://drive.google.com/uc?export=download&id=10EhWyunmtmqCrpPcKWsDnEILRVosH4Fs",
+    "optimized3d": "https://drive.google.com/uc?export=download&id=10C1DX_PROfDrLSkTzmMC2CsVv9cORVMC",
+    "rdkit3d": "https://drive.google.com/uc?export=download&id=10GUig9mrmVBcyjhL1MNMUuCB3Jar2wtp",
+    "rdkit2d": "https://drive.google.com/uc?export=download&id=10VbCWVAd6e7jmEe3Dly7q86AstA4b5Tm",
 }
 
 hiv_target_dict = {"HIV_active": 0}
